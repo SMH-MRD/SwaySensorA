@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<!-- saved from url=(0059)https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita</title><meta content="width=device-width,initial-scale=1,shrink-to-fit=no" name="viewport"><meta content="#55c500" name="theme-color"><meta content="XWpkTG32-_C4joZoJ_UsmDUi-zaH-hcrjF6ZC_FoFbk" name="google-site-verification"><link href="https://qiita.com/manifest.json" rel="manifest"><link href="https://qiita.com/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml"><meta name="csrf-param" content="authenticity_token">
+<meta name="csrf-token" content="NOXlsx6HLiPn1dWb6SFHQXz9rOD8DHo171Oo8EkifnWfX7EB7l/TeJwpPREkwmBqSdVBkQnicQoyEbYnFmgCPA=="><link rel="shortcut icon" type="image/x-icon" href="https://cdn.qiita.com/assets/favicons/public/production-c620d3e403342b1022967ba5e3db1aaa.ico"><link rel="apple-touch-icon" type="image/png" href="https://cdn.qiita.com/assets/favicons/public/apple-touch-icon-ec5ba42a24ae923f16825592efdc356f.png"><link rel="stylesheet" media="all" href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/style-9fe1323d0e7953e6fb381ddff8a1029f.min.css"><script type="text/javascript" charset="UTF-8" async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/lift.json"></script><script async="" charset="utf-8" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/pixel"></script><script async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/saved_resource"></script><script async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/lt.js.ダウンロード"></script><script charset="utf-8" async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/pixel2.js.ダウンロード"></script><script async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/saved_resource(1)"></script><script async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/pixel.js.ダウンロード"></script><script type="text/javascript" async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/segmentation.js.ダウンロード"></script><script type="text/javascript" async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/segmentation.js.ダウンロード"></script><script async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/uwt.js.ダウンロード"></script><script type="text/javascript" async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f.txt"></script><script type="text/javascript" async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f.txt"></script><script type="text/javascript" async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f.txt"></script><script type="text/javascript" async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f.txt"></script><script async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/gtm.js.ダウンロード"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/amp4ads-host-v0.js.ダウンロード"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/pubads_impl_rendering_2020030501.js.ダウンロード"></script><script type="text/javascript" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/combo" async=""></script><script async="">window.a1tracker&&a1tracker.ready(function(tracker){var doh="ff9a3577423c8ed5";if(!doh)return;var params={"event":"","url":"","referrer":"","metakeywords":"","callback":""};if(params.url)tracker.setParams(doh,"url",params.url);if(params.referrer)tracker.setParams(doh,"referrer",params.referrer);if(params.metakeywords){var mk=tracker.getParams(doh,"metakeywords");Array.prototype.push.apply(mk,params.metakeywords.split(","));tracker.setParams(doh,"metakeywords",mk)}tracker.setParams(doh,"tagsource","itm_a1common");var callback=params.callback&&typeof window[params.callback]==="function"?function(err,data){if(!err&&data.segments.length>0)window[params.callback](data.segments);return}:function(){};if(params.event)tracker.send(doh,params.event.split(","),callback);else tracker.send(doh,callback)});</script><script async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tracking.min.js.ダウンロード"></script><script type="text/javascript" async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/analytics.js.ダウンロード"></script><script type="text/javascript" async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f.txt"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/1469129556533591" async=""></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/2040876882868599" async=""></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/1733466696949178" async=""></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/386990638325508" async=""></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/256605841418458" async=""></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/262978464137256" async=""></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/437265843064161" async=""></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/954575148009345" async=""></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/996402550503199" async=""></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/809797712462041" async=""></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/1792588824374455" async=""></script><script async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/fbevents.js.ダウンロード"></script><script async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/ff9a3577423c8ed5_4330.js.ダウンロード"></script><script type="text/javascript" async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/td.min.js.ダウンロード"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/v3-article-bundle-42af4069362ec869ea5e3c1ea9adfa50.min.js.ダウンロード" defer="defer"></script><meta name="twitter:card" content="summary_large_image"><meta content="@Qiita" name="twitter:site"><meta content="@sanishi_pompom" name="twitter:creator"><meta property="og:type" content="article"><meta property="og:title" content="OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita"><meta property="og:image" content="https://qiita-user-contents.imgix.net/https%3A%2F%2Fcdn.qiita.com%2Fassets%2Fpublic%2Fogp-background-1150d8b18a7c15795b701a55ae908f94.png?ixlib=rb-1.2.2&amp;w=1200&amp;mark=https%3A%2F%2Fqiita-user-contents.imgix.net%2F~text%3Fixlib%3Drb-1.2.2%26w%3D840%26h%3D380%26txt%3DOpenCV4.1.0%25E3%2582%2592CMake%25E3%2582%2592%25E4%25BD%25BF%25E3%2581%25A3%25E3%2581%25A6%25E5%25B0%258E%25E5%2585%25A5%25E3%2581%2599%25E3%2582%258B%25E6%2596%25B9%25E6%25B3%2595%2528Visual%2520Studio%25202019%2529%26txt-color%3D%2523333%26txt-font%3DAvenir-Black%26txt-size%3D54%26txt-clip%3Dellipsis%26txt-align%3Dcenter%252Cmiddle%26s%3D1f7bad2821232cbb58d8d2d9fb19f9df&amp;mark-align=center%2Cmiddle&amp;blend=https%3A%2F%2Fqiita-user-contents.imgix.net%2F~text%3Fixlib%3Drb-1.2.2%26w%3D840%26h%3D500%26txt%3D%2540sanishi_pompom%26txt-color%3D%2523333%26txt-font%3DAvenir-Black%26txt-size%3D45%26txt-align%3Dright%252Cbottom%26s%3D81304d783b4180e5f019e10dfcaef3b9&amp;blend-align=center%2Cmiddle&amp;blend-mode=normal&amp;s=38eb6bbe7f8e660d5167e48ba256d057"><meta property="og:description" content="#概要
+OpenCVをCMakeを使用してインストールする方法をまとめました。
+この手順を理解しておくとWindowsでのあらゆる環境構築が怖くなくなります。(たぶん)
+#実行環境
+- Windows10
+- [Visual Stud..."><meta content="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1" property="og:url"><meta content="Qiita" property="og:site_name"><meta content="564524038" property="fb:admins"><meta content="C++,CMake,画像処理,OpenCV,VisualStudio" name="keywords"><style data-styled="active" data-styled-version="5.0.1"></style><script>window.frtn=window.frtn||function(){ (frtn.q=frtn.q||[]).push(arguments) };
+frtn("init",{
+service_id:"cova_248",
+site_id:"site_134",
+tag_id:"tag_283"
+});
+frtn("send","pageview");</script><script defer="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/insight.js.ダウンロード" type="text/javascript"></script><script>!function(t,e){if(void 0===e[t]){e[t]=function(){e[t].clients.push(this),this._init=[Array.prototype.slice.call(arguments)]},e[t].clients=[];for(var r=function(t){return function(){return this["_"+t]=this["_"+t]||[],this["_"+t].push(Array.prototype.slice.call(arguments)),this}},s=["blockEvents","unblockEvents","setSignedMode","setAnonymousMode","resetUUID","addRecord","fetchGlobalID","set","trackEvent","trackPageview","trackClicks","ready"],n=0;n<s.length;n++){var c=s[n];e[t].prototype[c]=r(c)}var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=("https:"===document.location.protocol?"https:":"http:")+"//cdn.treasuredata.com/sdk/2.1/td.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)}}("Treasure",this);
+
+// Configure an instance for your database
+var td = new Treasure({
+  host: 'in.treasuredata.com',
+  writeKey: '10614/f5a4453704ad12facc47fe5281fd57526a6119e9',
+  database: 'qiita_public',
+  startInSignedMode: true
+});
+
+// Enable cross-domain tracking
+td.set('$global', 'td_global_id', 'td_global_id');
+// Track pageview information to 'pageviews' table
+td.set('pageviews_all', {"query_parameters":{},"path_parameters":{"controller":"public/items","action":"show","user_id":"sanishi_pompom","type":"items","id":"02b158dfad3a5dafd0a1"},"user_id":550355})
+td.trackPageview('pageviews_all');</script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/js"></script><style data-jss="" data-meta="MuiTooltip">
+.MuiTooltip-popper {
+  flip: false;
+  z-index: 1500;
+  pointer-events: none;
+}
+.MuiTooltip-popperInteractive {
+  pointer-events: auto;
+}
+.MuiTooltip-popperArrow[x-placement*="bottom"] .MuiTooltip-arrow {
+  top: 0;
+  flip: false;
+  left: 0;
+  width: 2em;
+  height: 1em;
+  margin-top: -0.95em;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+.MuiTooltip-popperArrow[x-placement*="top"] .MuiTooltip-arrow {
+  flip: false;
+  left: 0;
+  width: 2em;
+  bottom: 0;
+  height: 1em;
+  margin-left: 4px;
+  margin-right: 4px;
+  margin-bottom: -0.95em;
+}
+.MuiTooltip-popperArrow[x-placement*="right"] .MuiTooltip-arrow {
+  flip: false;
+  left: 0;
+  width: 1em;
+  height: 2em;
+  margin-top: 4px;
+  margin-left: -0.95em;
+  margin-bottom: 4px;
+}
+.MuiTooltip-popperArrow[x-placement*="left"] .MuiTooltip-arrow {
+  flip: false;
+  right: 0;
+  width: 1em;
+  height: 2em;
+  margin-top: 4px;
+  margin-right: -0.95em;
+  margin-bottom: 4px;
+}
+.MuiTooltip-popperArrow[x-placement*="left"] .MuiTooltip-arrow::before {
+  flip: false;
+  border-color: transparent transparent transparent currentcolor;
+  border-width: 1em 0 1em 1em;
+}
+.MuiTooltip-popperArrow[x-placement*="right"] .MuiTooltip-arrow::before {
+  flip: false;
+  border-color: transparent currentcolor transparent transparent;
+  border-width: 1em 1em 1em 0;
+}
+.MuiTooltip-popperArrow[x-placement*="top"] .MuiTooltip-arrow::before {
+  flip: false;
+  border-color: currentcolor transparent transparent transparent;
+  border-width: 1em 1em 0 1em;
+}
+.MuiTooltip-popperArrow[x-placement*="bottom"] .MuiTooltip-arrow::before {
+  flip: false;
+  border-color: transparent transparent currentcolor transparent;
+  border-width: 0 1em 1em 1em;
+}
+.MuiTooltip-tooltip {
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 0.625rem;
+  max-width: 300px;
+  word-wrap: break-word;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 500;
+  line-height: 1.4em;
+  border-radius: 4px;
+  background-color: rgba(97, 97, 97, 0.9);
+}
+.MuiTooltip-tooltipArrow {
+  margin: 0;
+  position: relative;
+}
+.MuiTooltip-arrow {
+  color: rgba(97, 97, 97, 0.9);
+  position: absolute;
+  font-size: 6px;
+}
+.MuiTooltip-arrow::before {
+  width: 0;
+  height: 0;
+  margin: auto;
+  content: "";
+  display: block;
+  border-style: solid;
+}
+.MuiTooltip-touch {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.14286em;
+}
+.MuiTooltip-tooltipPlacementLeft {
+  margin: 0 24px ;
+  transform-origin: right center;
+}
+@media (min-width:600px) {
+  .MuiTooltip-tooltipPlacementLeft {
+    margin: 0 14px;
+  }
+}
+.MuiTooltip-tooltipPlacementRight {
+  margin: 0 24px;
+  transform-origin: left center;
+}
+@media (min-width:600px) {
+  .MuiTooltip-tooltipPlacementRight {
+    margin: 0 14px;
+  }
+}
+.MuiTooltip-tooltipPlacementTop {
+  margin: 24px 0;
+  transform-origin: center bottom;
+}
+@media (min-width:600px) {
+  .MuiTooltip-tooltipPlacementTop {
+    margin: 14px 0;
+  }
+}
+.MuiTooltip-tooltipPlacementBottom {
+  margin: 24px 0;
+  transform-origin: center top;
+}
+@media (min-width:600px) {
+  .MuiTooltip-tooltipPlacementBottom {
+    margin: 14px 0;
+  }
+}
+</style><script type="text/x-mathjax-config;executed=true">MathJax.Hub.Config({
+    skipStartupTypeset: true,
+    showProcessingMessages: false,
+    tex2jax: {
+      inlineMath: [['$', '$']],
+      displayMath: [['$$', '$$']],
+      processEscapes: true,
+      processEnvironments: false,
+      processRefs: false,
+      skipTags: ['script','noscript','style','textarea','pre','code','a','h1','h2','h3','h4','h5','h6']
+    }
+   })</script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/MathJax.js.ダウンロード"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/gpt.js.ダウンロード"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f(1).txt"></script><link rel="preload" href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f(2).txt" as="script"><script type="text/javascript" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f(2).txt"></script><link rel="preload" href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f(3).txt" as="script"><script type="text/javascript" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f(3).txt"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/pubads_impl_2020030501.js.ダウンロード" async=""></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><style type="text/css">.MathJax_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax .merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MathJax .MJX-monospace {font-family: monospace}
+.MathJax .MJX-sans-serif {font-family: sans-serif}
+#MathJax_Tooltip {background-color: InfoBackground; color: InfoText; border: 1px solid black; box-shadow: 2px 2px 5px #AAAAAA; -webkit-box-shadow: 2px 2px 5px #AAAAAA; -moz-box-shadow: 2px 2px 5px #AAAAAA; -khtml-box-shadow: 2px 2px 5px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true'); padding: 3px 4px; z-index: 401; position: absolute; left: 0; top: 0; width: auto; height: auto; display: none}
+.MathJax {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax:focus, body :focus .MathJax {display: inline-table}
+.MathJax img, .MathJax nobr, .MathJax a {border: 0; padding: 0; margin: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; vertical-align: 0; line-height: normal; text-decoration: none}
+img.MathJax_strut {border: 0!important; padding: 0!important; margin: 0!important; vertical-align: 0!important}
+.MathJax span {display: inline; position: static; border: 0; padding: 0; margin: 0; vertical-align: 0; line-height: normal; text-decoration: none}
+.MathJax nobr {white-space: nowrap!important}
+.MathJax img {display: inline!important; float: none!important}
+.MathJax * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.MathJax_Processing {visibility: hidden; position: fixed; width: 0; height: 0; overflow: hidden}
+.MathJax_Processed {display: none!important}
+.MathJax_ExBox {display: block!important; overflow: hidden; width: 1px; height: 60ex; min-height: 0; max-height: none}
+.MathJax .MathJax_EmBox {display: block!important; overflow: hidden; width: 1px; height: 60em; min-height: 0; max-height: none}
+.MathJax .MathJax_HitBox {cursor: text; background: white; opacity: 0; filter: alpha(opacity=0)}
+.MathJax .MathJax_HitBox * {filter: none; opacity: 1; background: transparent}
+#MathJax_Tooltip * {filter: none; opacity: 1; background: transparent}
+@font-face {font-family: MathJax_Main; src: url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/woff/MathJax_Main-Regular.woff?rev=2.6.0') format('woff'), url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/otf/MathJax_Main-Regular.otf?rev=2.6.0') format('opentype')}
+@font-face {font-family: MathJax_Main-bold; src: url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/woff/MathJax_Main-Bold.woff?rev=2.6.0') format('woff'), url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/otf/MathJax_Main-Bold.otf?rev=2.6.0') format('opentype')}
+@font-face {font-family: MathJax_Main-italic; src: url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/woff/MathJax_Main-Italic.woff?rev=2.6.0') format('woff'), url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/otf/MathJax_Main-Italic.otf?rev=2.6.0') format('opentype')}
+@font-face {font-family: MathJax_Math-italic; src: url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/woff/MathJax_Math-Italic.woff?rev=2.6.0') format('woff'), url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/otf/MathJax_Math-Italic.otf?rev=2.6.0') format('opentype')}
+@font-face {font-family: MathJax_Caligraphic; src: url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/woff/MathJax_Caligraphic-Regular.woff?rev=2.6.0') format('woff'), url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/otf/MathJax_Caligraphic-Regular.otf?rev=2.6.0') format('opentype')}
+@font-face {font-family: MathJax_Size1; src: url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/woff/MathJax_Size1-Regular.woff?rev=2.6.0') format('woff'), url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/otf/MathJax_Size1-Regular.otf?rev=2.6.0') format('opentype')}
+@font-face {font-family: MathJax_Size2; src: url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/woff/MathJax_Size2-Regular.woff?rev=2.6.0') format('woff'), url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/otf/MathJax_Size2-Regular.otf?rev=2.6.0') format('opentype')}
+@font-face {font-family: MathJax_Size3; src: url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/woff/MathJax_Size3-Regular.woff?rev=2.6.0') format('woff'), url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/otf/MathJax_Size3-Regular.otf?rev=2.6.0') format('opentype')}
+@font-face {font-family: MathJax_Size4; src: url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/woff/MathJax_Size4-Regular.woff?rev=2.6.0') format('woff'), url('https://cdn.qiita.com/MathJax/2.6.0/fonts/HTML-CSS/TeX/otf/MathJax_Size4-Regular.otf?rev=2.6.0') format('opentype')}
+.MathJax .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f(4).txt"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f(5).txt"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f(6).txt"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/f(7).txt"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/lift_widget.js.ダウンロード"></script><style type="text/css">#logly-lift-4279494 #logly-lift-widget {
+  
+  width: 100%;
+  
+  
+  
+  clear: both;
+}
+
+#logly-lift-4279494 #logly-lift-widget-label {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  
+  border-bottom-color: #5C97FF;
+  
+}
+
+#logly-lift-4279494 #logly-lift-widget-label-caption {
+  padding: 5px 10px;
+  
+  background-color: #5C97FF;
+  
+  float: left;
+}
+
+#logly-lift-4279494 #logly-lift-widget-label-caption a {
+  
+  color: #FFFFFF;
+  
+  
+  text-decoration: none;
+}
+
+#logly-lift-4279494 .logly-lift-ad {
+  display: inline-block;
+  zoom: 1;
+  vertical-align:top;
+  
+  width: 100%;
+  
+  margin: 5px 0;
+  padding: 0;
+}
+
+
+
+#logly-lift-4279494 .logly-lift-ad-image {
+  
+  vertical-align: top;
+  width: 120px;
+  height: 90px;
+  padding-right: 0;
+}
+
+#logly-lift-4279494 .logly-lift-ad-image-inner {
+  position: relative;
+  overflow: hidden;
+  width: 120px;
+  height: 90px;
+}
+
+#logly-lift-4279494 .logly-lift-ad-image-inner img {
+  position: absolute;
+  max-width: none;
+  max-height: none;
+  border-style:none;
+}
+
+#logly-lift-4279494 .logly-lift-ad-content {
+  
+  word-break: break-all;
+}
+
+
+
+#logly-lift-4279494 .logly-lift-ad-title {
+  
+  
+}
+
+
+
+#logly-lift-4279494 .logly-lift-ad-lead {
+  
+  
+}
+
+
+
+#logly-lift-4279494 a.logly-lift-ad-site {
+  
+  
+}
+
+
+
+
+
+#logly-lift-4279494 .logly-lift-ad-disclosure {
+  
+  
+  
+  text-align: left;
+  
+}
+
+#logly-lift-4279494 .logly-lift-ad-disclosure a {
+  
+  
+  color: #999999;
+  
+}
+
+#logly-lift-4279494 .logly-lift-clear {
+  clear: both;
+}
+
+
+
+#logly-lift-4279494 .ie-lte9 .logly-lift-ad {
+  display: inline;
+}
+
+#logly-lift-toaster .logly-lift-credit,
+#logly-lift-4279494 .logly-lift-credit {
+  clear:both;
+  padding:0 8px 10px;
+  text-align:right;
+}
+
+#logly-lift-toaster .logly-lift-credit {
+  padding-right:0;
+}
+
+#logly-lift-toaster .logly-lift-credit a,
+#logly-lift-4279494 .logly-lift-credit a {
+  color: #999;
+  text-decoration: none;
+  font-size:13px;
+}
+
+#logly-lift-toaster .logly-lift-credit a .logly-lift-credit-logo,
+#logly-lift-4279494 .logly-lift-credit a .logly-lift-credit-logo {
+  display:inline-block;
+  background: url("//cdn.logly.co.jp/spritesource-s5c12c753d2.png") no-repeat 0 -103px;
+  color:transparent;
+  margin-left:3px;
+  width:36px;
+  height:14px;
+  vertical-align:middle;
+  *display:inline;
+  *zoom:1;
+}
+
+#logly-lift-toaster .logly-lift-credit a:hover .logly-lift-credit-logo,
+#logly-lift-4279494 .logly-lift-credit a:hover .logly-lift-credit-logo {
+  background: url("//cdn.logly.co.jp/spritesource-s5c12c753d2.png") no-repeat 0 -117px;
+}
+
+#logly-lift-toaster .logly-lift-credit2 a .logly-lift-credit-logo,
+#logly-lift-4279494 .logly-lift-credit2 a .logly-lift-credit-logo,
+#logly-lift-toaster .logly-lift-credit2 a:hover .logly-lift-credit-logo,
+#logly-lift-4279494 .logly-lift-credit2 a:hover .logly-lift-credit-logo,
+#logly-lift-modal-contents-inner h3 {
+  background-image: url('https://cdn.logly.co.jp/spritesource-s6c20d2e001.png');
+  background-repeat: no-repeat;
+}
+
+#logly-lift-toaster .logly-lift-credit2 a .logly-lift-credit-logo,
+#logly-lift-4279494 .logly-lift-credit2 a .logly-lift-credit-logo {
+  background-position: 0 -110px;
+  height: 14px;
+  width: 68px;
+}
+
+#logly-lift-toaster .logly-lift-credit2 a:hover .logly-lift-credit-logo,
+#logly-lift-4279494 .logly-lift-credit2 a:hover .logly-lift-credit-logo {
+  background-position: 0 -196px;
+  height: 14px;
+  width: 68px;
+}
+#logly-lift-modal-contents-inner h3 {
+  background-position: 0 -232px;
+  height: 40px;
+  width: 194px;
+}
+
+#logly-lift-toaster .logly-lift-credit2 {
+  padding-right: 0;
+}
+#logly-lift-toaster .logly-lift-credit2,
+#logly-lift-4279494 .logly-lift-credit2 {
+  clear: both;
+  padding: 0 8px 10px;
+  text-align: right;
+}
+#logly-lift-toaster .logly-lift-credit2 a,
+#logly-lift-4279494 .logly-lift-credit2 a {
+  color: #999;
+  text-decoration: none;
+  font-size: 11px;
+}
+#logly-lift-toaster .logly-lift-credit2 a .logly-lift-credit-logo,
+#logly-lift-4279494 .logly-lift-credit2 a .logly-lift-credit-logo {
+  display: inline-block;
+  color: transparent;
+  margin-left: 3px;
+  vertical-align: middle;
+  margin-top: -2px;
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (min-device-pixel-ratio: 2),
+(min-resolution: 2dppx) {
+  #logly-lift-toaster .logly-lift-credit2 a .logly-lift-credit-logo,
+  #logly-lift-4279494 .logly-lift-credit2 a .logly-lift-credit-logo {
+    display: inline-block;
+    background-position: 0 -62px;
+    height: 14px;
+    width: 68px;
+    background-size: 106px 136px;
+  }
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (min-device-pixel-ratio: 2),
+(min-resolution: 2dppx) {
+  #logly-lift-toaster .logly-lift-credit2 a:hover .logly-lift-credit-logo,
+  #logly-lift-4279494 .logly-lift-credit2 a:hover .logly-lift-credit-logo {
+    display: inline-block;
+    background-position: 0 -62px;
+    height: 14px;
+    width: 68px;
+    background-size: 106px 136px;
+  }
+}
+
+#logly-lift-4279494 .logly-lift-widget-video-content {
+  padding: 20px;
+  background: #fff;
+}
+
+#logly-lift-4279494 .logly-lift-video {
+  width: auto;
+  height: auto;
+  margin: 0 -20px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.17);
+}
+
+#logly-lift-4279494 .logly-lift-video-header {
+  padding-bottom: 15px;
+}
+
+#logly-lift-4279494 .logly-lift-video-footer {
+  padding-top: 15px;
+}
+
+#logly-lift-4279494 .logly-lift-video-header .logly-lift-video-headerlink,
+#logly-lift-4279494 .logly-lift-video-footer .logly-lift-video-footerlink {
+  display: block;
+  text-decoration: none;
+}
+
+#logly-lift-4279494 .logly-lift-video-header .logly-lift-video-headerlink::after,
+#logly-lift-4279494 .logly-lift-video-footer .logly-lift-video-footerlink::after {
+  content: "";
+  display: block;
+  clear:both;
+}
+
+#logly-lift-4279494 .logly-lift-video-title {
+  font-size: 16px;
+  line-height: 25px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+#logly-lift-4279494 .logly-lift-video-adv {
+  font-size: 11px;
+  line-height: 1;
+  color: #CCC;
+  text-align: right;
+}
+
+#logly-lift-4279494 .logly-lift-video-cv {
+  display: block;
+  text-align: center;
+  background: #4285f4;
+  color: #FFF;
+  border-radius: 3px;
+}
+
+#logly-lift-4279494 .logly-lift-video-cv:hover {
+  opacity: 0.85;
+}
+
+/* type-1 */
+#logly-lift-4279494 .logly-lift-video-type-1 .logly-lift-video-footer .logly-lift-video-title,
+#logly-lift-4279494 .logly-lift-video-type-1 .logly-lift-video-header .logly-lift-video-adv {
+  display: none;
+}
+
+#logly-lift-4279494 .logly-lift-video-type-1 .logly-lift-video-footer .logly-lift-video-adv {
+  text-align: left;
+}
+
+#logly-lift-4279494 .logly-lift-video-type-1 .logly-lift-video-footer .logly-lift-video-cv {
+  float: right;
+  padding: 3px 20px;
+  line-height: 1.8;
+  font-size: 14px;
+}
+
+#logly-lift-4279494 .logly-lift-video-type-1 .logly-lift-video-footer .logly-lift-video-cv::before {
+  content: "詳細を見る";
+}
+
+
+  /*
+---
+name: Login
+category: LoglyFeed/Login
+---
+
+To reflect this design, you must copy and paste it to https://www.logly.co.jp design settings
+
+
+!![](LoglyFeed/Login.html)
+*/
+
+#logly-lift-4279494 #logly-lift-widget-header {
+  font-size: 16px;
+  margin-bottom: 12px;
+  font-weight: 400;
+  font-feature-settings: "palt";
+  position: relative;
+}
+
+#logly-lift-4279494 #logly-lift-widget-content {
+  display: block;
+  flex-wrap: wrap;
+}
+
+#logly-lift-4279494 .logly-lift-ad {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e8e8e8;
+  margin: 0;
+  padding: 16px;
+}
+
+#logly-lift-4279494 .logly-lift-ad:first-child {
+  border-top: 1px solid #e8e8e8;
+}
+
+#logly-lift-4279494 .logly-lift-ad .fa {
+  color: #55c500;
+  font-size: 40px;
+}
+
+#logly-lift-4279494 .logly-lift-ad .fa-fw {
+  width: 40px;
+  height: 40px;
+  text-align: left;
+}
+
+#logly-lift-4279494 .logly-lift-ad-icon {
+  overflow: hidden;
+  border-radius: 0.2em;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+#logly-lift-4279494 .logly-lift-ad-icon img {
+  width: 100%;
+  height: 100%;
+}
+
+#logly-lift-4279494 .logly-lift-ad-content {
+  display: block;
+}
+
+#logly-lift-4279494 .logly-lift-ad-link {
+  margin-right: 8px;
+}
+
+#logly-lift-4279494 .logly-lift-ad-title {
+  display: inline-block;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  word-wrap: break-word;
+  word-break: break-all;
+  margin-left: 8px;
+}
+
+#logly-lift-4279494 .logly-lift-ad-title:visited {
+  color: #777;
+}
+
+#logly-lift-4279494 .logly-lift-ad-link:hover .logly-lift-ad-title {
+  text-decoration: underline;
+}
+
+#logly-lift-4279494 .logly-lift-ad-author {
+  display: block;
+  color: #999;
+  margin-left: 8px;
+  font-size: 0.9rem;
+}
+
+#logly-lift-4279494 .logly-lift-ad-adv {
+  display: block;
+  color: #999;
+  margin-left: 8px;
+  font-size: 0.9rem;
+}
+
+
+
+</style></head><body><iframe src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/sync.html" scrolling="no" style="display: none; border: none;"></iframe><div style="visibility: hidden; overflow: hidden; position: absolute; top: 0px; height: 1px; width: auto; padding: 0px; border: 0px; margin: 0px; text-align: left; text-indent: 0px; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal;"><div id="MathJax_Hidden"></div></div><div id="MathJax_Message" style="display: none;"></div><div class="allWrapper"><div class="st-HeaderContainer"><div id="GlobalHeader-react-component-6eb3e0e9-5382-4f82-9ca5-5fec7789e9f0"><div class="st-Header"><div class="st-Header_container"><div class="st-Header_start"><a href="https://qiita.com/" class="st-Header_logo mr-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 426.57 130"><circle cx="167.08" cy="21.4" r="12.28"></circle><path d="M250.81 29.66h23.48v18.9h-23.48z"></path><path d="M300.76 105.26a22.23 22.23 0 01-6.26-.86 12.68 12.68 0 01-5.17-3 14.41 14.41 0 01-3.56-5.76 28 28 0 01-1.3-9.22V48.56h29.61v-18.9h-29.52V3.29h-20.17v83.34q0 11.16 2.83 18.27a27.71 27.71 0 007.7 11.2 26.86 26.86 0 0011.43 5.62 47.56 47.56 0 0012.34 1.53h15.16v-18zM0 61.7a58.6 58.6 0 015-24.21A62.26 62.26 0 0118.73 17.9 63.72 63.72 0 0139 4.78 64.93 64.93 0 0164 0a65 65 0 0124.85 4.78 64.24 64.24 0 0120.38 13.12A62 62 0 01123 37.49a58.6 58.6 0 015 24.21 58.34 58.34 0 01-4 21.46 62.8 62.8 0 01-10.91 18.16l11.1 11.1a10.3 10.3 0 010 14.52 10.29 10.29 0 01-14.64 0l-12.22-12.41a65 65 0 01-15.78 6.65 66.32 66.32 0 01-17.55 2.3 64.63 64.63 0 01-45.23-18A62.82 62.82 0 015 85.81 58.3 58.3 0 010 61.7zm21.64.08a43.13 43.13 0 0012.42 30.63 42.23 42.23 0 0013.43 9.09A41.31 41.31 0 0064 104.8a42 42 0 0030-12.39 42.37 42.37 0 009-13.64 43.43 43.43 0 003.3-17 43.77 43.77 0 00-3.3-17A41.7 41.7 0 0080.55 22 41.78 41.78 0 0064 18.68 41.31 41.31 0 0047.49 22a42.37 42.37 0 00-13.43 9.08 43.37 43.37 0 00-12.42 30.7zM331.89 78a47.59 47.59 0 013.3-17.73 43.22 43.22 0 019.34-14.47A44.25 44.25 0 01359 36a47.82 47.82 0 0118.81-3.58 42.72 42.72 0 019.26 1 46.5 46.5 0 018.22 2.58 40 40 0 017 3.84 44.39 44.39 0 015.71 4.63l1.22-9.47h17.35v85.83h-17.35l-1.17-9.42a42.54 42.54 0 01-5.84 4.67 43.11 43.11 0 01-7 3.79 44.86 44.86 0 01-8.17 2.59 43 43 0 01-9.22 1A47.94 47.94 0 01359 119.9a43.3 43.3 0 01-14.47-9.71 44.17 44.17 0 01-9.34-14.47 47 47 0 01-3.3-17.72zm20.27-.08a29.16 29.16 0 002.17 11.34 27 27 0 005.92 8.88 26.69 26.69 0 008.76 5.76 29.19 29.19 0 0021.44 0 26.11 26.11 0 008.72-5.76 27.57 27.57 0 005.88-8.84 29 29 0 002.16-11.38 28.62 28.62 0 00-2.16-11.22 26.57 26.57 0 00-5.93-8.8 27.68 27.68 0 00-19.51-7.9 28.29 28.29 0 00-10.77 2.05 26.19 26.19 0 00-8.71 5.75 27.08 27.08 0 00-5.84 8.8 28.94 28.94 0 00-2.13 11.31zm-194.97-30.5h19.78v73.54h-19.78zm49.25 0h19.78v73.54h-19.78z"></path><circle cx="216.33" cy="21.4" r="12.28"></circle></svg></a><div><div class="st-Header_realmSelector" tabindex="0"><span class="fa fa-fw fa-caret-down"></span></div><div class="st-Header_dropdown st-RealmSelector"><div class="st-RealmSelector_realms"><a class="st-Header_dropdownItem st-RealmItem" href="https://qiita.com/"><div class="st-RealmItem_statusIcon"><span class="fa fa-fw fa-check"></span></div><div class="st-RealmItem_humanName">Qiita</div></a></div><hr><div class="st-RealmSelector_supplements"><div class="st-RealmSelector_label">ログイン中のチームがありません</div><a href="https://teams-center.qiita.com/find_team" class="st-Header_dropdownItem st-RealmSelectorSupplement"><div class="st-RealmSelectorSupplement_icon"><span class="fa fa-fw fa-sign-in"></span></div><div>Qiita Team にログイン...</div></a></div></div></div><div><div class="st-Header_community" tabindex="0">コミュニティ<span class="fa fa-fw fa-caret-down ml-1of2"></span></div><div class="st-Header_dropdown"><a href="https://qiita.com/users" class="st-Header_dropdownItem"><span class="fa fa-fw fa-users mr-1of2"></span>ユーザー一覧</a><a href="https://qiita.com/organizations" class="st-Header_dropdownItem"><span class="fa fa-fw fa-building-o mr-1of2"></span>Organization一覧</a><a href="https://qiita.com/advent-calendar" class="st-Header_dropdownItem"><span class="fa fa-fw fa-calendar mr-1of2"></span>アドベントカレンダー</a><div class="st-Header_dropdownSeparator"></div><a href="https://jobs.qiita.com/?utm_source=qiita&amp;utm_medium=referral&amp;utm_content=header" class="st-Header_dropdownItem" target="_blank"><span class="fa fa-fw fa-search mr-1of2"></span>Qiita Jobs</a><a href="https://qiitadon.com/" class="st-Header_dropdownItem" target="_blank"><span class="fa fa-fw fa-comments-o mr-1of2"></span>Qiitadon (β)</a><a href="https://zine.qiita.com/?utm_source=qiita&amp;utm_medium=referral&amp;utm_content=header" class="st-Header_dropdownItem" target="_blank"><span class="fa fa-fw fa-newspaper-o mr-1of2"></span>Qiita Zine</a><div class="st-Header_dropdownSeparator"></div><a href="https://help.qiita.com/ja/articles/qiita-community-guideline" class="st-Header_dropdownItem" target="_blank"><span class="fa fa-fw fa-book mr-1of2"></span>コミュニティガイドライン</a><a href="https://help.qiita.com/ja/articles/qiita-article-guideline" class="st-Header_dropdownItem" target="_blank"><span class="fa fa-fw fa-book mr-1of2"></span>良い記事を書くために</a></div></div><form class="st-Header_search" action="https://qiita.com/search" method="get"><span class="fa fa-search"></span><input type="search" class="st-Header_searchInput" autocomplete="off" placeholder="キーワードを入力" value="" name="q" required=""></form><div class="st-Header_searchButton"><span class="fa fa-search"></span></div></div><div class="st-Header_end"><a href="https://qiita.com/stock" class="st-Header_stock mr-2 py-2"><span class="st-Header_stock-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 359.16 339" color="#fff" style="fill:#fff;width:13px;height:14.3px;display:inline-block;vertical-align:bottom"><path d="M359.16 251.41V0H0v251.41c91.24 116.79 267.92 116.79 359.16 0zm-53.22-131.26L187.73 253a23 23 0 01-16.23 7.69h-.94a23 23 0 01-15.87-6.35L54.53 158.86a23 23 0 0131.73-33.27l82.94 79.11L271.59 89.6a23 23 0 1134.35 30.55z"></path></svg></span><span class="st-Header_stock-label">ストック一覧</span></a><a href="https://qiita.com/drafts/new" class="st-Header_postButton mr-2 px-2"><span class="fa fa-fw fa-pencil-square-o mr-1"></span>投稿する</a><div class="u-relative"><div class="st-Header_notifications" tabindex="0">0</div><div class="st-Header_notiIframe"><div class="st-Header_notiHeader"><div><span class="fa fa-bell-o mgr-1"></span>お知らせ</div><a href="https://qiita.com/settings/notifications">通知設定</a></div><div class="st-Header_notiFooter"><a href="https://qiita.com/notifications">通知一覧を見る</a></div></div></div><div class="u-relative"><div class="st-Header_loginUser" tabindex="0"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___avatars2.githubusercontent.com_u_55769107_v=4" alt="SMH-MRD"><span class="fa fa-fw fa-caret-down ml-1"></span></div><div class="st-Header_dropdown"><a href="https://qiita.com/SMH-MRD" class="st-Header_dropdownItem">マイページ</a><div class="st-Header_dropdownSeparator"></div><a href="https://qiita.com/drafts" class="st-Header_dropdownItem">下書き一覧</a><a href="https://qiita.com/patches" class="st-Header_dropdownItem">編集リクエスト一覧</a><div class="st-Header_dropdownSeparator"></div><a href="https://qiita.com/settings" class="st-Header_dropdownItem">設定</a><a href="https://help.qiita.com/ja/categories/qiita/" class="st-Header_dropdownItem" target="_blank">ヘルプ</a><div class="st-Header_dropdownSeparator"></div><div class="st-Header_dropdownItem" tabindex="0">ログアウト</div></div></div></div><div class="st-Header_overlay"></div><form class="st-Header_searchModal" action="https://qiita.com/search" method="get"><input type="text" class="st-Header_searchModalInput" autocomplete="off" placeholder="キーワードを入力" value="" name="q" required=""></form></div></div></div>
+      <script type="application/json" class="js-react-on-rails-component" data-component-name="GlobalHeader" data-dom-id="GlobalHeader-react-component-6eb3e0e9-5382-4f82-9ca5-5fec7789e9f0">{"unreadNotificationsCount":0,"realms":[{"humanName":"Qiita","isCurrentRealm":true,"isQiita":true,"isQiitaTeam":false,"loggedInUser":{"profileImageUrl":"https://avatars2.githubusercontent.com/u/55769107?v=4","urlName":"SMH-MRD"},"teamId":null,"url":"https://qiita.com/"}],"teamFindUrl":"https://teams-center.qiita.com/find_team","isTeamOnlyUser":false,"currentUser":{"isStaff":false,"isJobseeker":false,"name":"","originalId":550355,"profileImageUrl":"https://qiita-user-profile-images.imgix.net/https%3A%2F%2Favatars2.githubusercontent.com%2Fu%2F55769107%3Fv%3D4?ixlib=rb-1.2.2\u0026auto=compress%2Cformat\u0026lossless=0\u0026w=48\u0026s=26d3be4250f8e4da6551e640afe8512f","urlName":"SMH-MRD"}}</script>
+      
+</div><div class="st-HeaderAlert st-HeaderAlert-warning"><div class="st-HeaderAlert_body"></div></div><script type="application/ld+json">{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"/","name":"Qiita"}},{"@type":"ListItem","position":2,"item":{"@id":"/tags/%23%3CQiita::Graph::Result:0x0000560249465ba8%3E","name":"C++"}}]}</script><script>td.trackEvent('pageviews_article',{
+    user_id: "550355",
+    article_id: "1017796",
+    article_uuid: "02b158dfad3a5dafd0a1",
+    td_description: "&quot;#概要\nOpenCVをCMakeを使用してインストールする方法をまとめました。\nこの手順を理解しておくとWindowsでのあらゆる環境構築が怖くなくなります。(たぶん)\n#実行環境\n- Windows10\n- [Visual Studio 2019](https://visualstudio.microsoft.com/ja/vs/)\n- [CMake 3.15.0](https://cmake.org/download/)\n- [OpenCV 4.1.0](https://github.com/opencv/opencv)\n\n#インストール＆ビルド\n###Visual Studio\n下記からダウンロード＆インストールします。\nhttps://visualstudio.microsoft.com/ja/vs/\n###CMake\n下記からダウンロード＆インストールします。\nGUIを使用してMakeするので.msiをダウンロードします。\nhttps://cmake.org/download/\n![cmake.PNG](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/3d4cdfd5-4fe0-391c-6f36-6a1b1f367faa.png)\n###OpenCV\n1. 下記Gitからバージョンを確認して.zipダウンロードします。\n任意の場所に展開します。(Cドライブの直下にProgramingLibraryというDIRを作成しその中に入れました。)\nhttps://github.com/opencv/opencv\n![opencv.PNG](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/6aa05bbc-813a-f730-0e6e-bcff53bebfed.png)\n\n2. CMake(GUI)を起動し、OpenCVのDIR PATHを設定します。\n.slnファイルを出力するPATHを設定します。\n(私の場合はライブラリの直下にbuildというフォルダを出力するという自分ルールがあるため**C:\\ProgramingLibrary\\opencv-4.1.0\\build**というPATHになっています。)\n![cmake-.PNG](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/45820413-6f34-5f52-d28c-7da520fbaf75.png)\n3. Config、Generateの順で実行します。\n今回はVisual Studio 2019でのビルドなので**Visual Studio 16 2019**を選択し、x64と設定します。\n![cmake.PNG](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/a34bc282-9a9b-188f-670b-16e86d93b340.png)\n\n4. 設定したパスに出力された.slnをVisual Studioで開きます。\n出力したい実行環境になっていることを確認します。(今回はx64 Release)\n![build.PNG](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/abc866b9-b6b1-704b-a4ea-47335b6e67ad.png)\n5. ALL_BUILDを右クリックしてビルド\n![bs.PNG](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/af4ebb55-301b-be35-3ce4-6f1072522f6c.png)\n6. INSTALLを右クリックしてビルド\n![ins.PNG](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/c74689e8-dd34-9869-b1c7-7cfb92a88678.png)\n7. build以下にinstall DIRができていて、中身も生成されていることを確認します。\n![ins_dir.PNG](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/9414923e-f46a-9e61-f8ad-a01e4e6593c4.png)\n###パスを通す\n#####CMAKE_PREFIX_PATH\nシステム環境変数から下記画像のようにOpenCVConfig.cmakeがあるDIRのPATHを通します。\n![prefix.PNG](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/74577a42-1535-ec8d-cc8a-f5e3540e04be.png)\n#####PATH\nPATHに.dllファイルが出力されているDIRのPATHを通す。\n**このDIRは定期的に変わるので注意です。**\n#サンプルプログラム\n画像が読み込んで表示するプログラムです。\n任意の場所にDIRを作成し、DIRの中に下記プログラムと任意の画像(**.jpg**)を入れます。\n\n```CMake:CMakeLists.txt\ncmake_minimum_required(VERSION 2.8)\n\nset(PROJECT_NAME Test)\nproject(${PROJECT_NAME})\n\nfind_package(OpenCV 4.1.0 EXACT REQUIRED)\ninclude_directories(${OpenCV_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/include)\nlink_directories(${OpenCV_LIBRARY_DIRS})\n\nfile(GLOB SOURCE_CPP *.cpp)\nfile(GLOB SOURCE_H *.h)\n\nadd_executable(${PROJECT_NAME} ${SOURCE_CPP} ${SOURCE_H})\ntarget_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES})\n```\n\n```C++:main.cpp\n#include \u0026amp;lt;opencv2/opencv.hpp\u0026amp;gt;\n#include \u0026amp;lt;iostream\u0026amp;gt;\n\nvoid main(){\n\n\tstd::string pattern = \u0026amp;quot;..\\\\*.jpg\u0026amp;quot;;\n\tstd::vector\u0026amp;lt;cv::String\u0026amp;gt; files;\n\tcv::glob(pattern, files);\n\t\n\tif(files.size() == 0) {\n\t\tstd::cout \u0026amp;lt;\u0026amp;lt; \u0026amp;quot;erorr\u0026amp;quot; \u0026amp;lt;\u0026amp;lt;std::endl;\n\t\texit(-1);\t\n\t}\n\t\n\tcv::Mat image = cv::imread(files[0]);\n\tstd::cout \u0026amp;lt;\u0026amp;lt; files[0] \u0026amp;lt;\u0026amp;lt; std::endl;\n\tstd::cout \u0026amp;lt;\u0026amp;lt; image.size () \u0026amp;lt;\u0026amp;lt; std::endl;\n\tcv::imshow(\u0026amp;quot;show\u0026amp;quot;, image);\n\tcv::waitKey (0);\n}\n```\n2. 上記同様にCMakeでmakeする。\n3. Generateされた.slnをVSで開く。\n4. 実行環境が合っていることを確認して実行  \n(プロジェクト名が非アクティブの場合はプロジェクト名を右クリックして**スタートアッププロジェクトに設定**でアクティブにする。)する。\n5. 画像が読み込まれて表示されるプログラム完成\n\n#OpenCV contribの導入\n\nhttps://qiita.com/sanishi_pompom/items/5191aeca8d6de3e98595\n\n#まとめ\nCMake(GUI)を使えばコマンドラインからは分かりにくい設定も分かりやすいです。\nもう環境構築怖くない～\n&quot;",
+    td_title: "&quot;OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019)&quot;"
+  })</script><style type="text/css">.cb-CampaignLink {
+  background-color: #333333;
+  width: 100%;
+}
+
+.cb-CampaignLink_container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+  font-size: 13px;
+  padding: 0.8em;
+
+}
+.cb-CampaignLink_container > a {
+  color: #fff;
+}
+
+.cb-CampaignLink_container > a:hover {
+  text-decoration: underline;
+}</style><script async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/qiita_bigmining.js.ダウンロード"></script><div style="display:none"><div class="TagList__label"><span></span><span>C++</span></div><div class="TagList__label"><span></span><span>CMake</span></div><div class="TagList__label"><span></span><span>画像処理</span></div><div class="TagList__label"><span></span><span>OpenCV</span></div><div class="TagList__label"><span></span><span>VisualStudio</span></div></div><img style="display:block;margin:0;padding:0;border:0;outline:0;width:0;height:0;line-height:0;" alt="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/bizmatrix"><script type="application/json" id="js-react-on-rails-context">{"railsEnv":"production","inMailer":false,"i18nLocale":"ja","i18nDefaultLocale":"en","href":"https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1","location":"/sanishi_pompom/items/02b158dfad3a5dafd0a1","scheme":"https","host":"qiita.com","port":null,"pathname":"/sanishi_pompom/items/02b158dfad3a5dafd0a1","search":null,"httpAcceptLanguage":"ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7","actionPath":"public/items#show","settings":{"analyticsTrackingId":"UA-24675221-12","mixpanelToken":"17d24b448ca579c365d2d1057f3a1791","assetsMap":{},"csrfToken":"mF6BhnSTehOABM7t6ZA4lEZS7JyN9//Rinu1PwkjLssz5NU0hEuHSPv4Jmckcx+/c3oB7XgZ9O5XOavoVmlSgg==","locale":"ja"},"currentUser":{"isStaff":false,"isJobseeker":false,"name":"","originalId":550355,"profileImageUrl":"https://qiita-user-profile-images.imgix.net/https%3A%2F%2Favatars2.githubusercontent.com%2Fu%2F55769107%3Fv%3D4?ixlib=rb-1.2.2\u0026auto=compress%2Cformat\u0026lossless=0\u0026w=48\u0026s=26d3be4250f8e4da6551e640afe8512f","urlName":"SMH-MRD","remainingPublicImageUploadableSizeInCurrentMonth":104857600,"monthlyPublicImageUploadableSizeLimit":104857600},"isLoggedIn":true,"recaptchaSiteKey":"6LfNkiQTAAAAAM3UGnSquBy2akTITGNMO_QDxMw6","serverSide":false}</script>
+<div id="PersonalArticle-react-component-dd32336f-181a-485c-bcc3-4dcb895d6bf4"><div class="p-items logged-in" itemscope="" itemtype="http://schema.org/Article"><div class="p-items_wrapper"><div class="p-items_container"><div class="it-Actions p-items_stickyMenu"><div class="it-Actions_item it-Actions_item-like likable"><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1/likers" class="it-Actions_likeCount">6</a><button title="Looks Good To Me!" class=""><svg size="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 392.81 429" color="#55C500" class="sc-fzqNJr bKNiTv"><path d="M14.19 5.4h53.86v149.45h90.05v44.87H14.19zM288.4 93.77h100.79q1.29 25-5.66 45.39a96.79 96.79 0 01-20.33 34.89 92 92 0 01-32.13 22.45 104 104 0 01-40.95 7.93 109.71 109.71 0 01-76-29.92 104.05 104.05 0 01-23-32.56 95.46 95.46 0 01-8.47-39.88 94.78 94.78 0 018.47-39.87 104.38 104.38 0 0123-32.42A107.71 107.71 0 01248.23 8a110.79 110.79 0 01118.48 22.49l-35.07 35.08a51.25 51.25 0 00-17.75-15 52.83 52.83 0 00-44.67-1.23 52.92 52.92 0 00-17 12 57.07 57.07 0 00-11.45 18.11 60 60 0 00-4.23 22.77 60 60 0 004.23 22.68 56.57 56.57 0 0011.45 18.19 52.62 52.62 0 0017 12 50.5 50.5 0 0020.9 4.36q20.19 0 31.07-7.51a35.75 35.75 0 0014.46-20.55h-47.39zM51.29 279.55H0v-44.86h156v44.86h-51.13V429H51.29zM283.36 381.71l-41.72-62V429h-53.86V234.69h47.47L290 312l55.9-77.29h46.9V429h-53.86V320.27l-42.43 61.44z"></path></svg></button></div><div class="it-Actions_item"><button title="ストック" class="sc-fzoXzr gKkkcd"><span class="sc-fzpjYC gJohPa"><svg size="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 353.02 398" class="sc-fzoyAV bVhSBP"><path d="M176.72 398c-67.52 0-130.16-29-171.84-79.69l-4.46-5.42V78.05H353v234.84l-4.45 5.42C306.88 369 244.24 398 176.72 398zm-137.2-99.34c34.17 38.37 83.78 60.25 137.2 60.25s103-21.88 137.21-60.25V117.14H39.52zM0 0h351.12v40.94H0z"></path></svg></span></button></div><a class="it-Actions_jumpToCommentButton" href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#comments"><div class="it-Actions_commentCount">0</div><div class="fa fa-fw fa-comment"></div></a><div class="it-Actions_shareButton it-Actions_shareButton-twitter"><span class="fa fa-twitter"></span></div><div class="it-Actions_shareButton it-Actions_shareButton-facebook"><span class="fa fa-facebook"></span></div></div><div class="p-items_main"><div class="p-items_article"><div class="it-Header"><div class="u-flex-center-between mb-3"><div class="it-Header_info"><div class="it-Header_author"><a href="https://qiita.com/sanishi_pompom"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_profile-images_1561623343" alt="sanishi_pompom" class="it-Header_authorImage"></a><a href="https://qiita.com/sanishi_pompom" class="it-Header_authorName">@<!-- -->sanishi_pompom</a></div><div class="it-Header_time"><span title="2019年09月13日に投稿" class=""><meta content="2019-09-13T01:46:57Z" itemprop="datePublished"><time datetime="2019-09-18T04:26:53Z" itemprop="dateModified">2019年09月18日に更新</time></span></div><div class="it-Header_meta"><div class="it-Header_manipulate"><div class="it-Header_dropdown"><span class="it-Header_dropdownToggle" tabindex="0"><span class="fa fa-ellipsis-h fa-lg"></span></span><div class="st-Dropdown right"><div><div class="it-Header_dropdown-title">記事の改善</div><a class="st-Dropdown_item" href="https://qiita.com/drafts/02b158dfad3a5dafd0a1/edit"><span class="fa fa-fw fa-code-fork pr-1"></span>編集リクエストを送る</a><div class="st-Dropdown_separator"></div></div><div class="it-Header_dropdown-title">記事の情報</div><a class="st-Dropdown_item" href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1/revisions"><span class="fa fa-fw fa-history pr-1"></span>編集履歴</a><a class="st-Dropdown_item" href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1/patches"><span class="fa fa-fw fa-inbox pr-1"></span>編集リクエスト一覧</a><a class="st-Dropdown_item" href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1/likers"><span style="margin-right:4px"><svg size="12" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 392.81 429" color="#777" class="sc-AxhUy etSdow"><path d="M14.19 5.4h53.86v149.45h90.05v44.87H14.19zM288.4 93.77h100.79q1.29 25-5.66 45.39a96.79 96.79 0 01-20.33 34.89 92 92 0 01-32.13 22.45 104 104 0 01-40.95 7.93 109.71 109.71 0 01-76-29.92 104.05 104.05 0 01-23-32.56 95.46 95.46 0 01-8.47-39.88 94.78 94.78 0 018.47-39.87 104.38 104.38 0 0123-32.42A107.71 107.71 0 01248.23 8a110.79 110.79 0 01118.48 22.49l-35.07 35.08a51.25 51.25 0 00-17.75-15 52.83 52.83 0 00-44.67-1.23 52.92 52.92 0 00-17 12 57.07 57.07 0 00-11.45 18.11 60 60 0 00-4.23 22.77 60 60 0 004.23 22.68 56.57 56.57 0 0011.45 18.19 52.62 52.62 0 0017 12 50.5 50.5 0 0020.9 4.36q20.19 0 31.07-7.51a35.75 35.75 0 0014.46-20.55h-47.39zM51.29 279.55H0v-44.86h156v44.86h-51.13V429H51.29zM283.36 381.71l-41.72-62V429h-53.86V234.69h47.47L290 312l55.9-77.29h46.9V429h-53.86V320.27l-42.43 61.44z"></path></svg></span>LGTMしたユーザ一覧</a><a class="st-Dropdown_item" href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1.md"><span class="fa fa-fw fa-file-text-o pr-1"></span>Markdown で本文を見る</a><div class="st-Dropdown_separator"></div><div class="st-Dropdown_item"><span class="fa fa-fw fa-volume-up pr-1"></span>記事を購読する</div><div class="st-Dropdown_item"><span class="fa fa-fw fa-flag pr-1"></span>問題がある記事を報告する</div></div></div></div><div class="st-Modal"><div class="st-Modal_backdrop"></div><div class="st-Modal_body"><form><div class="st-Form"><span class="st-Form_label">この記事にどのような問題がありますか？</span></div><div class="st-Form"><label><input type="radio" name="reason" value="spam" required="">スパムです</label></div><div class="st-Form"><label><input type="radio" name="reason" value="harassment" required="">攻撃的または迷惑な内容を含んでいます</label></div><div class="st-Form"><label><input type="radio" name="reason" value="inappropriate_content" required="">不適切な内容を含んでいます</label></div><div class="st-Form st-Form-right"><input type="submit" class="st-Form_submit" value="送信"></div></form></div></div></div></div></div><h1 class="it-Header_title" itemprop="headline">OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019)</h1><div class="it-Tags"><a href="https://qiita.com/tags/cpp" class="it-Tags_item"><span>C++</span></a><a href="https://qiita.com/tags/cmake" class="it-Tags_item"><span>CMake</span></a><a href="https://qiita.com/tags/%e7%94%bb%e5%83%8f%e5%87%a6%e7%90%86" class="it-Tags_item"><span>画像処理</span></a><a href="https://qiita.com/tags/opencv" class="it-Tags_item"><span>OpenCV</span></a><a href="https://qiita.com/tags/visualstudio" class="it-Tags_item"><span>VisualStudio</span></a></div></div><section class="it-MdContent" itemprop="articleBody"><div id="personal-public-article-body"><div>
+<h1>
+<span id="概要" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#%E6%A6%82%E8%A6%81"><i class="fa fa-link"></i></a>概要</h1>
+
+<p>OpenCVをCMakeを使用してインストールする方法をまとめました。<br>
+この手順を理解しておくとWindowsでのあらゆる環境構築が怖くなくなります。(たぶん)</p>
+
+<h1>
+<span id="実行環境" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#%E5%AE%9F%E8%A1%8C%E7%92%B0%E5%A2%83"><i class="fa fa-link"></i></a>実行環境</h1>
+
+<ul>
+<li>Windows10</li>
+<li><a href="https://visualstudio.microsoft.com/ja/vs/" rel="nofollow noopener" target="_blank">Visual Studio 2019</a></li>
+<li><a href="https://cmake.org/download/" rel="nofollow noopener" target="_blank">CMake 3.15.0</a></li>
+<li><a href="https://github.com/opencv/opencv" rel="nofollow noopener" target="_blank">OpenCV 4.1.0</a></li>
+</ul>
+
+<h1>
+<span id="インストールビルド" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%83%93%E3%83%AB%E3%83%89"><i class="fa fa-link"></i></a>インストール＆ビルド</h1>
+
+<h3>
+<span id="visual-studio" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#visual-studio"><i class="fa fa-link"></i></a>Visual Studio</h3>
+
+<p>下記からダウンロード＆インストールします。<br>
+<a href="https://visualstudio.microsoft.com/ja/vs/" class="autolink" rel="nofollow noopener" target="_blank">https://visualstudio.microsoft.com/ja/vs/</a></p>
+
+<h3>
+<span id="cmake" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#cmake"><i class="fa fa-link"></i></a>CMake</h3>
+
+<p>下記からダウンロード＆インストールします。<br>
+GUIを使用してMakeするので.msiをダウンロードします。<br>
+<a href="https://cmake.org/download/" class="autolink" rel="nofollow noopener" target="_blank">https://cmake.org/download/</a><br>
+<a href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_3d4cdfd5-4fe0-391c-6f36-6a1b1f367faa.png" target="_blank" rel="nofollow noopener"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_3d4cdfd5-4fe0-391c-6f36-6a1b1f367faa.png" alt="cmake.PNG" data-canonical-src="https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/3d4cdfd5-4fe0-391c-6f36-6a1b1f367faa.png" srcset="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F3d4cdfd5-4fe0-391c-6f36-6a1b1f367faa.png?ixlib=rb-1.2.2&amp;auto=format&amp;gif-q=60&amp;q=75&amp;w=1400&amp;fit=max&amp;s=5649636ad5d5c2c4d182d931b81260ae 1x" loading="lazy"></a></p>
+
+<h3>
+<span id="opencv" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#opencv"><i class="fa fa-link"></i></a>OpenCV</h3>
+
+<ol>
+<li><p>下記Gitからバージョンを確認して.zipダウンロードします。<br>
+任意の場所に展開します。(Cドライブの直下にProgramingLibraryというDIRを作成しその中に入れました。)<br>
+<a href="https://github.com/opencv/opencv" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/opencv/opencv</a><br>
+<a href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_6aa05bbc-813a-f730-0e6e-bcff53bebfed.png" target="_blank" rel="nofollow noopener"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_6aa05bbc-813a-f730-0e6e-bcff53bebfed.png" alt="opencv.PNG" data-canonical-src="https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/6aa05bbc-813a-f730-0e6e-bcff53bebfed.png" srcset="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F6aa05bbc-813a-f730-0e6e-bcff53bebfed.png?ixlib=rb-1.2.2&amp;auto=format&amp;gif-q=60&amp;q=75&amp;w=1400&amp;fit=max&amp;s=8b0e58755016801431fc65263d1b8e79 1x" loading="lazy"></a></p></li>
+<li><p>CMake(GUI)を起動し、OpenCVのDIR PATHを設定します。<br>
+.slnファイルを出力するPATHを設定します。<br>
+(私の場合はライブラリの直下にbuildというフォルダを出力するという自分ルールがあるため<strong>C:\ProgramingLibrary\opencv-4.1.0\build</strong>というPATHになっています。)<br>
+<a href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_45820413-6f34-5f52-d28c-7da520fbaf75.png" target="_blank" rel="nofollow noopener"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_45820413-6f34-5f52-d28c-7da520fbaf75.png" alt="cmake-.PNG" data-canonical-src="https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/45820413-6f34-5f52-d28c-7da520fbaf75.png" srcset="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F45820413-6f34-5f52-d28c-7da520fbaf75.png?ixlib=rb-1.2.2&amp;auto=format&amp;gif-q=60&amp;q=75&amp;w=1400&amp;fit=max&amp;s=1f8caa3d2e855266ec4acfcc48acbf33 1x" loading="lazy"></a></p></li>
+<li><p>Config、Generateの順で実行します。<br>
+今回はVisual Studio 2019でのビルドなので<strong>Visual Studio 16 2019</strong>を選択し、x64と設定します。<br>
+<a href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_a34bc282-9a9b-188f-670b-16e86d93b340.png" target="_blank" rel="nofollow noopener"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_a34bc282-9a9b-188f-670b-16e86d93b340.png" alt="cmake.PNG" data-canonical-src="https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/a34bc282-9a9b-188f-670b-16e86d93b340.png" srcset="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fa34bc282-9a9b-188f-670b-16e86d93b340.png?ixlib=rb-1.2.2&amp;auto=format&amp;gif-q=60&amp;q=75&amp;w=1400&amp;fit=max&amp;s=d711bd6dc9a60803878aea9031c7512b 1x" loading="lazy"></a></p></li>
+<li><p>設定したパスに出力された.slnをVisual Studioで開きます。<br>
+出力したい実行環境になっていることを確認します。(今回はx64 Release)<br>
+<a href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_abc866b9-b6b1-704b-a4ea-47335b6e67ad.png" target="_blank" rel="nofollow noopener"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_abc866b9-b6b1-704b-a4ea-47335b6e67ad.png" alt="build.PNG" data-canonical-src="https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/abc866b9-b6b1-704b-a4ea-47335b6e67ad.png" srcset="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fabc866b9-b6b1-704b-a4ea-47335b6e67ad.png?ixlib=rb-1.2.2&amp;auto=format&amp;gif-q=60&amp;q=75&amp;w=1400&amp;fit=max&amp;s=790056f9864d254021dc281472d9e29e 1x" loading="lazy"></a></p></li>
+<li><p>ALL_BUILDを右クリックしてビルド<br>
+<a href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_af4ebb55-301b-be35-3ce4-6f1072522f6c.png" target="_blank" rel="nofollow noopener"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_af4ebb55-301b-be35-3ce4-6f1072522f6c.png" alt="bs.PNG" data-canonical-src="https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/af4ebb55-301b-be35-3ce4-6f1072522f6c.png" srcset="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Faf4ebb55-301b-be35-3ce4-6f1072522f6c.png?ixlib=rb-1.2.2&amp;auto=format&amp;gif-q=60&amp;q=75&amp;w=1400&amp;fit=max&amp;s=b9052ca7d0898bd023f0579ccf42e2ed 1x" loading="lazy"></a></p></li>
+<li><p>INSTALLを右クリックしてビルド<br>
+<a href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_c74689e8-dd34-9869-b1c7-7cfb92a88678.png" target="_blank" rel="nofollow noopener"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_c74689e8-dd34-9869-b1c7-7cfb92a88678.png" alt="ins.PNG" data-canonical-src="https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/c74689e8-dd34-9869-b1c7-7cfb92a88678.png" srcset="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fc74689e8-dd34-9869-b1c7-7cfb92a88678.png?ixlib=rb-1.2.2&amp;auto=format&amp;gif-q=60&amp;q=75&amp;w=1400&amp;fit=max&amp;s=c64ec36e9186f571bc993ceafa141d39 1x" loading="lazy"></a></p></li>
+<li>
+<p>build以下にinstall DIRができていて、中身も生成されていることを確認します。<br>
+<a href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_9414923e-f46a-9e61-f8ad-a01e4e6593c4.png" target="_blank" rel="nofollow noopener"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_9414923e-f46a-9e61-f8ad-a01e4e6593c4.png" alt="ins_dir.PNG" data-canonical-src="https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/9414923e-f46a-9e61-f8ad-a01e4e6593c4.png" srcset="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F9414923e-f46a-9e61-f8ad-a01e4e6593c4.png?ixlib=rb-1.2.2&amp;auto=format&amp;gif-q=60&amp;q=75&amp;w=1400&amp;fit=max&amp;s=b43976a580c9e1ae28745b5543bcf3db 1x" loading="lazy"></a></p>
+
+<h3>
+<span id="パスを通す" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#%E3%83%91%E3%82%B9%E3%82%92%E9%80%9A%E3%81%99"><i class="fa fa-link"></i></a>パスを通す</h3>
+
+<h5>
+<span id="cmake_prefix_path" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#cmake_prefix_path"><i class="fa fa-link"></i></a>CMAKE_PREFIX_PATH</h5>
+
+<p>システム環境変数から下記画像のようにOpenCVConfig.cmakeがあるDIRのPATHを通します。<br>
+<a href="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_74577a42-1535-ec8d-cc8a-f5e3540e04be.png" target="_blank" rel="nofollow noopener"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_74577a42-1535-ec8d-cc8a-f5e3540e04be.png" alt="prefix.PNG" data-canonical-src="https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/74577a42-1535-ec8d-cc8a-f5e3540e04be.png" srcset="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F74577a42-1535-ec8d-cc8a-f5e3540e04be.png?ixlib=rb-1.2.2&amp;auto=format&amp;gif-q=60&amp;q=75&amp;w=1400&amp;fit=max&amp;s=eef79aae81d8ae6fb55cb09d02747cba 1x" loading="lazy"></a></p>
+
+<h5>
+<span id="path" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#path"><i class="fa fa-link"></i></a>PATH</h5>
+
+<p>PATHに.dllファイルが出力されているDIRのPATHを通す。<br>
+<strong>このDIRは定期的に変わるので注意です。</strong></p>
+
+<h1>
+<span id="サンプルプログラム" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0"><i class="fa fa-link"></i></a>サンプルプログラム</h1>
+
+<p>画像が読み込んで表示するプログラムです。<br>
+任意の場所にDIRを作成し、DIRの中に下記プログラムと任意の画像(<strong>.jpg</strong>)を入れます。</p>
+</li>
+</ol>
+
+<div class="code-frame" data-lang="CMake">
+<div class="code-lang"><span class="bold">CMakeLists.txt</span></div>
+<div class="highlight"><pre><span class="nb">cmake_minimum_required</span><span class="p">(</span>VERSION 2.8<span class="p">)</span>
+
+<span class="nb">set</span><span class="p">(</span>PROJECT_NAME Test<span class="p">)</span>
+<span class="nb">project</span><span class="p">(</span><span class="si">${</span><span class="nv">PROJECT_NAME</span><span class="si">}</span><span class="p">)</span>
+
+<span class="nb">find_package</span><span class="p">(</span>OpenCV 4.1.0 EXACT REQUIRED<span class="p">)</span>
+<span class="nb">include_directories</span><span class="p">(</span><span class="si">${</span><span class="nv">OpenCV_INCLUDE_DIRS</span><span class="si">}</span> <span class="si">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="si">}</span>/include<span class="p">)</span>
+<span class="nb">link_directories</span><span class="p">(</span><span class="si">${</span><span class="nv">OpenCV_LIBRARY_DIRS</span><span class="si">}</span><span class="p">)</span>
+
+<span class="nb">file</span><span class="p">(</span>GLOB SOURCE_CPP *.cpp<span class="p">)</span>
+<span class="nb">file</span><span class="p">(</span>GLOB SOURCE_H *.h<span class="p">)</span>
+
+<span class="nb">add_executable</span><span class="p">(</span><span class="si">${</span><span class="nv">PROJECT_NAME</span><span class="si">}</span> <span class="si">${</span><span class="nv">SOURCE_CPP</span><span class="si">}</span> <span class="si">${</span><span class="nv">SOURCE_H</span><span class="si">}</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="si">${</span><span class="nv">PROJECT_NAME</span><span class="si">}</span> <span class="si">${</span><span class="nv">OpenCV_LIBRARIES</span><span class="si">}</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="C++">
+<div class="code-lang"><span class="bold">main.cpp</span></div>
+<div class="highlight"><pre><span class="cp">#include &lt;opencv2/opencv.hpp&gt;
+#include &lt;iostream&gt;
+</span>
+<span class="kt">void</span> <span class="nf">main</span><span class="p">(){</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">pattern</span> <span class="o">=</span> <span class="s">"..</span><span class="se">\\</span><span class="s">*.jpg"</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">files</span><span class="p">;</span>
+    <span class="n">cv</span><span class="o">::</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">files</span><span class="p">);</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">files</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"erorr"</span> <span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>   
+    <span class="p">}</span>
+
+    <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">imread</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">image</span><span class="p">.</span><span class="n">size</span> <span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">cv</span><span class="o">::</span><span class="n">imshow</span><span class="p">(</span><span class="s">"show"</span><span class="p">,</span> <span class="n">image</span><span class="p">);</span>
+    <span class="n">cv</span><span class="o">::</span><span class="n">waitKey</span> <span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<ol>
+<li>上記同様にCMakeでmakeする。</li>
+<li>Generateされた.slnをVSで開く。</li>
+<li>実行環境が合っていることを確認して実行<br>
+(プロジェクト名が非アクティブの場合はプロジェクト名を右クリックして<strong>スタートアッププロジェクトに設定</strong>でアクティブにする。)する。</li>
+<li>画像が読み込まれて表示されるプログラム完成</li>
+</ol>
+
+<h1>
+<span id="opencv-contribの導入" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#opencv-contrib%E3%81%AE%E5%B0%8E%E5%85%A5"><i class="fa fa-link"></i></a>OpenCV contribの導入</h1>
+
+<p><a href="https://qiita.com/sanishi_pompom/items/5191aeca8d6de3e98595" class="autolink" id="reference-6d632cdc0ffe8765a09f">https://qiita.com/sanishi_pompom/items/5191aeca8d6de3e98595</a></p>
+
+<h1>
+<span id="まとめ" class="fragment"></span><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h1>
+
+<p>CMake(GUI)を使えばコマンドラインからは分かりにくい設定も分かりやすいです。<br>
+もう環境構築怖くない～</p>
+</div></div></section><div class="it-Footer"><div class="it-Footer_actions"><div class="it-Footer_editRequest"><a href="https://qiita.com/drafts/02b158dfad3a5dafd0a1/edit" class="u-link-no-underline"><span>編集リクエスト</span></a></div><div class="it-Footer_stock"><button><svg size="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 353.02 398" class="sc-AxgMl krsllF"><path d="M176.72 398c-67.52 0-130.16-29-171.84-79.69l-4.46-5.42V78.05H353v234.84l-4.45 5.42C306.88 369 244.24 398 176.72 398zm-137.2-99.34c34.17 38.37 83.78 60.25 137.2 60.25s103-21.88 137.21-60.25V117.14H39.52zM0 0h351.12v40.94H0z"></path></svg><span class="it-Footer_stockLabel">ストック</span></button></div><div class="it-Footer_like" title="Looks Good To Me!"><button style="background-color:#fff"><span style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"><svg size="56" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 564.81 145.68" color="#55C500" class="sc-AxhCb hrkmkW"><path d="M0 3.85h38.39v106.5h64.16v32H0zM195.41 66.82h71.82q.91 17.84-4 32.35A68.89 68.89 0 01248.71 124a65.49 65.49 0 01-22.9 16 74.08 74.08 0 01-29.17 5.65 78.16 78.16 0 01-54.17-21.32 74.1 74.1 0 01-16.42-23.21 68.08 68.08 0 01-6-28.41 67.7 67.7 0 016-28.42 74.44 74.44 0 0116.42-23.1 76.37 76.37 0 0124.32-15.52 78.92 78.92 0 0184.43 16.06l-25 25A36.52 36.52 0 00213.57 36a37.65 37.65 0 00-31.83-.87 37.7 37.7 0 00-12.08 8.57 40.75 40.75 0 00-8.17 12.91 42.8 42.8 0 00-3 16.22 42.91 42.91 0 003 16.17 40.44 40.44 0 008.17 13 37.4 37.4 0 0012.08 8.57 36.07 36.07 0 0014.9 3.11q14.38 0 22.13-5.35a25.46 25.46 0 0010.31-14.65h-33.77zM319.44 36.21h-36.55v-32h111.18v32h-36.45v106.5h-38.18zM486.82 109l-29.73-44.18v77.89H418.7V4.24h33.83l39 55.09 39.86-55.09h33.42v138.47h-38.38V65.23L496.19 109z"></path></svg></span></button><a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1/likers" class="it-Footer_likeCount">6</a></div></div><div class="it-Footer_social"><div class="it-Footer_shareButton it-Footer_shareButton-twitter"><span class="fa fa-twitter"></span></div><div class="it-Footer_shareButton it-Footer_shareButton-facebook"><span class="fa fa-facebook"></span></div></div></div><div class="ai-Container" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><div class="ai-User"><a href="https://qiita.com/sanishi_pompom"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws(1).com_0_439748_profile-images_1561623343" alt="sanishi_pompom" class="ai-User_image" itemprop="image"></a><div class="ai-User_body"><div class="ai-User_header"><a href="https://qiita.com/sanishi_pompom" class="ai-User_name">nishi sakiko</a><a href="https://qiita.com/sanishi_pompom" class="ai-User_urlname" itemprop="name">@<!-- -->sanishi_pompom</a></div><div class="ai-User_description"></div><div class="ai-User_footer"><button class="sc-AxjAm cdDtJU">フォロー</button></div></div></div></div><div><div class="it-Ads_afterBodyContainer it-Ads_afterBodyContainer-wide mt-3"><div class="it-Ads_afterBodyWrapper"><div id="dfp-slot-after-body-for-pc-left-login-user" class="ad-336x280" data-test-adunitpath="/383564218/qiita.com_loginuser_under-article-left" elementtiming="gpt-dfp-slot-after-body-for-pc-left-login-user" data-testid="ArticleAdsAfterBody_AdUnit" data-google-query-id="CM2VnLPNm-gCFcNzvQodGM8B4g"><div id="google_ads_iframe_/383564218/qiita.com_loginuser_under-article-left_0__container__" style="border: 0pt none;"><iframe id="google_ads_iframe_/383564218/qiita.com_loginuser_under-article-left_0" title="3rd party ad content" name="google_ads_iframe_/383564218/qiita.com_loginuser_under-article-left_0" width="336" height="280" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" style="border: 0px; vertical-align: bottom;" data-google-container-id="1" data-load-complete="true" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/saved_resource.html"></iframe></div></div></div><div class="it-Ads_afterBodyWrapper"><div id="dfp-slot-after-body-for-pc-right-login-user" class="ad-336x280" data-test-adunitpath="/383564218/qiita.com_loginuser_under-article-right" elementtiming="gpt-dfp-slot-after-body-for-pc-right-login-user" data-testid="ArticleAdsAfterBody_AdUnit" data-google-query-id="CN6BnrPNm-gCFRaXvQodVQUGLw"><div id="google_ads_iframe_/383564218/qiita.com_loginuser_under-article-right_0__container__" style="border: 0pt none;"><iframe id="google_ads_iframe_/383564218/qiita.com_loginuser_under-article-right_0" title="3rd party ad content" name="google_ads_iframe_/383564218/qiita.com_loginuser_under-article-right_0" width="300" height="250" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" style="border: 0px; vertical-align: bottom;" data-google-container-id="2" data-load-complete="true" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/saved_resource(2).html"></iframe></div></div></div></div></div></div></div><div class="p-items_options"><div class="mt-2"><div id="dfp-slot-sidebar-top-login-user" class="ad-300x250" data-test-adunitpath="/383564218/qiita.com_loginuser_sidebar-top" elementtiming="gpt-dfp-slot-sidebar-top-login-user" data-testid="ArticleAdsSidebarTop_AdUnit" data-google-query-id="CMKUnLPNm-gCFUEjvQod5ZUKKw"><div id="google_ads_iframe_/383564218/qiita.com_loginuser_sidebar-top_0__container__" style="border: 0pt none;"><iframe id="google_ads_iframe_/383564218/qiita.com_loginuser_sidebar-top_0" title="3rd party ad content" name="google_ads_iframe_/383564218/qiita.com_loginuser_sidebar-top_0" width="300" height="250" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" style="border: 0px; vertical-align: bottom;" data-google-container-id="3" data-load-complete="true" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/saved_resource(3).html"></iframe></div></div></div></div><div class="p-items_toc"><div class="mt-2"></div><div class="it-Toc"><div class="it-Toc_nav"><ul>
+<li>
+<a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#%E6%A6%82%E8%A6%81" class="">概要</a>
+</li>
+<li>
+<a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#%E5%AE%9F%E8%A1%8C%E7%92%B0%E5%A2%83" class="">実行環境</a>
+</li>
+<li>
+<a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%83%93%E3%83%AB%E3%83%89" class="">インストール＆ビルド</a>
+<ul>
+<ul>
+<li>
+<a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#visual-studio" class="">Visual Studio</a>
+</li>
+<li>
+<a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#cmake" class="">CMake</a>
+</li>
+<li>
+<a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#opencv" class="focus">OpenCV</a>
+</li>
+<li>
+<a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#opencv-contrib%E3%81%AE%E5%B0%8E%E5%85%A5">OpenCV contribの導入</a>
+</li>
+<li>
+<a href="https://qiita.com/sanishi_pompom/items/02b158dfad3a5dafd0a1#%E3%81%BE%E3%81%A8%E3%82%81">まとめ</a>
+</li>
+</ul>
+</ul>
+</li>
+</ul></div></div></div></div></div><div class="p-items_wrapper p-items_wrapper-white"><div class="p-items_container"><div class="p-items_leftDummy"></div><div class="p-items_main"><div class="p-items_aside px-5 p-2@s"><div id="logly-lift-4279494"><div id="logly-lift-widget">  <div id="logly-lift-widget-header">    <span>関連記事</span>    <span class="logly-lift-credit logly-lift-credit2"><a href="https://www.logly.co.jp/privacy.html" target="_top" rel="nofollow">Recommended by <span class="logly-lift-credit-logo" title="logly"></span></a></span>  </div>  <div id="logly-lift-widget-content">    <div class="logly-lift-ad">  <span class="logly-lift-ad-icon"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/8183bf6a58c47f517159f592afe72e1c_" width="18"></span>  <div　class="logly-lift-ad-content">    <a class="logly-lift-ad-link" href="https://qiita.com/yizumi1012xxx/items/762005e4b41cafcf1d43" target="_top" style="text-decoration:none;" data-click-url="https://dsp.logly.co.jp/click?ad=4AG4hpsDG-Te7S0jrL0wkcOJCxF8Q2BHMBg_DUK2qwLXj4W9oAInxiMAGFc1cVug_LXAbFrP5Sxb72yXHFZLbYHgrRNcpfYZbUiEsUUDcPB4iRdJMAt9To9k92R_pU0Y9plU_KQ04XN-Ka1DZVxHqTx8QFeJKdd2HTvWKA2CE9UEaNL3JmqSTve8898y6DIYf6Drgl3g6jmseCoEbgCSqWQYb0MLEN2kjLv-1LcfThF8JUz4AJS6uwpmbJDA5Z3kLWkXr8wcWPWQwKHdIHO_Yb1oUcyyQws-6z0XaJWPmO0NU26hLVg-DW3qxOj8m6pDDMoIsIX8kgzi-fVVq7CGpbLR65ZZQzWemRVMTk0w4u84jhJelCV7MO7NlpxZuaXUSjnuZe_Volg2PJ8AxRO6V8TwW2aueabg4wAAwKGKLZRGLQrlXUHyrwQNNqrDTuFlwD4h0hViE7uWvqUgAiQAIGLica8d0LtT91hEFjnpUIqom0qR1Y7OhqyO8AmvHj80aETmfgrP0Jqjy8qa3Gu-I4UFK3RlmfPNuRcEhiRL9paOAc7jvTMsaQ" onmousedown="this.setAttribute(&#39;href&#39;,this.getAttribute(&#39;data-click-url&#39;));">      <span class="logly-lift-ad-title">OpenCV3.1.0でSIFTとかSURFとかBINGを使う（Windows 7, Vi...</span>    </a>    <span class="logly-lift-ad-author">by yizumi1012xxx</span><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/abc" width="1" height="1" style="position: absolute; width: 1px; height: 1px; top: -32767px; left: -32767px;">  </div　class="logly-lift-ad-content"></div></div><div class="logly-lift-ad">  <span class="logly-lift-ad-icon"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/53edd1aa462e65007091a8cd46bec446_" width="18"></span>  <div　class="logly-lift-ad-content">    <a class="logly-lift-ad-link" href="https://qiita.com/tomochiii/items/fa26404ebc5fcd4481b9" target="_top" style="text-decoration:none;" data-click-url="https://dsp.logly.co.jp/click?ad=4AG4hpsDG-Te7S0jrL0wkcOJCxF8Q2BHMBg_DUK2qwLqqNj7kzYRYB2NQn39RtoKqqDao0axbgqnw_wYe2c8TfwRZdqxvGgloBdr5dGCGO1F0u8u2aulG0NYs1M3pRJXgSkMhw8bUynGYiDIvJ3pj0gIhjlkHx5CoPR3p8fytMra8pHH9Vhx6vzCaBV7EcPWgs9Mxl5a02qmura3DMt2y0P2wpG7Eg5egGXW9_NuFlj7mfpK9MqUT14QkUGW3SMPHwm1qQpIChBKO_24Tgzo1Riaw3qy_Y5YEKFx0g7JF3ewx1cmteS7z3N4IkZodepg1yTWDBJYZaYPVjwO0sG2qIvjFq17AQzFjqvwVWLl85yPcBpFZV0oAlcU0fqP2ce64mHG_6QpnfI0mCw6AP_QmZvMOKRS9cj30NLxd-3aM-O_9Z_DzvV1tkJzET5GHg9Hmv7-UDU4MkAh03hmOmAsdBKzoJEq1w40fn0bPl3IhQrV08ypec1LWH7WjQJSaqqKRcDUiviKdQ1A7fv94PECQjcVOBJOpoMWfBFYlEzmpvU" onmousedown="this.setAttribute(&#39;href&#39;,this.getAttribute(&#39;data-click-url&#39;));">      <span class="logly-lift-ad-title">Visual Studio 2017にOpenCV3.2.0とopencv_contrib...</span>    </a>    <span class="logly-lift-ad-author">by tomochiii</span>  </div　class="logly-lift-ad-content"></div></div><div class="logly-lift-ad">  <span class="logly-lift-ad-icon"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/95d1ed4743dfb45bbef259bb8ccc5716_" width="18"></span>  <div　class="logly-lift-ad-content">    <a class="logly-lift-ad-link" href="https://qiita.com/nonbiri15/items/c77c046f0e10f8140cfe" target="_top" style="text-decoration:none;" data-click-url="https://dsp.logly.co.jp/click?ad=4AG4hpsDG-Te7S0jrL0wkcOJCxF8Q2BHMBg_DUK2qwJAELdxC8Vr5gc5TvkUhsVm79AWfJw72g4JL7ro1d6GFxzVVKlELP-bu70HeINfUUlkrgHJq6O3uFsuoYwC4PeZRPS8KRB7x_6O1DMPXtZM-7YV_BHqSAa6JoFU8vEZhGYPC_y41XiuEZkIE8OGEPsY-kIbOCFyK9UjwKPmYWP5MB4ScHDAWxrtoq-mP6x-0qHDfvIXpbjDceWMIfB85tWEKt7qhqmMBl73OPt84xxd1WAemwZArwJUNwHpGD5bQIXnUYjPXnA4DiRydlsWGqISxGhQ6CI3h_E7y1SaBa1Sw47Rv0Vt-J1TT91tHLnyyFwChc9zTZrlf9TMKQ4AlQXYfWey7hoc5OpZYXvQk8OzDHghwij9yRI4LIugEzfwr0nzwtOyR4EMvMfGu1oQAp0F5Whm9NIb6vS0A-QsfW_oNkTgYnBFT1fqoczqXh1sFYcdqbDfA_D1cMccoHmabR0m1mHZ7oZRCsaYjdkmpLHRoyUTGabK2205RJWrH0xLjzc" onmousedown="this.setAttribute(&#39;href&#39;,this.getAttribute(&#39;data-click-url&#39;));">      <span class="logly-lift-ad-title">CMakeLists.txt から始めよう</span>    </a>    <span class="logly-lift-ad-author">by nonbiri15</span>  </div　class="logly-lift-ad-content"></div><div class="logly-lift-ad">  <span class="logly-lift-ad-icon"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/a16259967f4d2afb19e4e0755e33b165_" width="18"></span>  <div　class="logly-lift-ad-content">    <a class="logly-lift-ad-link" href="https://qiita.com/SatoshiGachiFujimoto/items/c65022a5a6bf845d219b" target="_top" style="text-decoration:none;" data-click-url="https://dsp.logly.co.jp/click?ad=4AG4hpsDG-Te7S0jrL0wkcOJCxF8Q2BHMBg_DUK2qwLQpnizmggiu7ZoE7chehmp0VJhwXi5Tw7GIOffLkqpLz1AA_PFMLg0_2UHRnsBPQZqX16yqolW1RyeggIJdLOVaz3wVM5VTcLWwu1DNvlZI17O1852OH_3RNjNy-qe04yFnuec-DcYU_n5-kfKmD3TyaoUIMudcOxztGoGMx1KzCm6Y71KkI1LeBRbt8Yuq20ed65RPJRf02WFbG0XgNY0__fsFjcWzUoUiiyU-EbJPm7jeuHtnbhcTkIUuJHBqHUWiUcMJC3i0rldyi9SRLoDH81Xm913DKKDF1QSEy_L12_oa9r8o2KqsG4P0YDE0CwZaGhnAs90VLNJYWE2DhAUyk6Obc7cZMAAy8cQoKSJZHf_OkVVEJ0RTs8tKLqxr9-38l7TnKeRCmemlmjbXC0Hl717jhO8n5HJXjRSPUO_5WDnpDWukDZHnVHa6hmu45j3d483JPQrHq6g5cHznMC8fLOS821KqY_JVZ1QMyEyvSG_dI38YiAVXAvB-mLWs4XIjgCHJLGcGJKlP7k4g3LS-6CHM_zp6Tfd6gqHClKdqQ" onmousedown="this.setAttribute(&#39;href&#39;,this.getAttribute(&#39;data-click-url&#39;));">      <span class="logly-lift-ad-title">OpenCV 3.0がリリースされたので導入してみた</span>    </a>    <span class="logly-lift-ad-author">by SatoshiGachiFujimoto</span>  </div　class="logly-lift-ad-content"></div><div class="logly-lift-ad">    <span class="logly-lift-ad-icon"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/normal.jpg" width="18"></span>    <div　class="logly-lift-ad-content">      <a class="logly-lift-ad-link" href="https://dsp.logly.co.jp/click?ad=4AG4hpsDG-Te7S0jrL0wkcOJCxF8Q2BHxQe8nDi1JTnBLBsig1G_clhOcvDS4i7HhRzmFjjOwD-X0zzbrLqLUMrfLZYtaASrMREtbw_AUG9tfeD9SRsHq716-BDqZgYbNGDdwRqx6nbtjWl8G3vYOfO48Uer_m1kEzjBcnVd3jWiYXgptL4SAfqSyLsLeuvMKxx2QrnhWNiPX82ULnjlGezRGQWh_7CbMrTMfO6XWInRC1p9JCLDx-dyAXthFJcib9P-Ch3peHhalDHlramCJTret_uxG3nODb_5PLEb8OYGBoeX1K_lsC0b3in-w2Gapih6yuazhioAu2utBWciYXSr7EcQUnXyaQkDqFrlaP0T53PfjlcB5spIqNcOfvlv34DACg4F0kdgDYM8qOMrhJoh4lt9EmfJmo8TTObxwYw" target="_blank" style="text-decoration:none;" rel="nofollow">        <span class="logly-lift-ad-title">『Qiitaユーザーが選ぶ、2019年に読んで良かった技術書』アンケート結果発表</span>      </a><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/bc" width="1" height="1" style="position: absolute; width: 1px; height: 1px; top: -32767px; left: -32767px;">      <span class="logly-lift-ad-adv">PR Qiita Zine</span>    </div　class="logly-lift-ad-content"></div>    <div class="logly-lift-clear"></div></div></div><div class="p-items_aside mt-5 px-5 p-2@s"><div class="it-ReferenceList"><div class="it-ReferenceList_title"><span class="fa fa-link"></span>この記事は以下の記事からリンクされています</div><div class="it-Reference"><img class="it-Reference_authorImage" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.amazonaws.com_0_90659_profile-images_1499789884" alt="h-adachi"><a href="https://qiita.com/h-adachi/items/aad3401b8900438b2acd" class="it-Reference_articleTitle">OpenCV 4.2.0をVisual Studio 2019から使用する時の手順</a>の<img class="it-Reference_commenterImage" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.amazonaws.com_0_71004_profile-images_1473698662" alt="linden"><a href="https://qiita.com/h-adachi/items/aad3401b8900438b2acd#comment-580c94ee58ac3d68c34d" class="it-Reference_comment">コメント</a>からリンク<time class="it-Reference_time">4 months ago</time></div><div class="it-Reference"><img class="it-Reference_authorImage" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___qiita-image-store.s3.ap-northeast-1.amazonaws.com_0_439748_profile-images_1561623343" alt="sanishi_pompom"><a href="https://qiita.com/sanishi_pompom/items/5191aeca8d6de3e98595" class="it-Reference_articleTitle">opencv_contrib 4.1.0をCMakeを使って導入する方法(Visual Studio 2019)</a>からリンク<time class="it-Reference_time">6 months ago</time></div></div></div><div></div><div class="p-items_aside mt-6 px-5 p-2@s" id="comments-wrapper"><div id="comments" class="co-ItemWrapper"><div class="co-ItemWrapper_title mb-2"><span class="fa fa-comments mr-1"></span>コメント</div><div class="mb-4">この記事にコメントはありません。</div><div style="margin-top:30px"><div><div><div class="sc-fzqBZW eNQuho"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/https___avatars2.githubusercontent.com_u_55769107_v=4" width="36" height="36" class="sc-fzozJi dteCCc"><span class="sc-fzqNJr hXQgjp">コメントを投稿する</span></div><div class="sc-fzoyAV fQsatj"><div class="sc-fzoLag BNtsP"><div class="sc-fzoXzr fOZpoD">編集</div><div class="sc-fzoXzr egmrGy">プレビュー</div></div><div class="sc-fzpjYC gJohPa"><a href="https://qiita.com/Qiita/items/c686397e4a0f4f11683d" target="_blank" title="Markdownの書き方" class="sc-fznJRM bTIjTR"><span class="fa fa-question-circle fa-lg"></span></a><div title="絵文字を選択" class="sc-fznxsB cUWXFh"><span class="fa fa-smile-o fa-lg"></span></div></div></div><div class="sc-fzqARJ eLpUJW"><textarea placeholder="コメントを入力" class="sc-fzoyTs jZUSDr" style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 99.9792px;"></textarea><div style="display:none;margin-bottom:0" class="sc-fzqNqU kikdAh co-Item_text"><div></div></div></div><div class="sc-fzoNJl loPePV"><div class="sc-fzoXWK hnKkAN"><span class="sc-fzpmMD enYpte"><i class="fa fa-picture-o"></i>画像を選択</span><span title="アップロード可能なサイズ" class="sc-fznxKY kfRyXm">0B / 100MB</span></div><button style="margin-left:auto" class="sc-fzoLsD dEBSqy" color="primary">投稿</button></div><input type="file" style="display:none"></div></div></div></div></div></div><div class="p-items_rightDummy"></div></div></div></div></div>
+      <script type="application/json" class="js-react-on-rails-component" data-component-name="PersonalArticle" data-dom-id="PersonalArticle-react-component-dd32336f-181a-485c-bcc3-4dcb895d6bf4">{"article":{"body":"\n\u003ch1\u003e\n\u003cspan id=\"概要\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#%E6%A6%82%E8%A6%81\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003e概要\u003c/h1\u003e\n\n\u003cp\u003eOpenCVをCMakeを使用してインストールする方法をまとめました。\u003cbr\u003e\nこの手順を理解しておくとWindowsでのあらゆる環境構築が怖くなくなります。(たぶん)\u003c/p\u003e\n\n\u003ch1\u003e\n\u003cspan id=\"実行環境\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#%E5%AE%9F%E8%A1%8C%E7%92%B0%E5%A2%83\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003e実行環境\u003c/h1\u003e\n\n\u003cul\u003e\n\u003cli\u003eWindows10\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"https://visualstudio.microsoft.com/ja/vs/\" rel=\"nofollow noopener\" target=\"_blank\"\u003eVisual Studio 2019\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"https://cmake.org/download/\" rel=\"nofollow noopener\" target=\"_blank\"\u003eCMake 3.15.0\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"https://github.com/opencv/opencv\" rel=\"nofollow noopener\" target=\"_blank\"\u003eOpenCV 4.1.0\u003c/a\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\n\u003ch1\u003e\n\u003cspan id=\"インストールビルド\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%83%93%E3%83%AB%E3%83%89\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003eインストール＆ビルド\u003c/h1\u003e\n\n\u003ch3\u003e\n\u003cspan id=\"visual-studio\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#visual-studio\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003eVisual Studio\u003c/h3\u003e\n\n\u003cp\u003e下記からダウンロード＆インストールします。\u003cbr\u003e\n\u003ca href=\"https://visualstudio.microsoft.com/ja/vs/\" class=\"autolink\" rel=\"nofollow noopener\" target=\"_blank\"\u003ehttps://visualstudio.microsoft.com/ja/vs/\u003c/a\u003e\u003c/p\u003e\n\n\u003ch3\u003e\n\u003cspan id=\"cmake\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#cmake\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003eCMake\u003c/h3\u003e\n\n\u003cp\u003e下記からダウンロード＆インストールします。\u003cbr\u003e\nGUIを使用してMakeするので.msiをダウンロードします。\u003cbr\u003e\n\u003ca href=\"https://cmake.org/download/\" class=\"autolink\" rel=\"nofollow noopener\" target=\"_blank\"\u003ehttps://cmake.org/download/\u003c/a\u003e\u003cbr\u003e\n\u003ca href=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F3d4cdfd5-4fe0-391c-6f36-6a1b1f367faa.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=a47a6c87e46c29009d30501c52aafee6\" target=\"_blank\" rel=\"nofollow noopener\"\u003e\u003cimg src=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F3d4cdfd5-4fe0-391c-6f36-6a1b1f367faa.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=a47a6c87e46c29009d30501c52aafee6\" alt=\"cmake.PNG\" data-canonical-src=\"https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/3d4cdfd5-4fe0-391c-6f36-6a1b1f367faa.png\" srcset=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F3d4cdfd5-4fe0-391c-6f36-6a1b1f367faa.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;w=1400\u0026amp;fit=max\u0026amp;s=5649636ad5d5c2c4d182d931b81260ae 1x\" loading=\"lazy\"\u003e\u003c/a\u003e\u003c/p\u003e\n\n\u003ch3\u003e\n\u003cspan id=\"opencv\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#opencv\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003eOpenCV\u003c/h3\u003e\n\n\u003col\u003e\n\u003cli\u003e\u003cp\u003e下記Gitからバージョンを確認して.zipダウンロードします。\u003cbr\u003e\n任意の場所に展開します。(Cドライブの直下にProgramingLibraryというDIRを作成しその中に入れました。)\u003cbr\u003e\n\u003ca href=\"https://github.com/opencv/opencv\" class=\"autolink\" rel=\"nofollow noopener\" target=\"_blank\"\u003ehttps://github.com/opencv/opencv\u003c/a\u003e\u003cbr\u003e\n\u003ca href=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F6aa05bbc-813a-f730-0e6e-bcff53bebfed.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=b9360b08f13bc32ac53f40556e04ecf8\" target=\"_blank\" rel=\"nofollow noopener\"\u003e\u003cimg src=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F6aa05bbc-813a-f730-0e6e-bcff53bebfed.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=b9360b08f13bc32ac53f40556e04ecf8\" alt=\"opencv.PNG\" data-canonical-src=\"https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/6aa05bbc-813a-f730-0e6e-bcff53bebfed.png\" srcset=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F6aa05bbc-813a-f730-0e6e-bcff53bebfed.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;w=1400\u0026amp;fit=max\u0026amp;s=8b0e58755016801431fc65263d1b8e79 1x\" loading=\"lazy\"\u003e\u003c/a\u003e\u003c/p\u003e\u003c/li\u003e\n\u003cli\u003e\u003cp\u003eCMake(GUI)を起動し、OpenCVのDIR PATHを設定します。\u003cbr\u003e\n.slnファイルを出力するPATHを設定します。\u003cbr\u003e\n(私の場合はライブラリの直下にbuildというフォルダを出力するという自分ルールがあるため\u003cstrong\u003eC:\\ProgramingLibrary\\opencv-4.1.0\\build\u003c/strong\u003eというPATHになっています。)\u003cbr\u003e\n\u003ca href=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F45820413-6f34-5f52-d28c-7da520fbaf75.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=086d5a2d1e30725d5ded880c267b9a19\" target=\"_blank\" rel=\"nofollow noopener\"\u003e\u003cimg src=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F45820413-6f34-5f52-d28c-7da520fbaf75.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=086d5a2d1e30725d5ded880c267b9a19\" alt=\"cmake-.PNG\" data-canonical-src=\"https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/45820413-6f34-5f52-d28c-7da520fbaf75.png\" srcset=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F45820413-6f34-5f52-d28c-7da520fbaf75.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;w=1400\u0026amp;fit=max\u0026amp;s=1f8caa3d2e855266ec4acfcc48acbf33 1x\" loading=\"lazy\"\u003e\u003c/a\u003e\u003c/p\u003e\u003c/li\u003e\n\u003cli\u003e\u003cp\u003eConfig、Generateの順で実行します。\u003cbr\u003e\n今回はVisual Studio 2019でのビルドなので\u003cstrong\u003eVisual Studio 16 2019\u003c/strong\u003eを選択し、x64と設定します。\u003cbr\u003e\n\u003ca href=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fa34bc282-9a9b-188f-670b-16e86d93b340.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=8ef89f16e28780958418f786556e7186\" target=\"_blank\" rel=\"nofollow noopener\"\u003e\u003cimg src=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fa34bc282-9a9b-188f-670b-16e86d93b340.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=8ef89f16e28780958418f786556e7186\" alt=\"cmake.PNG\" data-canonical-src=\"https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/a34bc282-9a9b-188f-670b-16e86d93b340.png\" srcset=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fa34bc282-9a9b-188f-670b-16e86d93b340.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;w=1400\u0026amp;fit=max\u0026amp;s=d711bd6dc9a60803878aea9031c7512b 1x\" loading=\"lazy\"\u003e\u003c/a\u003e\u003c/p\u003e\u003c/li\u003e\n\u003cli\u003e\u003cp\u003e設定したパスに出力された.slnをVisual Studioで開きます。\u003cbr\u003e\n出力したい実行環境になっていることを確認します。(今回はx64 Release)\u003cbr\u003e\n\u003ca href=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fabc866b9-b6b1-704b-a4ea-47335b6e67ad.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=a3fc80eeed73b31ae3af262f9fd65be7\" target=\"_blank\" rel=\"nofollow noopener\"\u003e\u003cimg src=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fabc866b9-b6b1-704b-a4ea-47335b6e67ad.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=a3fc80eeed73b31ae3af262f9fd65be7\" alt=\"build.PNG\" data-canonical-src=\"https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/abc866b9-b6b1-704b-a4ea-47335b6e67ad.png\" srcset=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fabc866b9-b6b1-704b-a4ea-47335b6e67ad.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;w=1400\u0026amp;fit=max\u0026amp;s=790056f9864d254021dc281472d9e29e 1x\" loading=\"lazy\"\u003e\u003c/a\u003e\u003c/p\u003e\u003c/li\u003e\n\u003cli\u003e\u003cp\u003eALL_BUILDを右クリックしてビルド\u003cbr\u003e\n\u003ca href=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Faf4ebb55-301b-be35-3ce4-6f1072522f6c.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=2f5115b57cbf82a6ac78dfae0e2eea47\" target=\"_blank\" rel=\"nofollow noopener\"\u003e\u003cimg src=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Faf4ebb55-301b-be35-3ce4-6f1072522f6c.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=2f5115b57cbf82a6ac78dfae0e2eea47\" alt=\"bs.PNG\" data-canonical-src=\"https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/af4ebb55-301b-be35-3ce4-6f1072522f6c.png\" srcset=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Faf4ebb55-301b-be35-3ce4-6f1072522f6c.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;w=1400\u0026amp;fit=max\u0026amp;s=b9052ca7d0898bd023f0579ccf42e2ed 1x\" loading=\"lazy\"\u003e\u003c/a\u003e\u003c/p\u003e\u003c/li\u003e\n\u003cli\u003e\u003cp\u003eINSTALLを右クリックしてビルド\u003cbr\u003e\n\u003ca href=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fc74689e8-dd34-9869-b1c7-7cfb92a88678.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=d5696a291ede057a4f1391ca2914b70c\" target=\"_blank\" rel=\"nofollow noopener\"\u003e\u003cimg src=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fc74689e8-dd34-9869-b1c7-7cfb92a88678.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=d5696a291ede057a4f1391ca2914b70c\" alt=\"ins.PNG\" data-canonical-src=\"https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/c74689e8-dd34-9869-b1c7-7cfb92a88678.png\" srcset=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fc74689e8-dd34-9869-b1c7-7cfb92a88678.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;w=1400\u0026amp;fit=max\u0026amp;s=c64ec36e9186f571bc993ceafa141d39 1x\" loading=\"lazy\"\u003e\u003c/a\u003e\u003c/p\u003e\u003c/li\u003e\n\u003cli\u003e\n\u003cp\u003ebuild以下にinstall DIRができていて、中身も生成されていることを確認します。\u003cbr\u003e\n\u003ca href=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F9414923e-f46a-9e61-f8ad-a01e4e6593c4.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=f553bc1f72d680d9681df2f75a0bd031\" target=\"_blank\" rel=\"nofollow noopener\"\u003e\u003cimg src=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F9414923e-f46a-9e61-f8ad-a01e4e6593c4.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=f553bc1f72d680d9681df2f75a0bd031\" alt=\"ins_dir.PNG\" data-canonical-src=\"https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/9414923e-f46a-9e61-f8ad-a01e4e6593c4.png\" srcset=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F9414923e-f46a-9e61-f8ad-a01e4e6593c4.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;w=1400\u0026amp;fit=max\u0026amp;s=b43976a580c9e1ae28745b5543bcf3db 1x\" loading=\"lazy\"\u003e\u003c/a\u003e\u003c/p\u003e\n\n\u003ch3\u003e\n\u003cspan id=\"パスを通す\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#%E3%83%91%E3%82%B9%E3%82%92%E9%80%9A%E3%81%99\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003eパスを通す\u003c/h3\u003e\n\n\u003ch5\u003e\n\u003cspan id=\"cmake_prefix_path\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#cmake_prefix_path\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003eCMAKE_PREFIX_PATH\u003c/h5\u003e\n\n\u003cp\u003eシステム環境変数から下記画像のようにOpenCVConfig.cmakeがあるDIRのPATHを通します。\u003cbr\u003e\n\u003ca href=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F74577a42-1535-ec8d-cc8a-f5e3540e04be.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=a82d12a4f6b4100c8e84f4c3d9dfa645\" target=\"_blank\" rel=\"nofollow noopener\"\u003e\u003cimg src=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F74577a42-1535-ec8d-cc8a-f5e3540e04be.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;s=a82d12a4f6b4100c8e84f4c3d9dfa645\" alt=\"prefix.PNG\" data-canonical-src=\"https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/439748/74577a42-1535-ec8d-cc8a-f5e3540e04be.png\" srcset=\"https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2F74577a42-1535-ec8d-cc8a-f5e3540e04be.png?ixlib=rb-1.2.2\u0026amp;auto=format\u0026amp;gif-q=60\u0026amp;q=75\u0026amp;w=1400\u0026amp;fit=max\u0026amp;s=eef79aae81d8ae6fb55cb09d02747cba 1x\" loading=\"lazy\"\u003e\u003c/a\u003e\u003c/p\u003e\n\n\u003ch5\u003e\n\u003cspan id=\"path\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#path\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003ePATH\u003c/h5\u003e\n\n\u003cp\u003ePATHに.dllファイルが出力されているDIRのPATHを通す。\u003cbr\u003e\n\u003cstrong\u003eこのDIRは定期的に変わるので注意です。\u003c/strong\u003e\u003c/p\u003e\n\n\u003ch1\u003e\n\u003cspan id=\"サンプルプログラム\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003eサンプルプログラム\u003c/h1\u003e\n\n\u003cp\u003e画像が読み込んで表示するプログラムです。\u003cbr\u003e\n任意の場所にDIRを作成し、DIRの中に下記プログラムと任意の画像(\u003cstrong\u003e.jpg\u003c/strong\u003e)を入れます。\u003c/p\u003e\n\u003c/li\u003e\n\u003c/ol\u003e\n\n\u003cdiv class=\"code-frame\" data-lang=\"CMake\"\u003e\n\u003cdiv class=\"code-lang\"\u003e\u003cspan class=\"bold\"\u003eCMakeLists.txt\u003c/span\u003e\u003c/div\u003e\n\u003cdiv class=\"highlight\"\u003e\u003cpre\u003e\u003cspan class=\"nb\"\u003ecmake_minimum_required\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003eVERSION 2.8\u003cspan class=\"p\"\u003e)\u003c/span\u003e\n\n\u003cspan class=\"nb\"\u003eset\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003ePROJECT_NAME Test\u003cspan class=\"p\"\u003e)\u003c/span\u003e\n\u003cspan class=\"nb\"\u003eproject\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003e\u003cspan class=\"si\"\u003e${\u003c/span\u003e\u003cspan class=\"nv\"\u003ePROJECT_NAME\u003c/span\u003e\u003cspan class=\"si\"\u003e}\u003c/span\u003e\u003cspan class=\"p\"\u003e)\u003c/span\u003e\n\n\u003cspan class=\"nb\"\u003efind_package\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003eOpenCV 4.1.0 EXACT REQUIRED\u003cspan class=\"p\"\u003e)\u003c/span\u003e\n\u003cspan class=\"nb\"\u003einclude_directories\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003e\u003cspan class=\"si\"\u003e${\u003c/span\u003e\u003cspan class=\"nv\"\u003eOpenCV_INCLUDE_DIRS\u003c/span\u003e\u003cspan class=\"si\"\u003e}\u003c/span\u003e \u003cspan class=\"si\"\u003e${\u003c/span\u003e\u003cspan class=\"nv\"\u003eCMAKE_CURRENT_BINARY_DIR\u003c/span\u003e\u003cspan class=\"si\"\u003e}\u003c/span\u003e/include\u003cspan class=\"p\"\u003e)\u003c/span\u003e\n\u003cspan class=\"nb\"\u003elink_directories\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003e\u003cspan class=\"si\"\u003e${\u003c/span\u003e\u003cspan class=\"nv\"\u003eOpenCV_LIBRARY_DIRS\u003c/span\u003e\u003cspan class=\"si\"\u003e}\u003c/span\u003e\u003cspan class=\"p\"\u003e)\u003c/span\u003e\n\n\u003cspan class=\"nb\"\u003efile\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003eGLOB SOURCE_CPP *.cpp\u003cspan class=\"p\"\u003e)\u003c/span\u003e\n\u003cspan class=\"nb\"\u003efile\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003eGLOB SOURCE_H *.h\u003cspan class=\"p\"\u003e)\u003c/span\u003e\n\n\u003cspan class=\"nb\"\u003eadd_executable\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003e\u003cspan class=\"si\"\u003e${\u003c/span\u003e\u003cspan class=\"nv\"\u003ePROJECT_NAME\u003c/span\u003e\u003cspan class=\"si\"\u003e}\u003c/span\u003e \u003cspan class=\"si\"\u003e${\u003c/span\u003e\u003cspan class=\"nv\"\u003eSOURCE_CPP\u003c/span\u003e\u003cspan class=\"si\"\u003e}\u003c/span\u003e \u003cspan class=\"si\"\u003e${\u003c/span\u003e\u003cspan class=\"nv\"\u003eSOURCE_H\u003c/span\u003e\u003cspan class=\"si\"\u003e}\u003c/span\u003e\u003cspan class=\"p\"\u003e)\u003c/span\u003e\n\u003cspan class=\"nb\"\u003etarget_link_libraries\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003e\u003cspan class=\"si\"\u003e${\u003c/span\u003e\u003cspan class=\"nv\"\u003ePROJECT_NAME\u003c/span\u003e\u003cspan class=\"si\"\u003e}\u003c/span\u003e \u003cspan class=\"si\"\u003e${\u003c/span\u003e\u003cspan class=\"nv\"\u003eOpenCV_LIBRARIES\u003c/span\u003e\u003cspan class=\"si\"\u003e}\u003c/span\u003e\u003cspan class=\"p\"\u003e)\u003c/span\u003e\n\u003c/pre\u003e\u003c/div\u003e\n\u003c/div\u003e\n\n\u003cdiv class=\"code-frame\" data-lang=\"C++\"\u003e\n\u003cdiv class=\"code-lang\"\u003e\u003cspan class=\"bold\"\u003emain.cpp\u003c/span\u003e\u003c/div\u003e\n\u003cdiv class=\"highlight\"\u003e\u003cpre\u003e\u003cspan class=\"cp\"\u003e#include \u0026lt;opencv2/opencv.hpp\u0026gt;\n#include \u0026lt;iostream\u0026gt;\n\u003c/span\u003e\n\u003cspan class=\"kt\"\u003evoid\u003c/span\u003e \u003cspan class=\"nf\"\u003emain\u003c/span\u003e\u003cspan class=\"p\"\u003e(){\u003c/span\u003e\n\n    \u003cspan class=\"n\"\u003estd\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003estring\u003c/span\u003e \u003cspan class=\"n\"\u003epattern\u003c/span\u003e \u003cspan class=\"o\"\u003e=\u003c/span\u003e \u003cspan class=\"s\"\u003e\"..\u003c/span\u003e\u003cspan class=\"se\"\u003e\\\\\u003c/span\u003e\u003cspan class=\"s\"\u003e*.jpg\"\u003c/span\u003e\u003cspan class=\"p\"\u003e;\u003c/span\u003e\n    \u003cspan class=\"n\"\u003estd\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003evector\u003c/span\u003e\u003cspan class=\"o\"\u003e\u0026lt;\u003c/span\u003e\u003cspan class=\"n\"\u003ecv\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003eString\u003c/span\u003e\u003cspan class=\"o\"\u003e\u0026gt;\u003c/span\u003e \u003cspan class=\"n\"\u003efiles\u003c/span\u003e\u003cspan class=\"p\"\u003e;\u003c/span\u003e\n    \u003cspan class=\"n\"\u003ecv\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003eglob\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003e\u003cspan class=\"n\"\u003epattern\u003c/span\u003e\u003cspan class=\"p\"\u003e,\u003c/span\u003e \u003cspan class=\"n\"\u003efiles\u003c/span\u003e\u003cspan class=\"p\"\u003e);\u003c/span\u003e\n\n    \u003cspan class=\"k\"\u003eif\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003e\u003cspan class=\"n\"\u003efiles\u003c/span\u003e\u003cspan class=\"p\"\u003e.\u003c/span\u003e\u003cspan class=\"n\"\u003esize\u003c/span\u003e\u003cspan class=\"p\"\u003e()\u003c/span\u003e \u003cspan class=\"o\"\u003e==\u003c/span\u003e \u003cspan class=\"mi\"\u003e0\u003c/span\u003e\u003cspan class=\"p\"\u003e)\u003c/span\u003e \u003cspan class=\"p\"\u003e{\u003c/span\u003e\n        \u003cspan class=\"n\"\u003estd\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003ecout\u003c/span\u003e \u003cspan class=\"o\"\u003e\u0026lt;\u0026lt;\u003c/span\u003e \u003cspan class=\"s\"\u003e\"erorr\"\u003c/span\u003e \u003cspan class=\"o\"\u003e\u0026lt;\u0026lt;\u003c/span\u003e\u003cspan class=\"n\"\u003estd\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003eendl\u003c/span\u003e\u003cspan class=\"p\"\u003e;\u003c/span\u003e\n        \u003cspan class=\"n\"\u003eexit\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003e\u003cspan class=\"o\"\u003e-\u003c/span\u003e\u003cspan class=\"mi\"\u003e1\u003c/span\u003e\u003cspan class=\"p\"\u003e);\u003c/span\u003e   \n    \u003cspan class=\"p\"\u003e}\u003c/span\u003e\n\n    \u003cspan class=\"n\"\u003ecv\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003eMat\u003c/span\u003e \u003cspan class=\"n\"\u003eimage\u003c/span\u003e \u003cspan class=\"o\"\u003e=\u003c/span\u003e \u003cspan class=\"n\"\u003ecv\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003eimread\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003e\u003cspan class=\"n\"\u003efiles\u003c/span\u003e\u003cspan class=\"p\"\u003e[\u003c/span\u003e\u003cspan class=\"mi\"\u003e0\u003c/span\u003e\u003cspan class=\"p\"\u003e]);\u003c/span\u003e\n    \u003cspan class=\"n\"\u003estd\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003ecout\u003c/span\u003e \u003cspan class=\"o\"\u003e\u0026lt;\u0026lt;\u003c/span\u003e \u003cspan class=\"n\"\u003efiles\u003c/span\u003e\u003cspan class=\"p\"\u003e[\u003c/span\u003e\u003cspan class=\"mi\"\u003e0\u003c/span\u003e\u003cspan class=\"p\"\u003e]\u003c/span\u003e \u003cspan class=\"o\"\u003e\u0026lt;\u0026lt;\u003c/span\u003e \u003cspan class=\"n\"\u003estd\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003eendl\u003c/span\u003e\u003cspan class=\"p\"\u003e;\u003c/span\u003e\n    \u003cspan class=\"n\"\u003estd\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003ecout\u003c/span\u003e \u003cspan class=\"o\"\u003e\u0026lt;\u0026lt;\u003c/span\u003e \u003cspan class=\"n\"\u003eimage\u003c/span\u003e\u003cspan class=\"p\"\u003e.\u003c/span\u003e\u003cspan class=\"n\"\u003esize\u003c/span\u003e \u003cspan class=\"p\"\u003e()\u003c/span\u003e \u003cspan class=\"o\"\u003e\u0026lt;\u0026lt;\u003c/span\u003e \u003cspan class=\"n\"\u003estd\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003eendl\u003c/span\u003e\u003cspan class=\"p\"\u003e;\u003c/span\u003e\n    \u003cspan class=\"n\"\u003ecv\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003eimshow\u003c/span\u003e\u003cspan class=\"p\"\u003e(\u003c/span\u003e\u003cspan class=\"s\"\u003e\"show\"\u003c/span\u003e\u003cspan class=\"p\"\u003e,\u003c/span\u003e \u003cspan class=\"n\"\u003eimage\u003c/span\u003e\u003cspan class=\"p\"\u003e);\u003c/span\u003e\n    \u003cspan class=\"n\"\u003ecv\u003c/span\u003e\u003cspan class=\"o\"\u003e::\u003c/span\u003e\u003cspan class=\"n\"\u003ewaitKey\u003c/span\u003e \u003cspan class=\"p\"\u003e(\u003c/span\u003e\u003cspan class=\"mi\"\u003e0\u003c/span\u003e\u003cspan class=\"p\"\u003e);\u003c/span\u003e\n\u003cspan class=\"p\"\u003e}\u003c/span\u003e\n\u003c/pre\u003e\u003c/div\u003e\n\u003c/div\u003e\n\n\u003col\u003e\n\u003cli\u003e上記同様にCMakeでmakeする。\u003c/li\u003e\n\u003cli\u003eGenerateされた.slnをVSで開く。\u003c/li\u003e\n\u003cli\u003e実行環境が合っていることを確認して実行\u003cbr\u003e\n(プロジェクト名が非アクティブの場合はプロジェクト名を右クリックして\u003cstrong\u003eスタートアッププロジェクトに設定\u003c/strong\u003eでアクティブにする。)する。\u003c/li\u003e\n\u003cli\u003e画像が読み込まれて表示されるプログラム完成\u003c/li\u003e\n\u003c/ol\u003e\n\n\u003ch1\u003e\n\u003cspan id=\"opencv-contribの導入\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#opencv-contrib%E3%81%AE%E5%B0%8E%E5%85%A5\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003eOpenCV contribの導入\u003c/h1\u003e\n\n\u003cp\u003e\u003ca href=\"https://qiita.com/sanishi_pompom/items/5191aeca8d6de3e98595\" class=\"autolink\" id=\"reference-6d632cdc0ffe8765a09f\"\u003ehttps://qiita.com/sanishi_pompom/items/5191aeca8d6de3e98595\u003c/a\u003e\u003c/p\u003e\n\n\u003ch1\u003e\n\u003cspan id=\"まとめ\" class=\"fragment\"\u003e\u003c/span\u003e\u003ca href=\"#%E3%81%BE%E3%81%A8%E3%82%81\"\u003e\u003ci class=\"fa fa-link\"\u003e\u003c/i\u003e\u003c/a\u003eまとめ\u003c/h1\u003e\n\n\u003cp\u003eCMake(GUI)を使えばコマンドラインからは分かりにくい設定も分かりやすいです。\u003cbr\u003e\nもう環境構築怖くない～\u003c/p\u003e\n","createdAt":"2019-09-13T01:46:57Z","elapsedYearsFromUpdatedAt":0,"isBanned":false,"isDeprecated":false,"isDestroyableByViewer":false,"isEditRequestSendableByViewer":true,"isLikableByViewer":true,"isLikedByViewer":false,"isPublic":true,"isSlide":false,"isStockableByViewer":true,"isStockedByViewer":false,"isUpdatableByViewer":false,"isSubscribableByViewer":true,"isSubscribedByViewer":false,"isUpdated":true,"likesCount":6,"originalId":1017796,"title":"OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019)","toc":"\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\"#%E6%A6%82%E8%A6%81\"\u003e概要\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\"#%E5%AE%9F%E8%A1%8C%E7%92%B0%E5%A2%83\"\u003e実行環境\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\"#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%83%93%E3%83%AB%E3%83%89\"\u003eインストール＆ビルド\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\"#visual-studio\"\u003eVisual Studio\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\"#cmake\"\u003eCMake\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\"#opencv\"\u003eOpenCV\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\"#opencv-contrib%E3%81%AE%E5%B0%8E%E5%85%A5\"\u003eOpenCV contribの導入\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\"#%E3%81%BE%E3%81%A8%E3%82%81\"\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e","totalPv":1632,"updatedAt":"2019-09-18T04:26:53Z","uuid":"02b158dfad3a5dafd0a1","banReason":null,"adventCalendarItem":null,"author":{"originalId":439748,"description":null,"name":"nishi sakiko","profileImageUrl":"https://qiita-user-profile-images.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fprofile-images%2F1561623343?ixlib=rb-1.2.2\u0026auto=compress%2Cformat\u0026lossless=0\u0026w=48\u0026s=bc2c8788a804827d9d764597297cd8f0","profileImageUrlW48":"https://qiita-user-profile-images.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fprofile-images%2F1561623343?ixlib=rb-1.2.2\u0026auto=compress%2Cformat\u0026lossless=0\u0026w=48\u0026s=bc2c8788a804827d9d764597297cd8f0","profileImageUrlW75":"https://qiita-user-profile-images.imgix.net/https%3A%2F%2Fqiita-image-store.s3.ap-northeast-1.amazonaws.com%2F0%2F439748%2Fprofile-images%2F1561623343?ixlib=rb-1.2.2\u0026auto=compress%2Cformat\u0026lossless=0\u0026w=75\u0026s=6205843448bac058821eec672b4a1c32","urlName":"sanishi_pompom","isFollowedByViewer":false,"isFollowableByViewer":true,"websiteUrl":"","organizations":{"edges":[]}},"tags":[{"name":"C++","urlName":"cpp"},{"name":"CMake","urlName":"cmake"},{"name":"画像処理","urlName":"%e7%94%bb%e5%83%8f%e5%87%a6%e7%90%86"},{"name":"OpenCV","urlName":"opencv"},{"name":"VisualStudio","urlName":"visualstudio"}],"followingLikers":{"edges":[]},"comments":{"totalCount":0}},"viewer":{"isGithubLoginEnabled":true,"contribution":0,"numberOfDaysSinceRegistration":93,"organizations":{"edges":[]},"followers":{"totalCount":0},"articles":{"totalCount":0},"tags":{"edges":[]},"postingArticleTags":{"edges":[]}},"analyticsTrackingId":null}</script>
+      
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/td_qt_access.js.ダウンロード" type="text/javascript"></script><script>microadTd.QT.start({"article_category": "C++,CMake,画像処理,OpenCV,VisualStudio"})</script><script>(function(d,u){var b=d.getElementsByTagName("script")[0],j=d.createElement("script");j.async=true;j.src=u;b.parentNode.insertBefore(j,b);})(document,"//img.ak.impact-ad.jp/ut/ff9a3577423c8ed5_4330.js");</script><noscript><iframe frameborder="0" height="0" src="//nspt.unitag.jp/ff9a3577423c8ed5_4330.php" width="0"></iframe></noscript><script async="" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/js(1)"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'AW-878053044');</script><script>!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1792588824374455');
+fbq('track', 'PageView');</script><noscript><img height="1" src="https://www.facebook.com/tr?id=1792588824374455&amp;ev=PageView&amp;noscript=1" style="display:none" width="1" /></noscript><footer id="globalFooter" class="st-Footer"><div class="st-Footer_container"><div class="st-Footer_start"><div class="st-Footer_logo"><svg viewBox="0 0 426.57 130" xmlns="http://www.w3.org/2000/svg"><circle cx="167.08" cy="21.4" r="12.28"></circle><path d="M250.81 29.66h23.48v18.9h-23.48z"></path><path d="M300.76 105.26a22.23 22.23 0 01-6.26-.86 12.68 12.68 0 01-5.17-3 14.41 14.41 0 01-3.56-5.76 28 28 0 01-1.3-9.22V48.56h29.61v-18.9h-29.52V3.29h-20.17v83.34q0 11.16 2.83 18.27a27.71 27.71 0 007.7 11.2 26.86 26.86 0 0011.43 5.62 47.56 47.56 0 0012.34 1.53h15.16v-18zM0 61.7a58.6 58.6 0 015-24.21A62.26 62.26 0 0118.73 17.9 63.72 63.72 0 0139 4.78 64.93 64.93 0 0164 0a65 65 0 0124.85 4.78 64.24 64.24 0 0120.38 13.12A62 62 0 01123 37.49a58.6 58.6 0 015 24.21 58.34 58.34 0 01-4 21.46 62.8 62.8 0 01-10.91 18.16l11.1 11.1a10.3 10.3 0 010 14.52 10.29 10.29 0 01-14.64 0l-12.22-12.41a65 65 0 01-15.78 6.65 66.32 66.32 0 01-17.55 2.3 64.63 64.63 0 01-45.23-18A62.82 62.82 0 015 85.81 58.3 58.3 0 010 61.7zm21.64.08a43.13 43.13 0 0012.42 30.63 42.23 42.23 0 0013.43 9.09A41.31 41.31 0 0064 104.8a42 42 0 0030-12.39 42.37 42.37 0 009-13.64 43.43 43.43 0 003.3-17 43.77 43.77 0 00-3.3-17A41.7 41.7 0 0080.55 22 41.78 41.78 0 0064 18.68 41.31 41.31 0 0047.49 22a42.37 42.37 0 00-13.43 9.08 43.37 43.37 0 00-12.42 30.7zM331.89 78a47.59 47.59 0 013.3-17.73 43.22 43.22 0 019.34-14.47A44.25 44.25 0 01359 36a47.82 47.82 0 0118.81-3.58 42.72 42.72 0 019.26 1 46.5 46.5 0 018.22 2.58 40 40 0 017 3.84 44.39 44.39 0 015.71 4.63l1.22-9.47h17.35v85.83h-17.35l-1.17-9.42a42.54 42.54 0 01-5.84 4.67 43.11 43.11 0 01-7 3.79 44.86 44.86 0 01-8.17 2.59 43 43 0 01-9.22 1A47.94 47.94 0 01359 119.9a43.3 43.3 0 01-14.47-9.71 44.17 44.17 0 01-9.34-14.47 47 47 0 01-3.3-17.72zm20.27-.08a29.16 29.16 0 002.17 11.34 27 27 0 005.92 8.88 26.69 26.69 0 008.76 5.76 29.19 29.19 0 0021.44 0 26.11 26.11 0 008.72-5.76 27.57 27.57 0 005.88-8.84 29 29 0 002.16-11.38 28.62 28.62 0 00-2.16-11.22 26.57 26.57 0 00-5.93-8.8 27.68 27.68 0 00-19.51-7.9 28.29 28.29 0 00-10.77 2.05 26.19 26.19 0 00-8.71 5.75 27.08 27.08 0 00-5.84 8.8 28.94 28.94 0 00-2.13 11.31zm-194.97-30.5h19.78v73.54h-19.78zm49.25 0h19.78v73.54h-19.78z"></path><circle cx="216.33" cy="21.4" r="12.28"></circle></svg></div><div class="st-Footer_catchcopy">How developers code is here.</div><div class="st-Footer_socials"><a class="fa fa-twitter" href="https://twitter.com/qiita"></a><a class="fa fa-facebook-square" href="https://www.facebook.com/qiita/"></a></div></div><div class="st-Footer_end"><div class="st-Footer_qiita"><div class="st-Footer_label">Qiita</div><div class="st-Footer_list"><div class="st-Footer_column"><a href="https://qiita.com/about">About</a><a href="https://qiita.com/terms">利用規約</a><a href="https://qiita.com/privacy">プライバシー</a><a target="_blank" href="http://help.qiita.com/ja/articles/qiita-community-guideline">ガイドライン</a></div><div class="st-Footer_column"><a href="https://qiita.com/api/v2/docs">API</a><a href="https://qiita.com/feedback/new">ご意見</a><a href="https://help.qiita.com/">ヘルプ</a><a target="_blank" href="https://qiita.com/ads?utm_source=qiita&amp;utm_medium=referral&amp;utm_content=footer">広告掲載</a></div></div></div><div class="st-Footer_increments"><div class="st-Footer_label">Increments</div><div class="st-Footer_list"><div class="st-Footer_column"><a href="https://increments.co.jp/company/">About</a><a href="https://increments.co.jp/jobs/">採用情報</a><a href="https://blog.qiita.com/">ブログ</a></div><div class="st-Footer_column"><a href="https://teams.qiita.com/">Qiita Team</a><a href="https://jobs.qiita.com/?utm_source=qiita&amp;utm_medium=referral&amp;utm_content=footer">Qiita Jobs</a><a href="https://zine.qiita.com/?utm_source=qiita&amp;utm_medium=referral&amp;utm_content=footer">Qiita Zine</a></div></div></div></div></div><div class="st-Footer_copyright">© 2011-2020 Increments Inc.</div></footer><div id="Snackbar-react-component-3e2c17f1-9dcc-4346-8494-b8cd7bc75c4b"></div>
+      <script type="application/json" class="js-react-on-rails-component" data-component-name="Snackbar" data-dom-id="Snackbar-react-component-3e2c17f1-9dcc-4346-8494-b8cd7bc75c4b">{}</script>
+      
+<div id="LoginModal-react-component-6a9fa27f-ccee-4fe4-a0cf-5f8a142352df"><div class="st-Modal"><div class="st-Modal_backdrop"></div><div class="st-Modal_body lm-Dialog"><div class="fa fa-times lm-Dialog_close"></div><div class="lm-Dialog_title">ユーザー登録して、Qiitaをもっと便利に使ってみませんか。</div><div class="lm-Dialog_message-pc">この機能を利用するにはログインする必要があります。ログインするとさらに便利にQiitaを利用できます。</div><div class="lm-Dialog_message-mobile">この機能を利用するにはログインする必要があります。ログインするとさらに便利にQiitaを利用できます。</div><ol class="lm-Dialog_list"><li>あなたにマッチした記事をお届けします<div class="description">ユーザーやタグをフォローすることで、あなたが興味を持つ技術分野の情報をまとめてキャッチアップできます</div></li><li>便利な情報をあとで効率的に読み返せます<div class="description">気に入った記事を「ストック」することで、あとからすぐに検索できます</div></li></ol><a href="https://qiita.com/signup?callback_action=login_or_signup&amp;redirect_to=%2Fsanishi_pompom%2Fitems%2F02b158dfad3a5dafd0a1&amp;realm=qiita" class="lm-Dialog_button lm-Dialog_button-signup">登録する</a><a href="https://qiita.com/login?callback_action=login_or_signup&amp;redirect_to=%2Fsanishi_pompom%2Fitems%2F02b158dfad3a5dafd0a1&amp;realm=qiita" class="lm-Dialog_button lm-Dialog_button-signin">ログインする</a></div></div></div>
+      <script type="application/json" class="js-react-on-rails-component" data-component-name="LoginModal" data-dom-id="LoginModal-react-component-6a9fa27f-ccee-4fe4-a0cf-5f8a142352df">{}</script>
+      
+<div id="UserHoverCard-react-component-23a813cb-20bb-4b18-b95c-3cbc64bb2c6a"><div class="uh-Container" style="left:0px;top:0px"><div>ユーザーは見つかりませんでした</div></div></div>
+      <script type="application/json" class="js-react-on-rails-component" data-component-name="UserHoverCard" data-dom-id="UserHoverCard-react-component-23a813cb-20bb-4b18-b95c-3cbc64bb2c6a">{}</script>
+      
+</div><script type="text/javascript" charset="UTF-8">!function(t,e){if(void 0===e[t]){e[t]=function(){e[t].clients.push(this),this._init=[Array.prototype.slice.call(arguments)]},e[t].clients=[];for(var r=function(t){return function(){return this["_"+t]=this["_"+t]||[],this["_"+t].push(Array.prototype.slice.call(arguments)),this}},s=["blockEvents","unblockEvents","setSignedMode","setAnonymousMode","resetUUID","addRecord","fetchGlobalID","set","trackEvent","trackPageview","trackClicks","ready"],n=0;n<s.length;n++){var c=s[n];e[t].prototype[c]=r(c)}var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=("https:"===document.location.protocol?"https:":"http:")+"//cdn.treasuredata.com/sdk/2.1/td.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)}}("Treasure",this);</script><script type="text/javascript" charset="UTF-8" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/aid"></script><img width="0px" height="0px" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tr" style="display: none;"><div id="dataContainer" style="display: none;" data-config="{&quot;actionPath&quot;:&quot;public/items#show&quot;,&quot;settings&quot;:{&quot;analyticsTrackingId&quot;:&quot;UA-24675221-12&quot;,&quot;mixpanelToken&quot;:&quot;17d24b448ca579c365d2d1057f3a1791&quot;,&quot;assetsMap&quot;:{},&quot;csrfToken&quot;:&quot;WYGkF72Opt+PGMfFLdkRezM08iCIZ8rvBqufBRc86vHyO/ClTVZbhPTkL0/gOjZQBhwfUX2JwdDb6YHSSHaWuA==&quot;,&quot;locale&quot;:&quot;ja&quot;},&quot;currentUser&quot;:{&quot;isStaff&quot;:false,&quot;isJobseeker&quot;:false,&quot;name&quot;:&quot;&quot;,&quot;originalId&quot;:550355,&quot;profileImageUrl&quot;:&quot;https://qiita-user-profile-images.imgix.net/https%3A%2F%2Favatars2.githubusercontent.com%2Fu%2F55769107%3Fv%3D4?ixlib=rb-1.2.2\u0026auto=compress%2Cformat\u0026lossless=0\u0026w=48\u0026s=26d3be4250f8e4da6551e640afe8512f&quot;,&quot;urlName&quot;:&quot;SMH-MRD&quot;,&quot;remainingPublicImageUploadableSizeInCurrentMonth&quot;:104857600,&quot;monthlyPublicImageUploadableSizeLimit&quot;:104857600}}"><script type="application/json" data-js-react-on-rails-store="AppStore">{"snackbar":{"type":"","body":"","isActive":false}}</script></div><ul class="dropdown-menu textcomplete-dropdown" style="display: none; position: absolute; z-index: 10000;"></ul><div id="itm_4330" style="visibility: hidden; display: none;"></div><div style="position: absolute; width: 0px; height: 0px; overflow: hidden; padding: 0px; border: 0px; margin: 0px;"><div id="MathJax_Font_Test" style="position: absolute; visibility: hidden; top: 0px; left: 0px; width: auto; padding: 0px; border: 0px; margin: 0px; white-space: nowrap; text-align: left; text-indent: 0px; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; font-size: 40px; font-weight: normal; font-style: normal; font-family: MathJax_Size1, monospace;"></div></div><iframe id="aopb_ff9a3577423c8ed5" frameborder="0" scrolling="no" width="1" height="1" style="display: none" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/pb.html"></iframe><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==" width="1" height="1" border="0" class="bigmining_dmp_beacon" style="display: none;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==" width="1" height="1" border="0" class="bigmining_dmp_beacon" style="display: none;"><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct" width="1" height="1" border="0" class="bigmining_dmp_beacon" style="display: none;"><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-58Z82M');</script><img src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/rep" style="display: none;"><iframe height="0" width="0" style="display: none; visibility: hidden;" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/activityi.html"></iframe><iframe height="0" width="0" style="display: none; visibility: hidden;" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/activityi(1).html"></iframe><iframe height="0" width="0" style="display: none; visibility: hidden;" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/activityi(2).html"></iframe><iframe height="0" width="0" style="display: none; visibility: hidden;" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/activityi(3).html"></iframe><div style="display: none; visibility: hidden;"><iframe src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/activityi(4).html" width="1" height="1" frameborder="0" style="display:none"></iframe></div><div style="display: none; visibility: hidden;"><iframe src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/activityi(5).html" width="1" height="1" frameborder="0" style="display:none"></iframe></div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("nv2kc",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script>!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","809797712462041");fbq("track","PageView");</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script>!function(d,e,f,a,b,c){d.twq||(a=d.twq=function(){a.exe?a.exe.apply(a,arguments):a.queue.push(arguments)},a.version="1.1",a.queue=[],b=e.createElement(f),b.async=!0,b.src="//static.ads-twitter.com/uwt.js",c=e.getElementsByTagName(f)[0],c.parentNode.insertBefore(b,c))}(window,document,"script");twq("init","nxmb9");twq("track","PageView");</script>
+</div><div style="display: none; visibility: hidden;">
+<script>!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","996402550503199");fbq("track","PageView");</script>
+<noscript></noscript>
+
+</div><div style="display: none; visibility: hidden;">
+<script>!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","954575148009345");fbq("track","PageView");</script>
+<noscript></noscript>
+
+</div><div style="display: none; visibility: hidden;">
+<script>!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","437265843064161");fbq("track","PageView");</script>
+<noscript></noscript>
+
+
+</div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("nw0lq",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("nw1xy",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("nw9n2",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script>!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","262978464137256");fbq("track","PageView");</script>
+<noscript></noscript>
+
+
+</div><div style="display: none; visibility: hidden;">
+<script>!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","256605841418458");fbq("track","PageView");</script>
+<noscript></noscript>
+
+
+</div><div style="display: none; visibility: hidden;">
+<script>!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","386990638325508");fbq("track","PageView");</script>
+<noscript></noscript>
+
+
+</div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("nxlif",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("nxlih",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("nxyp7",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("ny46g",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script>!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","1733466696949178");fbq("track","PageView");</script>
+<noscript></noscript>
+
+
+</div><div style="display: none; visibility: hidden;">
+<script>!function(d,e,f,a,b,c){d.twq||(a=d.twq=function(){a.exe?a.exe.apply(a,arguments):a.queue.push(arguments)},a.version="1.1",a.queue=[],b=e.createElement(f),b.async=!0,b.src="//static.ads-twitter.com/uwt.js",c=e.getElementsByTagName(f)[0],c.parentNode.insertBefore(b,c))}(window,document,"script");twq("init","ny5vy");twq("track","PageView");</script>
+</div><div style="display: none; visibility: hidden;"><script type="text/javascript">var _fout_queue=_fout_queue||{};void 0===_fout_queue.segment&&(_fout_queue.segment={});void 0===_fout_queue.segment.queue&&(_fout_queue.segment.queue=[]);_fout_queue.segment.queue.push({user_id:19972,advertiser_id:6796,contractor_id:5});(function(){var a=document.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"==document.location.protocol?"https://":"http://")+"js.fout.jp/segmentation.js";var b=document.getElementsByTagName("script")[0];b.parentNode.insertBefore(a,b)})();</script>
+        </div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"4740006retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript></div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"4813012retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript></div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"4813013retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript></div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"4813014retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript></div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"4815034retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript></div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"4815035retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript></div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"4813015retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript></div><div style="display: none; visibility: hidden;">
+<script>!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","2040876882868599");fbq("track","PageView");</script>
+<noscript></noscript>
+
+
+</div><div style="display: none; visibility: hidden;">
+<script>!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","1469129556533591");fbq("track","PageView");</script>
+<noscript></noscript>
+
+</div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"5048036retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"5048036retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"5053023retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript></div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"5048036retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;"><script type="text/javascript">window._tfa=window._tfa||[];_tfa.push({notify:"mark",type:"5054022retargeting"});</script>
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/tfa.js.ダウンロード"></script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;"><script type="text/javascript">var _fout_queue=_fout_queue||{};void 0===_fout_queue.segment&&(_fout_queue.segment={});void 0===_fout_queue.segment.queue&&(_fout_queue.segment.queue=[]);_fout_queue.segment.queue.push({user_id:21947,advertiser_id:8063,contractor_id:5});(function(){var a=document.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"==document.location.protocol?"https://":"http://")+"js.fout.jp/segmentation.js";var b=document.getElementsByTagName("script")[0];b.parentNode.insertBefore(a,b)})();</script>
+        
+        </div><div style="display: none; visibility: hidden;">
+<script type="text/javascript">!function(){if(window.SmartnewsAds=window.SmartnewsAds||{},!window.SmartnewsAds.p){var a=window.SmartnewsAds.p=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)};window.SmartnewsAds._p||(window.SmartnewsAds._p=a);a.push=a;a.version="1.0.0";a.queue=[];var b=document.createElement("script");b.async=!0;b.src="//cdn.smartnews-ads.com/i/pixel.js";var c=document.getElementsByTagName("script")[0];c.parentNode.insertBefore(b,c)}}();SmartnewsAds.p("c2e22923c3676a816c61d14d","PageView");</script>
+<noscript></noscript></div><div style="display: none; visibility: hidden;">
+<script type="text/javascript">!function(){if(window.SmartnewsAds=window.SmartnewsAds||{},!window.SmartnewsAds.p){var a=window.SmartnewsAds.p=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)};window.SmartnewsAds._p||(window.SmartnewsAds._p=a);a.push=a;a.version="1.0.0";a.queue=[];var b=document.createElement("script");b.async=!0;b.src="//cdn.smartnews-ads.com/i/pixel.js";var c=document.getElementsByTagName("script")[0];c.parentNode.insertBefore(b,c)}}();SmartnewsAds.p("fb5a36b36f6a47f3ae2af8c6","PageView");</script>
+<noscript></noscript>
+
+</div><div style="display: none; visibility: hidden;">
+<script type="text/javascript">!function(){if(window.SmartnewsAds=window.SmartnewsAds||{},!window.SmartnewsAds.p){var a=window.SmartnewsAds.p=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)};window.SmartnewsAds._p||(window.SmartnewsAds._p=a);a.push=a;a.version="1.0.0";a.queue=[];var b=document.createElement("script");b.async=!0;b.src="//cdn.smartnews-ads.com/i/pixel.js";var c=document.getElementsByTagName("script")[0];c.parentNode.insertBefore(b,c)}}();SmartnewsAds.p("5f64d149dd4731f0f0190385","PageView");</script>
+<noscript></noscript>
+
+</div><div style="display: none; visibility: hidden;">
+<script>!function(d,e,f,a,b,c){d.twq||(a=d.twq=function(){a.exe?a.exe.apply(a,arguments):a.queue.push(arguments)},a.version="1.1",a.queue=[],b=e.createElement(f),b.async=!0,b.src="//static.ads-twitter.com/uwt.js",c=e.getElementsByTagName(f)[0],c.parentNode.insertBefore(b,c))}(window,document,"script");twq("init","nzdtr");twq("track","PageView");</script>
+</div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("nziop",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script type="text/javascript">!function(){if(window.SmartnewsAds=window.SmartnewsAds||{},!window.SmartnewsAds.p){var a=window.SmartnewsAds.p=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)};window.SmartnewsAds._p||(window.SmartnewsAds._p=a);a.push=a;a.version="1.0.0";a.queue=[];var b=document.createElement("script");b.async=!0;b.src="//cdn.smartnews-ads.com/i/pixel.js";var c=document.getElementsByTagName("script")[0];c.parentNode.insertBefore(b,c)}}();SmartnewsAds.p("4fc5ab48b835653a76f95b96","PageView");</script>
+<noscript></noscript></div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("nznn0",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("nznn2",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script>!function(d,e,f,a,b,c){d.twq||(a=d.twq=function(){a.exe?a.exe.apply(a,arguments):a.queue.push(arguments)},a.version="1.1",a.queue=[],b=e.createElement(f),b.async=!0,b.src="//static.ads-twitter.com/uwt.js",c=e.getElementsByTagName(f)[0],c.parentNode.insertBefore(b,c))}(window,document,"script");twq("init","nzu0q");twq("track","PageView");</script>
+</div><div style="display: none; visibility: hidden;"><script>!function(d,e,f,a,b,c){d.twq||(a=d.twq=function(){a.exe?a.exe.apply(a,arguments):a.queue.push(arguments)},a.version="1.1",a.queue=[],b=e.createElement(f),b.async=!0,b.src="//static.ads-twitter.com/uwt.js",c=e.getElementsByTagName(f)[0],c.parentNode.insertBefore(b,c))}(window,document,"script");twq("init","nve3t");twq("track","PageView");</script></div><div style="display: none; visibility: hidden;"><script type="text/javascript" language="javascript">var yahoo_retargeting_id="USSDKFK3A8",yahoo_retargeting_label="",yahoo_retargeting_page_type="",yahoo_retargeting_items=[{item_id:"",category_id:"",price:"",quantity:""}];</script>
+<script type="text/javascript" language="javascript" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/s_retargeting.js.ダウンロード"></script></div><div style="display: none; visibility: hidden;">
+<script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/oct.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">twttr.conversion.trackPid("o03ez",{tw_sale_amount:0,tw_order_quantity:0});</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;">
+<script>!function(d,e,f,a,b,c){d.twq||(a=d.twq=function(){a.exe?a.exe.apply(a,arguments):a.queue.push(arguments)},a.version="1.1",a.queue=[],b=e.createElement(f),b.async=!0,b.src="//static.ads-twitter.com/uwt.js",c=e.getElementsByTagName(f)[0],c.parentNode.insertBefore(b,c))}(window,document,"script");twq("init","o058w");twq("track","PageView");</script>
+</div><div style="display: none; visibility: hidden;">
+<script>!function(d,e,f,a,b,c){d.twq||(a=d.twq=function(){a.exe?a.exe.apply(a,arguments):a.queue.push(arguments)},a.version="1.1",a.queue=[],b=e.createElement(f),b.async=!0,b.src="//static.ads-twitter.com/uwt.js",c=e.getElementsByTagName(f)[0],c.parentNode.insertBefore(b,c))}(window,document,"script");twq("init","o0jpn");twq("track","PageView");</script>
+</div><div style="display: none; visibility: hidden;"><script type="text/javascript">(function(d,g,h,l,e,k,c,a,b,f){a=(d[e]||(d[e]={}))[k]||(d[e][k]={});a[c]||(a[c]=function(){(a[c+"_queue"]||(a[c+"_queue"]=[])).push(arguments)},b=g.createElement(h),b.charset="utf-8",b.async=!0,b.src=l,f=g.getElementsByTagName(h)[0],f.parentNode.insertBefore(b,f))})(window,document,"script","https://cd.ladsp.com/script/pixel2.js","Smn","Logicad","pixel");Smn.Logicad.pixel({smnAdvertiserId:"00010559"});</script></div><div style="display: none; visibility: hidden;">
+
+<script>(function(a,b,d){a._ltq=a._ltq||[];a._lt=a._lt||function(){a._ltq.push(arguments)};var e="https:"===location.protocol?"https://d.line-scdn.net":"http://d.line-cdn.net",c=b.createElement("script");c.async=1;c.src=d||e+"/n/line_tag/public/release/v1/lt.js";b=b.getElementsByTagName("script")[0];b.parentNode.insertBefore(c,b)})(window,document);_lt("init",{customerType:"lap",tagId:"0eae3c8c-4d76-4bed-ba44-6b29e627c570"});_lt("send","pv",["0eae3c8c-4d76-4bed-ba44-6b29e627c570"]);</script>
+<noscript></noscript>
+</div><div style="display: none; visibility: hidden;"><script async="null" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/ytag.js.ダウンロード"></script>
+<script>window.yjDataLayer=window.yjDataLayer||[];function ytag(){yjDataLayer.push(arguments)}ytag({type:"yss_retargeting",config:{yahoo_ss_retargeting_id:"1001117028",yahoo_sstag_custom_params:{}}});</script></div><div style="display: none; visibility: hidden;"><script async="null" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/ytag.js.ダウンロード"></script>
+<script>window.yjDataLayer=window.yjDataLayer||[];function ytag(){yjDataLayer.push(arguments)}ytag({type:"yjad_retargeting",config:{yahoo_retargeting_id:"L7W82OXY21",yahoo_retargeting_label:""}});</script></div><div style="display: none; visibility: hidden;"><script async="null" src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/ytag.js.ダウンロード"></script>
+<script>window.yjDataLayer=window.yjDataLayer||[];function ytag(){yjDataLayer.push(arguments)}ytag({type:"ycl_cookie"});</script></div><iframe src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/pixel.html" style="display: none;"></iframe><iframe src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/pixel(3).html" style="display: none;"></iframe><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(1)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(3)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(4)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(5)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(6)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(7)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(8)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(9)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(10)" type="text/javascript"></script><iframe src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/beacon.html" style="display: none;"></iframe><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(11)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(12)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(13)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(14)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(15)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(16)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(17)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(2)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(18)" type="text/javascript"></script><script src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/adsct(19)" type="text/javascript"></script><iframe src="./OpenCV4.1.0をCMakeを使って導入する方法(Visual Studio 2019) - Qiita_files/iframe.html" width="1" height="1" style="display: none;"></iframe></body></html>

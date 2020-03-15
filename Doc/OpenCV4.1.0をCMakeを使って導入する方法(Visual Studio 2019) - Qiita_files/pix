@@ -1,0 +1,8 @@
+var obj = [];var urls = ["https://m.one.impact-ad.jp/push_sync"];
+for (var i = 0; i < urls.length; i++) {
+   obj[i] = document.createElement('img');
+   obj[i].src = urls[i];
+   obj[i].alt = ' ';
+   var st = obj[i].style;
+st.display = "none";   document.body.insertBefore(obj[i], document.body.firstChild);
+}
