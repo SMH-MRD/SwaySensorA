@@ -96,7 +96,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Lib\bin</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>comctl32.lib;winmm.lib;shlwapi.lib;ModbusTCP.lib;modbus.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -133,7 +133,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Lib\bin</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>comctl32.lib;winmm.lib;shlwapi.lib;ModbusTCP.lib;modbus.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
