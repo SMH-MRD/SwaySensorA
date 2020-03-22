@@ -3,6 +3,15 @@
 
 #include "framework.h"
 #include "SwaySensorA.h"
+#include "inifile.h"
+
+#include "CTaskObj.h"		//タスククラス
+
+#include <windowsx.h>	//コモンコントロール用
+#include <commctrl.h>	//コモンコントロール用
+#include <shlwapi.h>	//Win32 APIでパスを扱うには shlwapi.h に定義されている関数群(Path Routines)を使用
+
+using namespace std;
 
 #define MAX_LOADSTRING 100
 
@@ -12,11 +21,24 @@ WCHAR szTitle[MAX_LOADSTRING];                  // タイトル バーのテキ�
 WCHAR szWindowClass[MAX_LOADSTRING];            // メイン ウィンドウ クラス名
 
 // このコード モジュールに含まれる関数の宣言を転送します:
+// # アプリケーション専用関数:	************************************
+VOID	CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);	//マルチメディアタイマ処理関数　スレッドのイベントオブジェクト処理
+int		Init_tasks();//アプリケーション毎のタスクオブジェクトの初期設定
+DWORD	knlTaskStartUp();//実行させるタスクの起動処理
+INT		setParameter(ST_INI_INF* pInf, LPCWSTR pFileName);//パラメータ設定処理
+void	GetIniInf(LPCWSTR file_name, LPCWSTR section_name, LPCWSTR key_name, LPCWSTR str_default, int value_type, void* p_param);//iniファイル読取処理
+void	CreateSharedData(void);//共有メモリCreate処理
+static unsigned __stdcall thread_gate_func(void * pObj) { //スレッド実行のためのゲート関数
+	CTaskObj * pthread_obj = (CTaskObj *)pObj;return pthread_obj->run(pObj);
+}
+
+// # Wizard Default関数:		************************************
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+// # 関数: wWinMain				************************************
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
