@@ -3,18 +3,20 @@
 //# マルチスレッド基本クラス メンバー関数 
 
 CTaskObj::CTaskObj() {//コンストラクタ
-	inf.hndl = NULL;
-	inf.cycle_ms = DEFAUT_TASK_CYCLE;
-	inf.thread_com = REPEAT_INFINIT;
-	wsprintf(inf.name, L"Who am I?");
-	inf.act_count = inf.act_time = 0;
-	inf.priority = THREAD_PRIORITY_NORMAL;
-	inf.work_select = THREAD_WORK_IDLE;
-	inf.hWnd_parent = inf.hWnd_work = inf.hWnd_opepane = inf.hWnd_msgStatics = NULL;
-	inf.hBmp = NULL;
+	//タスク関連の初期値設定
+	inf.hndl = NULL;						//スレッドハンドル
+	inf.cycle_ms = DEFAUT_TASK_CYCLE;		//スレッドの呼び出し周期
+	inf.thread_com = REPEAT_INFINIT;		//スレッドの呼び出しタイプ
+	wsprintf(inf.name, L"Who am I?");		//タスク名
+	inf.act_count = inf.act_time = 0;		//スレッド周期制御用カウンタリセット
+	inf.priority = THREAD_PRIORITY_NORMAL;	//タスクプライオリティ設定（将来用）
+	inf.work_select = THREAD_WORK_IDLE;		//スレッド実行時の処理関数
+	inf.hWnd_parent = inf.hWnd_work = inf.hWnd_opepane = inf.hWnd_msgStatics = NULL;//各種表示関連ハンドル
+	inf.hBmp = NULL;						//タスクアイコン用ビットマップハンドル
 };
 
 CTaskObj::~CTaskObj() {
+
 	delete inf.hBmp;
 };//デストラクタ
 

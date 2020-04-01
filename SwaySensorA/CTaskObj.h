@@ -1,29 +1,29 @@
 #pragma once
 
 #include "framework.h"
-#include <process.h>	//threads and processes関数ヘッダ
+#include <process.h>								//threads and processes関数ヘッダ
 
 using namespace std;
 
 //#タスク条件設定部
-#define TARGET_RESOLUTION			1		//マルチメディアタイマー精度
-#define SYSTEM_TICK_ms				25		//タスクスレッド呼び出し最小周期
-#define TASK_NUM					8		//追加可能タスク最大数
+#define TARGET_RESOLUTION			1				//マルチメディアタイマー精度
+#define SYSTEM_TICK_ms				25				//タスクスレッド呼び出し周期単位　この倍数の周期となる
+#define MAX_APL_TASK				9				//登録可能タスク最大数
+#define TASK_NUM					8				//登録タスク数
 #define INITIAL_TASK_STACK_SIZE		16384
-#define DEFAUT_TASK_CYCLE			50		//タスクスレッド呼び出しデフォルト周期
-#define TASK_EVENT_MAX				8		//タスクスレッド呼び出しイベント最大数
+#define DEFAUT_TASK_CYCLE			50				//タスクスレッド呼び出しデフォルト周期
+#define TASK_EVENT_MAX				8				//各タスクスレッド呼び出しイベント最大数
 
 //inf.thread_com用　スレッドループ制御用
-#define REPEAT_INFINIT		0	//永久ループ
-#define TERMINATE_THREAD	1	//スレッド中断
-#define REPEAT_ONCE			-1	//逐次処理
+#define REPEAT_INFINIT				0				//永久ループ
+#define TERMINATE_THREAD			1				//スレッド中断
+#define REPEAT_ONCE					-1				//逐次処理
 
-//スレッドで事項する関数の選択用
-#define THREAD_WORK_IDLE		0
-#define THREAD_WORK_ROUTINE		1
-#define THREAD_WORK_OPTION1		2
-#define THREAD_WORK_OPTION2		3
-
+//定周期起動スレッドで実行する関数の内容選択
+#define THREAD_WORK_IDLE			0				//アイドル処理（処理無し）
+#define THREAD_WORK_ROUTINE			1				//通常処理
+#define THREAD_WORK_OPTION1			2				//オプション処理
+#define THREAD_WORK_OPTION2			3				//オプション処理
 
 /***********************************************************************
 タスクオブジェクトの個別管理情報構造体
@@ -69,22 +69,23 @@ typedef struct {
 
 	//-外部インターフェース
 	unsigned long	*psys_counter;					//メインシステムカウンターの参照先ポインタ
-	unsigned		work_select = 0;					//スレッド実行の関数の種類を指定
+	unsigned		work_select = 0;				//スレッド実行の関数の種類を指定
 
-}ST_THREAD_INFO, *PST_THREAD_INFO;
+}ST_TASK_INFO, *PST_TASKD_INFO;
 
 
 class CTaskObj
 {
 
 public:
-	ST_THREAD_INFO inf;
+	ST_TASK_INFO inf;
 
 	CTaskObj();
-	virtual ~CTaskObj();//デストラクタ
+	virtual ~CTaskObj();							//デストラクタ
+
+	unsigned __stdcall run(void *param);			//スレッド実行対象関数
 
 	virtual void init_task(void *pobj);
 	virtual void routine_work(void *param);
-	unsigned __stdcall run(void *param);//スレッド実行対象関数
 };
 
