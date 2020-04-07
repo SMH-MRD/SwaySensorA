@@ -9,7 +9,6 @@ using namespace std;
 #define TARGET_RESOLUTION			1				//マルチメディアタイマー精度
 #define SYSTEM_TICK_ms				25				//タスクスレッド呼び出し周期単位　この倍数の周期となる
 #define MAX_APL_TASK				9				//登録可能タスク最大数
-#define TASK_NUM					8				//登録タスク数
 #define INITIAL_TASK_STACK_SIZE		16384
 #define DEFAUT_TASK_CYCLE			50				//タスクスレッド呼び出しデフォルト周期
 #define TASK_EVENT_MAX				8				//各タスクスレッド呼び出しイベント最大数

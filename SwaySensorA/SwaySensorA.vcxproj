@@ -157,8 +157,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CodeDef.h" />
-    <ClInclude Include="CSharedData.h" />
+    <ClInclude Include="CHelper.h" />
+    <ClInclude Include="AppCommon.h" />
+    <ClInclude Include="CSharedObject.h" />
     <ClInclude Include="CTaskObj.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="inifile.h" />
@@ -167,7 +168,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CSharedData.cpp" />
+    <ClCompile Include="CHelper.cpp" />
+    <ClCompile Include="CSharedObject.cpp" />
     <ClCompile Include="CTaskObj.cpp" />
     <ClCompile Include="SwaySensorA.cpp" />
   </ItemGroup>

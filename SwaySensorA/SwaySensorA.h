@@ -3,7 +3,7 @@
 #include "resource.h"
 
 #include "CTaskObj.h"
-#include "CSharedData.h"
+#include "CSharedObject.h"
 
 
 ///# マルチスレッド管理用構造体
@@ -17,12 +17,10 @@ typedef struct knl_manage_set_tag {
 	unsigned int stackSize = INITIAL_TASK_STACK_SIZE;	//タスクの初期スタックサイズ
 }ST_KNL_MANAGE_SET, *P_ST_MANAGE_SET;
 
+
+
+#define TASK_NUM					8				//登録タスク数
+
 #define NAME_OF_INIFILE					L"app" //iniファイルファイル名
 #define EXT_OF_INIFILE					L"ini" //iniファイル拡張子
 
-// 戻り値定義
-#define RESULT_OK			0			// 戻り値:成功
-#define RESULT_NG_INVALID	-1			// 戻り値:失敗(引数異常)
-#define RESULT_NG_SYSERR	-2			// 戻り値:失敗(システムエラー)
-#define RESULT_NG_SEQUENCE	-3			// 戻り値:失敗(シーケンスエラー)
-#define RESULT_NG_BUSY		-4			// 戻り値:失敗(ビジー)

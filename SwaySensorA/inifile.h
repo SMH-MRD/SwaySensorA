@@ -1,15 +1,6 @@
 #pragma once
 #include <windows.h>
 
-enum {
-	INITYPE_CHAR = 0,
-	INITYPE_INT,
-	INITYPE_SHORT,
-	INITYPE_LONG,
-	INITYPE_FLOAT,
-	INITYPE_DOUBLE
-};
-
 // ------------------ パラメータIniのセクション名 ---------------------------
 #define	INI_SCT_CAMERA				L"CAMERA"							// セクション名：カメラ
 #define	INI_SCT_OPENCV				L"OPENCV"							// セクション名：OPENCV

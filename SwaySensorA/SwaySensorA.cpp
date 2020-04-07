@@ -4,6 +4,7 @@
 #include "framework.h"
 #include "SwaySensorA.h"
 #include "inifile.h"
+#include "CHelper.h"
 
 #include "CTaskObj.h"		//タスククラス
 
@@ -29,7 +30,7 @@ wstring			wstrPathExe;					// 実行ファイルのパス
 static ST_KNL_MANAGE_SET	knl_manage_set;		//マルチスレッド管理用構造体
 static vector<HANDLE>		VectHevent;			//マルチスレッド用イベントのハンドル
 static HIMAGELIST			hImgListTaskIcon;	//タスクアイコン用イメージリスト
-static CSharedData*			cSharedData;		// 共有オブジェクトインスタンス
+static CSharedObject*			cSharedData;		// 共有オブジェクトインスタンス
 
 
 
@@ -40,7 +41,7 @@ VOID	CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD d
 int		Init_tasks();																	//アプリケーション毎のタスクオブジェクトの初期設定
 DWORD	knlTaskStartUp();																//実行させるタスクの起動処理
 INT		setParameter(ST_INI_INF* pInf, LPCWSTR pFileName);								//パラメータ設定処理
-void	GetIniInf(LPCWSTR file_name, LPCWSTR section_name, LPCWSTR key_name, LPCWSTR str_default, int value_type, void* p_param);//iniファイル読取処理
+//void	GetIniInf(LPCWSTR file_name, LPCWSTR section_name, LPCWSTR key_name, LPCWSTR str_default, int value_type, void* p_param);//iniファイル読取処理
 void	CreateSharedData(void);															//共有メモリCreate処理
 static unsigned __stdcall thread_gate_func(void * pObj) {								//スレッド実行のためのゲート関数
 	CTaskObj * pthread_obj = (CTaskObj *)pObj;return pthread_obj->run(pObj);
@@ -131,10 +132,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
+   if (!hWnd)  return FALSE;
+
+   /// -タスク設定	
+   Init_tasks();//タスク個別設定
+
+
+
+
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
@@ -467,27 +472,30 @@ int  Init_tasks() {
 
 	}
 
-#endif
+
 	///各タスク用設定ウィンドウ作成
 	InitCommonControls();	//コモンコントロール初期化
-//	hTabWnd = CreateTaskSettingWnd(hWnd);//タブウィンドウ作成
+	hTabWnd = CreateTaskSettingWnd(hWnd);//タブウィンドウ作成
+#endif
+	
+	//設定タスク数登録
+	knl_manage_set.num_of_task = (unsigned int)VectpCTaskObj.size();
 
-	//各タスク残パラメータセット
-	knl_manage_set.num_of_task = (unsigned int)VectpCTaskObj.size();//タスク数登録
+	//各タスク用残パラメータセット
 	for (unsigned i = 0; i < knl_manage_set.num_of_task; i++) {
 		CTaskObj * pobj = (CTaskObj *)VectpCTaskObj[i];
 
-		pobj->inf.index = i;	//タスクインデックスセット
+		pobj->inf.index = i;//設定順でタスクインデックスセット
 
 		//その他設定
-		pobj->inf.psys_counter = &knl_manage_set.sys_counter;
-		pobj->inf.act_count = 0;//起動チェック用カウンタリセット
-		 //起動周期カウント値
-		if (pobj->inf.cycle_ms >= SYSTEM_TICK_ms)	pobj->inf.cycle_count = pobj->inf.cycle_ms / SYSTEM_TICK_ms;
+		pobj->inf.psys_counter = &knl_manage_set.sys_counter;	//システムカウンタ(基本周期でカウント）参照アドレスセット
+		pobj->inf.act_count = 0;								//起動チェック用カウンタリセット
+		
+		if (pobj->inf.cycle_ms >= SYSTEM_TICK_ms)				//タスクスレッド起動を掛けるカウント値設定
+			pobj->inf.cycle_count = pobj->inf.cycle_ms / SYSTEM_TICK_ms;
 		else pobj->inf.cycle_count = 1;
-
-		//最後に初期化関数呼び出し
-		pobj->init_task(pobj);
+		
+		pobj->init_task(pobj);									//最後にタスク固有初期化関数呼び出し
 	}
 
 	return 1;
@@ -585,76 +593,51 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 
 	//--------------------------------------------------------------------------
 	// 共通設定パラメータ
-	GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_EXPOSURE,
+	CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_EXPOSURE,
 		L"10000", INITYPE_INT, &(pInf->exposureTime));				// 露光時間
-	GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_WIDTH,
+	CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_WIDTH,
 		L"640", INITYPE_INT, &(pInf->camWidth));					// カメラ撮影横幅
-	GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_HEIGHT,
+	CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_HEIGHT,
 		L"480", INITYPE_INT, &(pInf->camHeight));					// カメラ撮影高さ
-	GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_FRAMERATE,
+	CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_FRAMERATE,
 		L"30", INITYPE_INT, &(pInf->frameRate));					// フレームレート
 
-	GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_EN,
+	CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_EN,
 		L"1", INITYPE_INT, &(pInf->mask1En));						// マスク1有効無効
-	GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_MIN,
+	CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_MIN,
 		L"0", INITYPE_INT, &(pInf->mask1Min));						// マスク1最小
-	GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_MAX,
+	CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_MAX,
 		L"10", INITYPE_INT, &(pInf->mask1Max));						// マスク1最大
-	GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_EN,
+	CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_EN,
 		L"1", INITYPE_INT, &(pInf->mask2En));						// マスク2有効無効
-	GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_MIN,
+	CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_MIN,
 		L"170", INITYPE_INT, &(pInf->mask2Min));					// マスク2最小
-	GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_MAX,
+	CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_MAX,
 		L"180", INITYPE_INT, &(pInf->mask2Max));					// マスク2最大
-	GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK3_EN,
+	CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK3_EN,
 		L"1", INITYPE_INT, &(pInf->mask3En));						// マスク3有効無効
-	GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK3_MIN,
+	CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK3_MIN,
 		L"80", INITYPE_INT, &(pInf->mask3Min));						// マスク3最小
-	GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK3_MAX,
+	CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK3_MAX,
 		L"100", INITYPE_INT, &(pInf->mask3Max));					// マスク3最大
-	GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_PROC_ALGO,
+	CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_PROC_ALGO,
 		L"100", INITYPE_INT, &(pInf->procAlgo));					// 画像処理アルゴリズム
 
-	GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_IPADDR,
+	CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_IPADDR,
 		L"192.168.0.1", INITYPE_CHAR, &(pInf->rioIpAddr));			// RIO IPアドレス
-	GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TCPPORTNUM,
+	CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TCPPORTNUM,
 		L"502", INITYPE_INT, &(pInf->rioTcpPortNum));				// RIO TCPポート番号
-	GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_SLAVEADDR,
+	CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_SLAVEADDR,
 		L"1", INITYPE_INT, &(pInf->rioSlaveAddr));					// RIOスレーブアドレス
-	GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TIMEOUT,
+	CHelper::CHelper::CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TIMEOUT,
 		L"2000", INITYPE_INT, &(pInf->rioTimeOut));					// RIOタイムアウト
-	GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_XPORTNUM,
+	CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_XPORTNUM,
 		L"1", INITYPE_INT, &(pInf->rioXPortNum));					// RIO傾斜計Xデータ接続ポート番号
-	GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_YPORTNUM,
+	CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_YPORTNUM,
 		L"2", INITYPE_INT, &(pInf->rioYPortNum));					// RIO傾斜計Yデータ接続ポート番号
 
 	return S_OK;
 }
-
-///# 関数: INIファイル読出し ***************
-void GetIniInf(LPCWSTR file_name, LPCWSTR section_name, LPCWSTR key_name, LPCWSTR str_default, int value_type, void* p_param)
-{
-	DWORD	state;
-	WCHAR	buf[256];
-
-	state = GetPrivateProfileString(section_name, key_name, str_default, buf, sizeof(buf) / 2, file_name);
-	if (state <= 0)
-	{
-		_stprintf_s(buf, L"%s", str_default);
-	}
-
-	switch (value_type)
-	{
-	case INITYPE_CHAR:		_stprintf_s((LPWSTR)p_param, 256, buf);	break;
-	case INITYPE_INT:		*((int*)p_param) = _wtoi(buf);			break;
-	case INITYPE_SHORT:		*((short*)p_param) = (short)_wtoi(buf);	break;
-	case INITYPE_LONG:		*((long*)p_param) = _wtoi(buf);			break;
-	case INITYPE_FLOAT:		*((float*)p_param) = (float)_wtof(buf);	break;
-	case INITYPE_DOUBLE:	*((double*)p_param) = _wtof(buf);		break;
-	default:														break;
-	}
-}
-
 
 ///# 関数: 共有オブジェクト初期化 ********************************************************************
 void CreateSharedData(void) {
@@ -670,13 +653,12 @@ void CreateSharedData(void) {
 	_wmakepath_s(dstpath, sizeof(dstpath) / 2, szDrive, szPath, NAME_OF_INIFILE, EXT_OF_INIFILE);
 	pszInifile = dstpath;
 
-
 	ST_INI_INF ini;
+	 setIniParameter(&ini, dstpath);
 
 #if 0
-	setParameter(&ini, dstpath);
-
-	cSharedData = new CSharedData();
+	 
+　　cSharedData = new CSharedData();
 	cSharedData->InitSharedData();
 
 	cSharedData->SetParam(PARAM_ID_CAM_EXPOSURE_TIME, (UINT32)ini.exposureTime);

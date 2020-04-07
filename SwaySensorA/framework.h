@@ -40,3 +40,7 @@ using namespace Pylon;
 //マルチメディアタイマー用
 #include <mmsystem.h>
 
+
+//アプリケーション共通フォーマット、CODE定義ヘッダ
+#include "AppCommon.h"
+
