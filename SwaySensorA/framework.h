@@ -36,6 +36,7 @@ using namespace Pylon;
 #include <iomanip>
 #include <sstream> //stringstream用
 #include <vector>
+#include <stdio.h>
 
 //マルチメディアタイマー用
 #include <mmsystem.h>

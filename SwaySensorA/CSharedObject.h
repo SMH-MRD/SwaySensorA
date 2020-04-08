@@ -72,12 +72,34 @@ enum {
 	COG_ALGO_KIND_LEN					// 重心位置算出アルゴリズム(最大輪郭長)
 };
 
+/************************************/
+/* 構造体定義						*/
+/************************************/
+typedef struct _stMngImageData
+{
+	Mat image;
+	BOOL update;	//image setでtrue getでfalse
+}STMngImageData;
+
 typedef struct _stProcData
 {
 	Mat image;
 	double posx;
 	double posy;
 }STProcData;
+
+typedef struct _stMngProcData
+{
+	STProcData data;
+	BOOL update;	//data setでtrue getでfalse
+}STMngProcData;
+
+typedef struct _stMngInclinoData
+{
+	DOUBLE data;
+}STMngInclinoData;
+
+
 
 
 class CSharedObject
@@ -86,7 +108,7 @@ public:
 	CSharedObject();
 	~CSharedObject();
 
-	void InitSharedData(void);
+	void InitSharedObject(void);
 
 	INT SetImage(UINT8 id, Mat image);
 	INT GetImage(UINT8 id, Mat* image);
@@ -94,8 +116,8 @@ public:
 	INT SetProcImage(UINT8 id, STProcData data);
 	INT GetProcImage(UINT8 id, STProcData* data);
 
-	INT SetBevelData(UINT8 id, DOUBLE data);
-	INT GetBevelData(UINT8 id, DOUBLE* data);
+	INT SetInclinoData(UINT8 id, DOUBLE data);
+	INT GetInclinoData(UINT8 id, DOUBLE* data);
 
 	INT SetParam(UINT8 id, UINT32 data);
 	INT GetParam(UINT8 id, UINT32* data);
