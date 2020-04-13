@@ -10,7 +10,16 @@
 #define RESULT_NG_BUSY		-4			// 戻り値:失敗(ビジー)
 
 
-
+///# タスクオブジェクトインデックス構造体
+typedef struct _st_iTask {
+	int ana;
+	int clerk;
+	int comc;
+	int comp;
+	int ply;
+	int pr;
+	int mng;
+}ST_iTask, *P_ST_iTask;
 
 #if 0
 // タスクID　配列の位置

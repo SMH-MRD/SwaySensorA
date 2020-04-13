@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="CHelper.h" />
     <ClInclude Include="AppCommon.h" />
+    <ClInclude Include="CManager.h" />
     <ClInclude Include="CSharedObject.h" />
     <ClInclude Include="CTaskObj.h" />
     <ClInclude Include="framework.h" />
@@ -169,6 +170,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CHelper.cpp" />
+    <ClCompile Include="CManager.cpp" />
     <ClCompile Include="CSharedObject.cpp" />
     <ClCompile Include="CTaskObj.cpp" />
     <ClCompile Include="SwaySensorA.cpp" />

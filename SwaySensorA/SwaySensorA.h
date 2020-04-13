@@ -4,6 +4,7 @@
 
 #include "CTaskObj.h"
 #include "CSharedObject.h"
+#include "CManager.h"
 
 
 ///# マルチスレッド管理用構造体
@@ -19,8 +20,10 @@ typedef struct knl_manage_set_tag {
 
 
 
-#define TASK_NUM					8				//登録タスク数
+#define TASK_NUM						8				//登録タスク数
 
-#define NAME_OF_INIFILE					L"app" //iniファイルファイル名
-#define EXT_OF_INIFILE					L"ini" //iniファイル拡張子
+#define NAME_OF_INIFILE					L"app"		//iniファイルファイル名
+#define EXT_OF_INIFILE					L"ini"		//iniファイル拡張子
+#define PATH_OF_INIFILE					pszInifile	//オプショナルパス
+#define PATH_OF_EXEFILE					wstrPathExe //EXEのPATH
 

@@ -28,7 +28,13 @@ void CTaskObj::init_task(void *pobj) {
 unsigned CTaskObj::run(void *param) {
 
 	while (this->inf.thread_com != TERMINATE_THREAD) {
-		inf.event_triggered = WaitForMultipleObjects(inf.n_active_events, ((CTaskObj*)param)->inf.hevents, FALSE, INFINITE);//メインスレッドからのSIGNAL状態待ち
+		//SIGNAL状態待ち
+		inf.event_triggered = WaitForMultipleObjects(
+							inf.n_active_events,					//対象オブジェクト数
+							((CTaskObj*)param)->inf.hevents,		//対象オブジェクトハンドルの配列 
+							FALSE,									//TRUE：ALL　Object　FALSE：Any of Object 
+							INFINITE								//SIGNAL待ち時間　msec
+													);
 
 		//処理周期確認用
 		DWORD start_time = timeGetTime();

@@ -6,7 +6,7 @@
 #include "inifile.h"
 #include "CHelper.h"
 
-#include "CTaskObj.h"		//タスククラス
+#include "CTaskObj.h"	/タスククラス
 
 #include <windowsx.h>	//コモンコントロール用
 #include <commctrl.h>	//コモンコントロール用
@@ -22,6 +22,10 @@ WCHAR szTitle[MAX_LOADSTRING];                  // タイトル バーのテキ�
 WCHAR szWindowClass[MAX_LOADSTRING];            // メイン ウィンドウ クラス名
 
 vector<void*>	VectpCTaskObj;					//タスクオブジェクトのポインタ
+ST_iTask g_itask;								//タスクID参照用グローバル変数
+
+
+
 SYSTEMTIME		gAppStartTime;					//アプリケーション開始時間
 LPWSTR			pszInifile;						// iniファイルのパス
 wstring			wstrPathExe;					// 実行ファイルのパス
@@ -30,7 +34,7 @@ wstring			wstrPathExe;					// 実行ファイルのパス
 static ST_KNL_MANAGE_SET	knl_manage_set;		//マルチスレッド管理用構造体
 static vector<HANDLE>		VectHevent;			//マルチスレッド用イベントのハンドル
 static HIMAGELIST			hImgListTaskIcon;	//タスクアイコン用イメージリスト
-static CSharedObject*			cSharedData;		// 共有オブジェクトインスタンス
+static CSharedObject*		cSharedData;	// 共有オブジェクトインスタンス
 
 
 
@@ -40,11 +44,12 @@ static CSharedObject*			cSharedData;		// 共有オブジェクトインスタン
 VOID	CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);	//マルチメディアタイマ処理関数　スレッドのイベントオブジェクト処理
 int		Init_tasks();																	//アプリケーション毎のタスクオブジェクトの初期設定
 DWORD	knlTaskStartUp();																//実行させるタスクの起動処理
-INT		setParameter(ST_INI_INF* pInf, LPCWSTR pFileName);								//パラメータ設定処理
-//void	GetIniInf(LPCWSTR file_name, LPCWSTR section_name, LPCWSTR key_name, LPCWSTR str_default, int value_type, void* p_param);//iniファイル読取処理
+INT		setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName);							//iniファイルパラメータ設定処理
 void	CreateSharedData(void);															//共有メモリCreate処理
-static unsigned __stdcall thread_gate_func(void * pObj) {								//スレッド実行のためのゲート関数
-	CTaskObj * pthread_obj = (CTaskObj *)pObj;return pthread_obj->run(pObj);
+//スレッド実行のためのゲート関数
+static unsigned __stdcall thread_gate_func(void * pObj) {								
+	CTaskObj * pthread_obj = (CTaskObj *)pObj;
+	return pthread_obj->run(pObj);
 }
 
 // # Wizard Default関数:		************************************
@@ -128,7 +133,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    GetSystemTime(&gAppStartTime);	//アプリケーション開始時刻取得
 
-
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
@@ -136,11 +140,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    /// -タスク設定	
    Init_tasks();//タスク個別設定
-
-
-
-
-
+   	  
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
@@ -206,30 +206,36 @@ int  Init_tasks() {
 
 	CreateSharedData();//共有メモリクリエイト
 
-#if 0
 	//###Task1 設定
 	{
 		/// -タスクインスタンス作成->リスト登録
 		ptempobj = new CManager;
-		VectpCTaskObj.push_back((void*)ptempobj);
-		g_itask.mng = task_index;
+		VectpCTaskObj.push_back((void*)ptempobj);	//オブジェクトのポインタセット
+		g_itask.mng = task_index;					//タスクIDセット
 
 
 		/// -タスクインデクスセット
 		ptempobj->inf.index = task_index++;
 
 
-		/// -イベントオブジェクトクリエイト->リスト登録	
-		VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));//自動リセット,初期値非シグナル
+		/// -イベントオブジェクトクリエイト
+		//定周期タイマーイベント
+		VectHevent.push_back( //マルチメディアタイマー定周期起動用　Event Handle登録
+			ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL)//自動リセット,初期値非シグナル
+		);
+		//オプションイベント
+		//ptempobj->inf.hevents[ID_OPT1_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL)//自動リセット,初期値非シグナル
+
 
 		/// -スレッド起動周期セット
 		ptempobj->inf.cycle_ms = 1000;
 
+#if 0
 		/// -ツイートメッセージ用iconセット
 		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_MAN1");//ビットマップ割り当て
 		ImageList_AddMasked(hImgListTaskIcon, hBmp, RGB(255, 255, 255));
 		DeleteObject(hBmp);
-
+#endif
 		///オブジェクト名セット
 		DWORD	str_num = GetPrivateProfileString(OBJ_NAME_SECT_OF_INIFILE, MANAGER_KEY_OF_INIFILE, L"No Name", ptempobj->inf.name, sizeof(ptempobj->inf.name) / 2, PATH_OF_INIFILE);
 		str_num = GetPrivateProfileString(OBJ_SNAME_SECT_OF_INIFILE, MANAGER_KEY_OF_INIFILE, L"No Name", ptempobj->inf.sname, sizeof(ptempobj->inf.sname) / 2, PATH_OF_INIFILE);
@@ -238,8 +244,9 @@ int  Init_tasks() {
 		ptempobj->inf.work_select = THREAD_WORK_ROUTINE;
 		///スレッド起動に使うイベント数（定周期タイマーのみの場合１）
 		ptempobj->inf.n_active_events = 1;
-
 	}
+#if 0
+
 	//###Task2 設定
 	{
 		/// -タスクインスタンス作成->リスト登録
@@ -640,6 +647,8 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 }
 
 ///# 関数: 共有オブジェクト初期化 ********************************************************************
+// 共有オブジェクトはCSharedObjct.cppのstatic変数でメモリ確保
+
 void CreateSharedData(void) {
 	
 	// ini file path
@@ -655,11 +664,9 @@ void CreateSharedData(void) {
 
 	ST_INI_INF ini;
 	 setIniParameter(&ini, dstpath);
-
-#if 0
 	 
-　　cSharedData = new CSharedData();
-	cSharedData->InitSharedData();
+	cSharedData = new CSharedObject();
+	cSharedData->InitSharedObject();
 
 	cSharedData->SetParam(PARAM_ID_CAM_EXPOSURE_TIME, (UINT32)ini.exposureTime);
 	cSharedData->SetParam(PARAM_ID_CAM_FRAMERATE, (UINT32)ini.frameRate);
@@ -690,6 +697,4 @@ void CreateSharedData(void) {
 	cSharedData->SetParam(PARAM_ID_RIO_TIMEOUT, (UINT32)ini.rioTimeOut);
 	cSharedData->SetParam(PARAM_ID_RIO_XPORT, (UINT32)ini.rioXPortNum);
 	cSharedData->SetParam(PARAM_ID_RIO_YPORT, (UINT32)ini.rioYPortNum);
-
-#endif
 }

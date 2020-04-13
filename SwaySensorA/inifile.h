@@ -2,9 +2,26 @@
 #include <windows.h>
 
 // ------------------ パラメータIniのセクション名 ---------------------------
+#define OBJ_NAME_SECT_OF_INIFILE	L"OBJECT_NAME"						//オブジェクトフルネームセクション
+#define OBJ_SNAME_SECT_OF_INIFILE	L"OBJECT_SNAME"						//オブジェクト略称セクション
+
 #define	INI_SCT_CAMERA				L"CAMERA"							// セクション名：カメラ
 #define	INI_SCT_OPENCV				L"OPENCV"							// セクション名：OPENCV
 #define	INI_SCT_RIO					L"RIO"								// セクション名：RIO
+
+
+// ------------------ 各セクションの各タスク用の情報を参照するためのキー ---------
+#define MAIN_KEY_OF_INIFILE			L"MAIN"
+#define CLIENT_COM_KEY_OF_INIFILE	L"CCOM"
+#define CLERK_KEY_OF_INIFILE		L"CLERK"
+#define PARTNER_COM_KEY_OF_INIFILE	L"PCOM"
+#define ANALYST_KEY_OF_INIFILE		L"ANALYST"
+#define PLAYER_KEY_OF_INIFILE		L"PLAYER"
+#define MANAGER_KEY_OF_INIFILE		L"MANAGER"
+#define PR_KEY_OF_INIFILE			L"PR"
+#define DEFAULT_KEY_OF_INIFILE		L"DEFAULT"
+#define HELPER_KEY_OF_INIFILE		L"HELPER"
+#define DUMMY_KEY_OF_INIFILE		L"DUMMY"
 
 // ------------------ カメラ設定セクションのキー名 ---------------------------
 #define	INI_KEY_CAM_EXPOSURE		L"ExposureTime"						// キー名：露光時間

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "framework.h"
+#include "AppCommon.h"
 #include <process.h>								//threads and processes関数ヘッダ
 
 using namespace std;
@@ -23,6 +24,9 @@ using namespace std;
 #define THREAD_WORK_ROUTINE			1				//通常処理
 #define THREAD_WORK_OPTION1			2				//オプション処理
 #define THREAD_WORK_OPTION2			3				//オプション処理
+
+#define ID_TIMER_EVENT				0				//タイマー用イベント配列の位置
+#define ID_OPT1_EVENT				1				//オプションイベント配列の位置
 
 /***********************************************************************
 タスクオブジェクトの個別管理情報構造体
