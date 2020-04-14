@@ -45,6 +45,12 @@
     <ClInclude Include="CManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="CPlayer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="CComClient.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SwaySensorA.cpp">
@@ -62,6 +68,12 @@
     <ClCompile Include="CManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="CPlayer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="CComClient.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SwaySensorA.rc">
@@ -73,6 +85,15 @@
       <Filter>リソース ファイル</Filter>
     </Image>
     <Image Include="SwaySensorA.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\alube.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\Ply1.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\comm1.bmp">
       <Filter>リソース ファイル</Filter>
     </Image>
   </ItemGroup>

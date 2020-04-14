@@ -206,7 +206,7 @@ int  Init_tasks() {
 
 	CreateSharedData();//共有メモリクリエイト
 
-	//###Task1 設定
+	//###Task1 設定 MANAGER
 	{
 		/// -タスクインスタンス作成->リスト登録
 		ptempobj = new CManager;
@@ -230,12 +230,11 @@ int  Init_tasks() {
 		/// -スレッド起動周期セット
 		ptempobj->inf.cycle_ms = 1000;
 
-#if 0
 		/// -ツイートメッセージ用iconセット
-		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_MAN1");//ビットマップ割り当て
+		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_MANAGER");//ビットマップ割り当て
 		ImageList_AddMasked(hImgListTaskIcon, hBmp, RGB(255, 255, 255));
 		DeleteObject(hBmp);
-#endif
+
 		///オブジェクト名セット
 		DWORD	str_num = GetPrivateProfileString(OBJ_NAME_SECT_OF_INIFILE, MANAGER_KEY_OF_INIFILE, L"No Name", ptempobj->inf.name, sizeof(ptempobj->inf.name) / 2, PATH_OF_INIFILE);
 		str_num = GetPrivateProfileString(OBJ_SNAME_SECT_OF_INIFILE, MANAGER_KEY_OF_INIFILE, L"No Name", ptempobj->inf.sname, sizeof(ptempobj->inf.sname) / 2, PATH_OF_INIFILE);
@@ -245,9 +244,9 @@ int  Init_tasks() {
 		///スレッド起動に使うイベント数（定周期タイマーのみの場合１）
 		ptempobj->inf.n_active_events = 1;
 	}
-#if 0
 
-	//###Task2 設定
+
+	//###Task2 設定 PLAYER
 	{
 		/// -タスクインスタンス作成->リスト登録
 		ptempobj = new CPlayer;
@@ -258,13 +257,15 @@ int  Init_tasks() {
 		ptempobj->inf.index = task_index++;
 
 		/// -イベントオブジェクトクリエイト->リスト登録	
-		VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));//自動リセット,初期値非シグナル
+		VectHevent.push_back(
+			ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL)  //自動リセット,初期値非シグナル
+		);
 
-																						   /// -スレッド起動周期セット
+		/// -スレッド起動周期セット
 		ptempobj->inf.cycle_ms = 50;
 
 		/// -ツイートメッセージ用iconセット
-		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_PLY1");//ビットマップ割り当て
+		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_PLAYER");//ビットマップ割り当て
 		ImageList_AddMasked(hImgListTaskIcon, hBmp, RGB(255, 255, 255));
 		DeleteObject(hBmp);
 
@@ -277,11 +278,9 @@ int  Init_tasks() {
 
 		///スレッド起動に使うイベント数（定周期タイマーのみの場合１）
 		ptempobj->inf.n_active_events = 1;
-
 	}
 
-
-	//###Task3 設定
+	//###Task3 設定 COMCLIENT
 	{
 		/// -タスクインスタンス作成->リスト登録
 		ptempobj = new CComClient;
@@ -298,7 +297,7 @@ int  Init_tasks() {
 		ptempobj->inf.cycle_ms = 1000;
 
 		/// -ツイートメッセージ用iconセット
-		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_CCOM");//ビットマップ割り当て
+		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_COMCLIENT");//ビットマップ割り当て
 		ImageList_AddMasked(hImgListTaskIcon, hBmp, RGB(255, 255, 255));
 		DeleteObject(hBmp);
 
@@ -314,6 +313,7 @@ int  Init_tasks() {
 
 	}
 
+#if 0
 	//###Task4 設定
 	{
 		/// -タスクインスタンス作成->リスト登録

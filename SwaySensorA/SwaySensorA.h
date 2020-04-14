@@ -5,7 +5,8 @@
 #include "CTaskObj.h"
 #include "CSharedObject.h"
 #include "CManager.h"
-
+#include "CPlayer.h"
+#include "CComClient.h"
 
 ///# マルチスレッド管理用構造体
 typedef struct knl_manage_set_tag {

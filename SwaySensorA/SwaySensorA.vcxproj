@@ -157,9 +157,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CComClient.h" />
     <ClInclude Include="CHelper.h" />
     <ClInclude Include="AppCommon.h" />
     <ClInclude Include="CManager.h" />
+    <ClInclude Include="CPlayer.h" />
     <ClInclude Include="CSharedObject.h" />
     <ClInclude Include="CTaskObj.h" />
     <ClInclude Include="framework.h" />
@@ -169,8 +171,10 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CComClient.cpp" />
     <ClCompile Include="CHelper.cpp" />
     <ClCompile Include="CManager.cpp" />
+    <ClCompile Include="CPlayer.cpp" />
     <ClCompile Include="CSharedObject.cpp" />
     <ClCompile Include="CTaskObj.cpp" />
     <ClCompile Include="SwaySensorA.cpp" />
@@ -179,6 +183,9 @@
     <ResourceCompile Include="SwaySensorA.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\bmp\alube.bmp" />
+    <Image Include="..\bmp\comm1.bmp" />
+    <Image Include="..\bmp\Ply1.bmp" />
     <Image Include="small.ico" />
     <Image Include="SwaySensorA.ico" />
   </ItemGroup>
