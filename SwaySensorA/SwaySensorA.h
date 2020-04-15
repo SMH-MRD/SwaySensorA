@@ -7,6 +7,11 @@
 #include "CManager.h"
 #include "CPlayer.h"
 #include "CComClient.h"
+#include "CComRIO.h"
+#include "CComCamera.h"
+#include "CPublicRelation.h"
+#include "CClerk.h"
+#include "CAnalyst.h"
 
 ///# マルチスレッド管理用構造体
 typedef struct knl_manage_set_tag {

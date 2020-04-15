@@ -157,11 +157,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CAnalyst.h" />
+    <ClInclude Include="CClerk.h" />
+    <ClInclude Include="CComCamera.h" />
     <ClInclude Include="CComClient.h" />
+    <ClInclude Include="CComRIO.h" />
     <ClInclude Include="CHelper.h" />
     <ClInclude Include="AppCommon.h" />
     <ClInclude Include="CManager.h" />
     <ClInclude Include="CPlayer.h" />
+    <ClInclude Include="CPublicRelation.h" />
     <ClInclude Include="CSharedObject.h" />
     <ClInclude Include="CTaskObj.h" />
     <ClInclude Include="framework.h" />
@@ -171,10 +176,15 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CAnalyst.cpp" />
+    <ClCompile Include="CClerk.cpp" />
+    <ClCompile Include="CComCamera.cpp" />
     <ClCompile Include="CComClient.cpp" />
+    <ClCompile Include="CComRIO.cpp" />
     <ClCompile Include="CHelper.cpp" />
     <ClCompile Include="CManager.cpp" />
     <ClCompile Include="CPlayer.cpp" />
+    <ClCompile Include="CPublicRelation.cpp" />
     <ClCompile Include="CSharedObject.cpp" />
     <ClCompile Include="CTaskObj.cpp" />
     <ClCompile Include="SwaySensorA.cpp" />
@@ -185,6 +195,7 @@
   <ItemGroup>
     <Image Include="..\bmp\alube.bmp" />
     <Image Include="..\bmp\comm1.bmp" />
+    <Image Include="..\bmp\comm2.bmp" />
     <Image Include="..\bmp\Ply1.bmp" />
     <Image Include="small.ico" />
     <Image Include="SwaySensorA.ico" />

@@ -15,7 +15,9 @@ typedef struct _st_iTask {
 	int ana;
 	int clerk;
 	int comc;
-	int comp;
+	int comd1;
+	int comd2;
+	int comd3;
 	int ply;
 	int pr;
 	int mng;

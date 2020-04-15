@@ -293,7 +293,7 @@ int  Init_tasks() {
 		/// -イベントオブジェクトクリエイト->リスト登録	
 		VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));//自動リセット,初期値非シグナル
 
-																											/// -スレッド起動周期セット
+		/// -スレッド起動周期セット
 		ptempobj->inf.cycle_ms = 1000;
 
 		/// -ツイートメッセージ用iconセット
@@ -313,46 +313,13 @@ int  Init_tasks() {
 
 	}
 
-#if 0
-	//###Task4 設定
+
+	//###Task4 設定 COMRIO
 	{
 		/// -タスクインスタンス作成->リスト登録
-		ptempobj = new CComDeviceRIO;
+		ptempobj = new CComRIO;
 		VectpCTaskObj.push_back((void*)ptempobj);
-		g_itask.comp = task_index;
-
-		/// -タスクインデクスセット
-		ptempobj->inf.index = task_index++;
-
-		/// -イベントオブジェクトクリエイト->リスト登録	
-		VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));//自動リセット,初期値非シグナル
-
-																											/// -スレッド起動周期セット
-		ptempobj->inf.cycle_ms = 25;
-
-		/// -ツイートメッセージ用iconセット
-		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_PCOM");//ビットマップ割り当て
-		ImageList_AddMasked(hImgListTaskIcon, hBmp, RGB(255, 255, 255));
-		DeleteObject(hBmp);
-
-		///オブジェクト名セット
-		DWORD	str_num = GetPrivateProfileString(OBJ_NAME_SECT_OF_INIFILE, DEVICE_COM_KEY_OF_INIFILE, L"No Name", ptempobj->inf.name, sizeof(ptempobj->inf.name) / 2, PATH_OF_INIFILE);
-		str_num = GetPrivateProfileString(OBJ_SNAME_SECT_OF_INIFILE, DEVICE_COM_KEY_OF_INIFILE, L"No Name", ptempobj->inf.sname, sizeof(ptempobj->inf.sname) / 2, PATH_OF_INIFILE);
-
-		///実行関数選択
-		ptempobj->inf.work_select = THREAD_WORK_ROUTINE;
-
-		///スレッド起動に使うイベント数（定周期タイマーのみの場合１）
-		ptempobj->inf.n_active_events = 1;
-
-	}
-
-	//###Task5 設定
-	{
-		/// -タスクインスタンス作成->リスト登録
-		ptempobj = new CComDeviceCamera;
-		VectpCTaskObj.push_back((void*)ptempobj);
-		g_itask.comp = task_index;
+		g_itask.comd1 = task_index;
 
 		/// -タスクインデクスセット
 		ptempobj->inf.index = task_index++;
@@ -364,13 +331,46 @@ int  Init_tasks() {
 		ptempobj->inf.cycle_ms = 50;
 
 		/// -ツイートメッセージ用iconセット
-		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_PCOM");//ビットマップ割り当て
+		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_RIOCOM");//ビットマップ割り当て
 		ImageList_AddMasked(hImgListTaskIcon, hBmp, RGB(255, 255, 255));
 		DeleteObject(hBmp);
 
 		///オブジェクト名セット
-		DWORD	str_num = GetPrivateProfileString(OBJ_NAME_SECT_OF_INIFILE, DEVICE_COM_KEY_OF_INIFILE, L"No Name", ptempobj->inf.name, sizeof(ptempobj->inf.name) / 2, PATH_OF_INIFILE);
-		str_num = GetPrivateProfileString(OBJ_SNAME_SECT_OF_INIFILE, DEVICE_COM_KEY_OF_INIFILE, L"No Name", ptempobj->inf.sname, sizeof(ptempobj->inf.sname) / 2, PATH_OF_INIFILE);
+		DWORD	str_num = GetPrivateProfileString(OBJ_NAME_SECT_OF_INIFILE, RIO_COM_KEY_OF_INIFILE, L"No Name", ptempobj->inf.name, sizeof(ptempobj->inf.name) / 2, PATH_OF_INIFILE);
+		str_num = GetPrivateProfileString(OBJ_SNAME_SECT_OF_INIFILE, RIO_COM_KEY_OF_INIFILE, L"No Name", ptempobj->inf.sname, sizeof(ptempobj->inf.sname) / 2, PATH_OF_INIFILE);
+
+		///実行関数選択
+		ptempobj->inf.work_select = THREAD_WORK_ROUTINE;
+
+		///スレッド起動に使うイベント数（定周期タイマーのみの場合１）
+		ptempobj->inf.n_active_events = 1;
+
+	}
+
+	//###Task5 設定 COMCCAMERA
+	{
+		/// -タスクインスタンス作成->リスト登録
+		ptempobj = new CComCamera;
+		VectpCTaskObj.push_back((void*)ptempobj);
+		g_itask.comd2 = task_index;
+
+		/// -タスクインデクスセット
+		ptempobj->inf.index = task_index++;
+
+		/// -イベントオブジェクトクリエイト->リスト登録	
+		VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));//自動リセット,初期値非シグナル
+
+																											/// -スレッド起動周期セット
+		ptempobj->inf.cycle_ms = 50;
+
+		/// -ツイートメッセージ用iconセット
+		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_CAMERACOM");//ビットマップ割り当て
+		ImageList_AddMasked(hImgListTaskIcon, hBmp, RGB(255, 255, 255));
+		DeleteObject(hBmp);
+
+		///オブジェクト名セット
+		DWORD	str_num = GetPrivateProfileString(OBJ_NAME_SECT_OF_INIFILE, CAMERA_COM_KEY_OF_INIFILE, L"No Name", ptempobj->inf.name, sizeof(ptempobj->inf.name) / 2, PATH_OF_INIFILE);
+		str_num = GetPrivateProfileString(OBJ_SNAME_SECT_OF_INIFILE, CAMERA_COM_KEY_OF_INIFILE, L"No Name", ptempobj->inf.sname, sizeof(ptempobj->inf.sname) / 2, PATH_OF_INIFILE);
 
 		///実行関数選択
 		ptempobj->inf.work_select = THREAD_WORK_ROUTINE;
@@ -383,7 +383,7 @@ int  Init_tasks() {
 	//###Task6 設定
 	{
 		/// -タスクインスタンス作成->リスト登録
-		ptempobj = new CPublicRelation(hInst);
+		ptempobj = new CPublicRelation();
 		VectpCTaskObj.push_back((void*)ptempobj);
 		g_itask.pr = task_index;
 
@@ -416,7 +416,7 @@ int  Init_tasks() {
 	//###Task7 設定
 	{
 		/// -タスクインスタンス作成->リスト登録
-		ptempobj = new CClerk;
+		ptempobj = new CClerk();
 		VectpCTaskObj.push_back((void*)ptempobj);
 		g_itask.clerk = task_index;
 
@@ -479,7 +479,7 @@ int  Init_tasks() {
 
 	}
 
-
+#if 0
 	///各タスク用設定ウィンドウ作成
 	InitCommonControls();	//コモンコントロール初期化
 	hTabWnd = CreateTaskSettingWnd(hWnd);//タブウィンドウ作成
