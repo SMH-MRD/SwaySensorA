@@ -24,39 +24,48 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // メイン ウィンドウ ク
 vector<void*>	VectpCTaskObj;					//タスクオブジェクトのポインタ
 ST_iTask g_itask;								//タスクID参照用グローバル変数
 
-
-
 SYSTEMTIME		gAppStartTime;					//アプリケーション開始時間
 LPWSTR			pszInifile;						// iniファイルのパス
 wstring			wstrPathExe;					// 実行ファイルのパス
 
 // スタティック変数:
+// マルチタスク管理用
 static ST_KNL_MANAGE_SET	knl_manage_set;		//マルチスレッド管理用構造体
 static vector<HANDLE>		VectHevent;			//マルチスレッド用イベントのハンドル
+static CSharedObject*		cSharedData;		// 共有オブジェクトインスタンス
+// メインウィンドウパネル用
+static vector<HWND>			VectTweetHandle;	//メインウィンドウのスレッドツイートメッセージ表示Staticハンドル
 static HIMAGELIST			hImgListTaskIcon;	//タスクアイコン用イメージリスト
-static CSharedObject*		cSharedData;	// 共有オブジェクトインスタンス
-
-
+static HWND					hTabWnd;			//操作パネル用タブコントロールウィンドウのハンドル
 
 
 // このコード モジュールに含まれる関数の宣言を転送します:
 // # アプリケーション専用関数:	************************************
+// コア関数
 VOID	CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);	//マルチメディアタイマ処理関数　スレッドのイベントオブジェクト処理
 int		Init_tasks();																	//アプリケーション毎のタスクオブジェクトの初期設定
 DWORD	knlTaskStartUp();																//実行させるタスクの起動処理
 INT		setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName);							//iniファイルパラメータ設定処理
 void	CreateSharedData(void);															//共有メモリCreate処理
-//スレッド実行のためのゲート関数
-static unsigned __stdcall thread_gate_func(void * pObj) {								
+static unsigned __stdcall thread_gate_func(void * pObj) {								//スレッド実行のためのゲート関数							
 	CTaskObj * pthread_obj = (CTaskObj *)pObj;
 	return pthread_obj->run(pObj);
 }
+
+// メインウィンドウパネル用
+LRESULT CALLBACK TaskTabDlgProc(HWND, UINT, WPARAM, LPARAM);							//個別タスク設定タブウィンドウ用メッセージハンドリング関数
+HWND	CreateStatusbarMain(HWND);														//メインウィンドウステータスバー作成関数
+HWND	CreateTaskSettingWnd(HWND hWnd);
+
 
 // # Wizard Default関数:		************************************
 ATOM                MyRegisterClass(HINSTANCE hInstance);								// ウィンドウ クラスを登録します。
 BOOL                InitInstance(HINSTANCE, int);										// メインウィンドウクリエイト
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);								// ウィンドウプロシージャ
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+
+
 
 // # 関数: wWinMain				************************************
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -133,8 +142,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    GetSystemTime(&gAppStartTime);	//アプリケーション開始時刻取得
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+   HWND hWnd = CreateWindowW( 
+	   szWindowClass, szTitle, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,					//lpClassName, lpWindowName, dwStyle,
+	   MAIN_WND_INIT_POS_X, MAIN_WND_INIT_POS_Y,										// x, y, 
+	   TAB_DIALOG_W + 40, (MSG_WND_H + MSG_WND_Y_SPACE)*TASK_NUM + TAB_DIALOG_H + 110,	// Width, nHeight,
+	   nullptr, nullptr, hInstance, nullptr);											// hWndParent, hMenu, hInstance, lpParam
 
    if (!hWnd)  return FALSE;
 
@@ -587,7 +599,6 @@ VOID CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD	dwUser, DWORD dw1, DWORD d
 	}
 }
 
-
 ///# 関数: ini file読み込みパラメータ設定　　　　　　　　*********************************************
 INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 {
@@ -648,7 +659,6 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 
 ///# 関数: 共有オブジェクト初期化 ********************************************************************
 // 共有オブジェクトはCSharedObjct.cppのstatic変数でメモリ確保
-
 void CreateSharedData(void) {
 	
 	// ini file path
@@ -698,3 +708,106 @@ void CreateSharedData(void) {
 	cSharedData->SetParam(PARAM_ID_RIO_XPORT, (UINT32)ini.rioXPortNum);
 	cSharedData->SetParam(PARAM_ID_RIO_YPORT, (UINT32)ini.rioYPortNum);
 }
+
+///# 関数: ステータスバー作成		*****************************************************************
+HWND CreateStatusbarMain(HWND hWnd)
+{
+	HWND hSBWnd;
+	int sb_size[] = { 100,200,300,400,525,615 };//ステータス区切り位置
+
+	InitCommonControls();
+	hSBWnd = CreateWindowEx(
+		0, //拡張スタイル
+		STATUSCLASSNAME, //ウィンドウクラス
+		NULL, //タイトル
+		WS_CHILD | SBS_SIZEGRIP, //ウィンドウスタイル
+		0, 0, //位置
+		0, 0, //幅、高さ
+		hWnd, //親ウィンドウ
+		(HMENU)ID_STATUS, //ウィンドウのＩＤ
+		hInst, //インスタンスハンドル
+		NULL);
+	SendMessage(hSBWnd, SB_SETPARTS, (WPARAM)6, (LPARAM)(LPINT)sb_size);//6枠で各枠の仕切り位置をパラーメータ指定
+	ShowWindow(hSBWnd, SW_SHOW);
+	return hSBWnd;
+}
+
+#if 0
+///# 関数: タブ付タスクウィンドウ作成 *******
+HWND CreateTaskSettingWnd(HWND hWnd) {
+
+	RECT rc;
+	TC_ITEM tc[TASK_NUM];
+
+	GetClientRect(hWnd, &rc);
+	HWND hTab = CreateWindowEx(0, WC_TABCONTROL, NULL, WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
+		rc.left + TAB_POS_X, rc.top + TAB_POS_Y, TAB_DIALOG_W, TAB_DIALOG_H, hWnd, (HMENU)ID_TASK_SET_TAB, hInst, NULL);
+
+	for (unsigned i = 0; i < VectpCTaskObj.size(); i++) {//Task Setting用タブ作成
+		CTaskObj* pObj = (CTaskObj *)VectpCTaskObj[i];
+
+		tc[i].mask = (TCIF_TEXT | TCIF_IMAGE);
+		tc[i].pszText = pObj->inf.sname;
+		tc[i].iImage = pObj->inf.index;
+		SendMessage(hTab, TCM_INSERTITEM, (WPARAM)0, (LPARAM)&tc[i]);
+		pObj->inf.hWnd_opepane = CreateDialog(hInst, L"IDD_DIALOG_TASKSET1", hWnd, (DLGPROC)TaskTabDlgProc);
+		pObj->set_panel_pb_txt();
+		MoveWindow(pObj->inf.hWnd_opepane, TAB_POS_X, TAB_POS_Y + TAB_SIZE_H, TAB_DIALOG_W, TAB_DIALOG_H - TAB_SIZE_H, TRUE);
+
+		//初期値はindex 0のウィンドウを表示
+		if (i == 0) {
+			ShowWindow(pObj->inf.hWnd_opepane, SW_SHOW);
+			SetWindowText(GetDlgItem(pObj->inf.hWnd_opepane, IDC_TAB_TASKNAME), pObj->inf.name);//タスク名をスタティックテキストに表示
+		}
+		else ShowWindow(pObj->inf.hWnd_opepane, SW_HIDE);
+	}
+
+	//タブコントロールにイメージリストセット
+	SendMessage(hTab, TCM_SETIMAGELIST, (WPARAM)0, (LPARAM)hImgListTaskIcon);
+	return hTab;
+}
+
+static LVCOLUMNA lvcol;
+
+LRESULT CALLBACK TaskTabDlgProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)
+{
+	switch (msg) {
+	case WM_INITDIALOG: {
+
+		InitCommonControls();
+
+		//メッセージ用リスト
+		LVCOLUMN lvcol;
+		LPTSTR strItem0[] = { (LPTSTR)(L"time"), (LPTSTR)(L"message") };//列ラベル
+		int CX[] = { 60, 600 };//列幅
+
+		//リストコントロール設定
+		HWND hList = GetDlgItem(hDlg, IDC_LIST1);
+		lvcol.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+		lvcol.fmt = LVCFMT_LEFT;
+		for (int i = 0; i < 2; i++) {
+			lvcol.cx = CX[i];             // 表示位置
+			lvcol.pszText = strItem0[i];  // 見出し
+			lvcol.iSubItem = i;           // サブアイテムの番号
+			ListView_InsertColumn(hList, i, &lvcol);
+		}
+		//リスト行追加
+		LVITEM item;
+		item.mask = LVIF_TEXT;
+		for (int i = 0; i < MSG_LIST_MAX; i++) {
+			item.pszText = (LPWSTR)L".";   // テキスト
+			item.iItem = i;               // 番号
+			item.iSubItem = 0;            // サブアイテムの番号
+			ListView_InsertItem(hList, &item);
+		}
+		return TRUE;
+	}break;
+	case WM_COMMAND: {
+		CTaskObj * pObj = (CTaskObj *)VectpCTaskObj[VectpCTaskObj.size() - TabCtrl_GetCurSel(hTabWnd) - 1];
+		pObj->PanelProc(hDlg, msg, wp, lp);
+	}break;
+	}
+	return FALSE;
+}
+
+#endif
