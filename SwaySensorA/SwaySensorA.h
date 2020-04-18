@@ -25,8 +25,8 @@ typedef struct knl_manage_set_tag {
 }ST_KNL_MANAGE_SET, *P_ST_MANAGE_SET;
 
 
-
-#define TASK_NUM						8				//登録タスク数
+ 
+#define TASK_NUM						8			//登録タスク数
 #define NAME_OF_INIFILE					L"app"		//iniファイルファイル名
 #define EXT_OF_INIFILE					L"ini"		//iniファイル拡張子
 #define PATH_OF_INIFILE					pszInifile	//オプショナルパス

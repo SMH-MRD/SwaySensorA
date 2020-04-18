@@ -37,13 +37,14 @@ static CSharedObject*		cSharedData;		// 共有オブジェクトインスタン�
 static vector<HWND>			VectTweetHandle;	//メインウィンドウのスレッドツイートメッセージ表示Staticハンドル
 static HIMAGELIST			hImgListTaskIcon;	//タスクアイコン用イメージリスト
 static HWND					hTabWnd;			//操作パネル用タブコントロールウィンドウのハンドル
+static HWND					hWnd_status_bar;	//ステータスバーのウィンドウのハンドル
 
 
 // このコード モジュールに含まれる関数の宣言を転送します:
 // # アプリケーション専用関数:	************************************
 // コア関数
 VOID	CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);	//マルチメディアタイマ処理関数　スレッドのイベントオブジェクト処理
-int		Init_tasks();																	//アプリケーション毎のタスクオブジェクトの初期設定
+int		Init_tasks(HWND hWnd);																	//アプリケーション毎のタスクオブジェクトの初期設定
 DWORD	knlTaskStartUp();																//実行させるタスクの起動処理
 INT		setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName);							//iniファイルパラメータ設定処理
 void	CreateSharedData(void);															//共有メモリCreate処理
@@ -63,9 +64,6 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);								// ウィンド
 BOOL                InitInstance(HINSTANCE, int);										// メインウィンドウクリエイト
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);								// ウィンドウプロシージャ
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-
-
-
 
 // # 関数: wWinMain				************************************
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -150,9 +148,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    if (!hWnd)  return FALSE;
 
-   /// -タスク設定	
-   Init_tasks();//タスク個別設定
-   	  
+	 /// -タスク設定	
+   Init_tasks(hWnd);//タスク個別設定
+
+	///WM_PAINTを発生させてアイコンを描画させる
+   InvalidateRect(hWnd, NULL, FALSE);
+   UpdateWindow(hWnd);
+	
+   ///実行させる各オブジェクトのスレッドを起動 マルチメディアタイマー起動
+   knlTaskStartUp();
+   
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
@@ -169,7 +174,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-    case WM_COMMAND:
+	case WM_CREATE:
+		///メインウィンドウにステータスバー付加
+		hWnd_status_bar = CreateStatusbarMain(hWnd);
+		break;
+
+	case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
             // 選択されたメニューの解析:
@@ -191,6 +201,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: HDC を使用する描画コードをここに追加してください...
+						//タスクツィートメッセージアイコン描画
+			for (unsigned i = 0; i < knl_manage_set.num_of_task; i++) ImageList_Draw(hImgListTaskIcon, i, hdc, 0, i*(MSG_WND_H + MSG_WND_Y_SPACE), ILD_NORMAL);
             EndPaint(hWnd, &ps);
         }
         break;
@@ -204,7 +216,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 ///# 関数: スレッドタスクの登録、設定 ***
-int  Init_tasks() {
+int  Init_tasks(HWND hWnd) {
 	HBITMAP hBmp;
 	CTaskObj *ptempobj;
 	int task_index = 0;
@@ -256,7 +268,6 @@ int  Init_tasks() {
 		///スレッド起動に使うイベント数（定周期タイマーのみの場合１）
 		ptempobj->inf.n_active_events = 1;
 	}
-
 
 	//###Task2 設定 PLAYER
 	{
@@ -324,7 +335,6 @@ int  Init_tasks() {
 		ptempobj->inf.n_active_events = 1;
 
 	}
-
 
 	//###Task4 設定 COMRIO
 	{
@@ -491,20 +501,24 @@ int  Init_tasks() {
 
 	}
 
-#if 0
-	///各タスク用設定ウィンドウ作成
-	InitCommonControls();	//コモンコントロール初期化
+
 	hTabWnd = CreateTaskSettingWnd(hWnd);//タブウィンドウ作成
-#endif
+
 	
 	//設定タスク数登録
 	knl_manage_set.num_of_task = (unsigned int)VectpCTaskObj.size();
 
-	//各タスク用残パラメータセット
+	//各タスク用残初期設定
 	for (unsigned i = 0; i < knl_manage_set.num_of_task; i++) {
 		CTaskObj * pobj = (CTaskObj *)VectpCTaskObj[i];
 
-		pobj->inf.index = i;//設定順でタスクインデックスセット
+		pobj->inf.index = i;			//設定順でタスクインデックスセット
+
+		pobj->inf.hWnd_parent = hWnd;	//親ウィンドウのハンドルセット
+		pobj->inf.hInstance = hInst;	//アプリケーションのハンドル
+		// -ツイートメッセージ用Static window作成->リスト登録	
+		pobj->inf.hWnd_msgStatics = CreateWindow(L"STATIC", L"...", WS_CHILD | WS_VISIBLE, MSG_WND_ORG_X, MSG_WND_ORG_Y + MSG_WND_H * i + i * MSG_WND_Y_SPACE, MSG_WND_W, MSG_WND_H, hWnd, (HMENU)ID_STATIC_MAIN, hInst, NULL);
+		VectTweetHandle.push_back(pobj->inf.hWnd_msgStatics);
 
 		//その他設定
 		pobj->inf.psys_counter = &knl_manage_set.sys_counter;	//システムカウンタ(基本周期でカウント）参照アドレスセット
@@ -521,21 +535,21 @@ int  Init_tasks() {
 }
 
 ///# 関数: マルチタスクスタートアップ処理関数 ***
-DWORD knlTaskStartUp()	//実行させるオブジェクトのリストのスレッドを起動
+DWORD knlTaskStartUp()	//実行させるオブジェクトのリストのスレッドを起動 マルチメディアタイマー起動
 {
 	//機能	：[KNL]システム/ユーザタスクスタートアップ関数
 	//処理	：自プロセスのプライオリティ設定，カーネルの初期設定,タスク生成，基本周期設定
 	//戻り値：Win32APIエラーコード
 
 	HANDLE	myPrcsHndl;	/* 本プログラムのプロセスハンドル */
-						///# 自プロセスプライオリティ設定処理
-						//-プロセスハンドル取得
+	///# 自プロセスプライオリティ設定処理
+	//-プロセスハンドル取得
 	if ((myPrcsHndl = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_SET_INFORMATION, FALSE, _getpid())) == NULL)	return(GetLastError());
-	_RPT1(_CRT_WARN, "KNL Priority For Windows(before) = %d \n", GetPriorityClass(myPrcsHndl));
+			_RPT1(_CRT_WARN, "KNL Priority For Windows(before) = %d \n", GetPriorityClass(myPrcsHndl));//VisualStudio 出力
 
 	//-自プロセスのプライオリティを最優先ランクに設定
-	if (SetPriorityClass(myPrcsHndl, REALTIME_PRIORITY_CLASS) == 0)	return(GetLastError());
-	_RPT1(_CRT_WARN, "KNL Priority For NT(after) = %d \n", GetPriorityClass(myPrcsHndl));
+	if (SetPriorityClass(myPrcsHndl, REALTIME_PRIORITY_CLASS) == 0)	return(GetLastError());//VisualStudio 出力
+			_RPT1(_CRT_WARN, "KNL Priority For NT(after) = %d \n", GetPriorityClass(myPrcsHndl));
 
 	///# アプリケーションタスク数が最大数を超えた場合は終了
 	if (VectpCTaskObj.size() >= MAX_APL_TASK)	return((DWORD)ERROR_BAD_ENVIRONMENT);
@@ -545,19 +559,58 @@ DWORD knlTaskStartUp()	//実行させるオブジェクトのリストのスレ�
 
 		CTaskObj * pobj = (CTaskObj *)VectpCTaskObj[i];
 
-		// タスク生成(スレッド生成)
-		// 他ﾌﾟﾛｾｽとの共有なし,スタック初期サイズ　デフォルト, スレッド実行関数　引数で渡すオブジェクトで対象切り替え,スレッド関数の引数（対象のオブジェクトのポインタ）, 即実行Createflags, スレッドID取り込み
-		pobj->inf.hndl = (HANDLE)_beginthreadex((void *)NULL, 0, thread_gate_func, VectpCTaskObj[i], (unsigned)0, (unsigned *)&(pobj->inf.ID));
+		// タスクスレッド生成
+		pobj->inf.hndl = (HANDLE)_beginthreadex(
+			(void *)NULL,					// 他ﾌﾟﾛｾｽとの共有なし
+			0,								// スタック初期サイズ　デフォルト
+			thread_gate_func,				// スレッド実行関数　引数で渡すオブジェクトで対象切り替え
+			VectpCTaskObj[i],				// スレッド関数に渡すの引数（対象のオブジェクトのポインタ）
+			(unsigned)0,					// 即実行Createflags
+			(unsigned *)&(pobj->inf.ID)		// スレッドID取り込み
+		);
 
 		// タスクプライオリティ設定
 		if (SetThreadPriority(pobj->inf.hndl, pobj->inf.priority) == 0)
 			return(GetLastError());
-		_RPT2(_CRT_WARN, "Task[%d]_priority = %d\n", i, GetThreadPriority(pobj->inf.hndl));
+			_RPT2(_CRT_WARN, "Task[%d]_priority = %d\n", i, GetThreadPriority(pobj->inf.hndl));
 
 		pobj->inf.act_count = 0;		// 基本ティックのカウンタ変数クリア
 		pobj->inf.time_over_count = 0;	// 予定周期オーバーカウントクリア
 	}
 
+
+	/// -マルチメディアタイマ起動
+	{
+		/// > マルチメディアタイマ精度設定
+		TIMECAPS wTc;//マルチメディアタイマ精度構造体
+		//ハードウェアのタイマー能力チェック
+		if (timeGetDevCaps(&wTc, sizeof(TIMECAPS)) != TIMERR_NOERROR) 	return((DWORD)FALSE);
+
+		knl_manage_set.mmt_resolution = MIN(MAX(wTc.wPeriodMin, TARGET_RESOLUTION), wTc.wPeriodMax);
+
+		if (timeBeginPeriod(knl_manage_set.mmt_resolution) != TIMERR_NOERROR) return((DWORD)FALSE);
+
+		_RPT1(_CRT_WARN, "MMTimer Resolution = %d\n", knl_manage_set.mmt_resolution);
+
+		/// > マルチメディアタイマセット
+		knl_manage_set.KnlTick_TimerID = timeSetEvent(
+			knl_manage_set.cycle_base,		// uDelay
+			knl_manage_set.mmt_resolution,	// uResolution
+			(LPTIMECALLBACK)alarmHandlar,	// lpTimeProc コールバック関数のアドレス
+			0,								// dwUser ユーザー変数。このパラメータはコールバック関数に伝えられる
+			TIME_PERIODIC					// タイマーの動作モード
+		);
+
+		/// >マルチメディアタイマー起動失敗判定　メッセージBOX出してFALSE　returen
+		if (knl_manage_set.KnlTick_TimerID == 0) {	 //失敗確認表示
+			LPVOID lpMsgBuf;
+			FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
+				0, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), /* Default language*/(LPTSTR)&lpMsgBuf, 0, NULL);
+			MessageBox(NULL, (LPCWSTR)lpMsgBuf, L"MMT Failed!!", MB_OK | MB_ICONINFORMATION);// Display the string.
+			LocalFree(lpMsgBuf);// Free the buffer.
+			return((DWORD)FALSE);
+		}
+	}
 	return 1;
 }
 
@@ -597,6 +650,23 @@ VOID CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD	dwUser, DWORD dw1, DWORD d
 			pobj->inf.total_act++;									//タスクスレッド起動回数カウンタ更新
 		}
 	}
+
+	//Statusバーに経過時間表示
+	if (knl_manage_set.sys_counter % 40 == 0) {// 1sec毎
+
+		//起動後経過時間計算
+		tmttl = knl_manage_set.sys_counter * knl_manage_set.cycle_base;//アプリケーション起動後の経過時間msec
+		knl_manage_set.Knl_Time.wMilliseconds = (WORD)(tmttl % 1000); tmttl /= 1000;
+		knl_manage_set.Knl_Time.wSecond = (WORD)(tmttl % 60); tmttl /= 60;
+		knl_manage_set.Knl_Time.wMinute = (WORD)(tmttl % 60); tmttl /= 60;
+		knl_manage_set.Knl_Time.wHour = (WORD)(tmttl % 60); tmttl /= 24;
+		knl_manage_set.Knl_Time.wDay = (WORD)(tmttl % 24);
+
+		TCHAR tbuf[32];
+		wsprintf(tbuf, L"%3dD %02d:%02d:%02d", knl_manage_set.Knl_Time.wDay, knl_manage_set.Knl_Time.wHour, knl_manage_set.Knl_Time.wMinute, knl_manage_set.Knl_Time.wSecond);
+		SendMessage(hWnd_status_bar, SB_SETTEXT, 5, (LPARAM)tbuf);
+	}
+
 }
 
 ///# 関数: ini file読み込みパラメータ設定　　　　　　　　*********************************************
@@ -732,7 +802,6 @@ HWND CreateStatusbarMain(HWND hWnd)
 	return hSBWnd;
 }
 
-#if 0
 ///# 関数: タブ付タスクウィンドウ作成 *******
 HWND CreateTaskSettingWnd(HWND hWnd) {
 
@@ -740,8 +809,11 @@ HWND CreateTaskSettingWnd(HWND hWnd) {
 	TC_ITEM tc[TASK_NUM];
 
 	GetClientRect(hWnd, &rc);
-	HWND hTab = CreateWindowEx(0, WC_TABCONTROL, NULL, WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
-		rc.left + TAB_POS_X, rc.top + TAB_POS_Y, TAB_DIALOG_W, TAB_DIALOG_H, hWnd, (HMENU)ID_TASK_SET_TAB, hInst, NULL);
+	HWND hTab = CreateWindowEx(
+		0, WC_TABCONTROL, NULL, WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
+		rc.left + TAB_POS_X, rc.top + TAB_POS_Y, TAB_DIALOG_W, TAB_DIALOG_H, 
+		hWnd, (HMENU)ID_TASK_SET_TAB, hInst, NULL
+	);
 
 	for (unsigned i = 0; i < VectpCTaskObj.size(); i++) {//Task Setting用タブ作成
 		CTaskObj* pObj = (CTaskObj *)VectpCTaskObj[i];
@@ -750,7 +822,7 @@ HWND CreateTaskSettingWnd(HWND hWnd) {
 		tc[i].pszText = pObj->inf.sname;
 		tc[i].iImage = pObj->inf.index;
 		SendMessage(hTab, TCM_INSERTITEM, (WPARAM)0, (LPARAM)&tc[i]);
-		pObj->inf.hWnd_opepane = CreateDialog(hInst, L"IDD_DIALOG_TASKSET1", hWnd, (DLGPROC)TaskTabDlgProc);
+		pObj->inf.hWnd_opepane = CreateDialog(hInst, L"IDD_DIALOG_TASKSET", hWnd, (DLGPROC)TaskTabDlgProc);
 		pObj->set_panel_pb_txt();
 		MoveWindow(pObj->inf.hWnd_opepane, TAB_POS_X, TAB_POS_Y + TAB_SIZE_H, TAB_DIALOG_W, TAB_DIALOG_H - TAB_SIZE_H, TRUE);
 
@@ -764,6 +836,7 @@ HWND CreateTaskSettingWnd(HWND hWnd) {
 
 	//タブコントロールにイメージリストセット
 	SendMessage(hTab, TCM_SETIMAGELIST, (WPARAM)0, (LPARAM)hImgListTaskIcon);
+
 	return hTab;
 }
 
@@ -810,4 +883,4 @@ LRESULT CALLBACK TaskTabDlgProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)
 	return FALSE;
 }
 
-#endif
+

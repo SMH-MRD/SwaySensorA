@@ -1,3 +1,4 @@
+#include "framework.h"
 #include "CHelper.h"
 
 ///# 関数: INIファイル読出し ***************
@@ -22,4 +23,19 @@ void CHelper::GetIniInf(LPCWSTR file_name, LPCWSTR section_name, LPCWSTR key_nam
 	case INITYPE_DOUBLE:	*((double*)p_param) = _wtof(buf);		break;
 	default:														break;
 	}
+}
+
+
+///# 関数: string型をwstring型に変換 ***************
+void CHelper::Str2Wstr(const std::string &src, std::wstring &dest) {
+
+	setlocale(LC_ALL, "");
+
+	wchar_t *wcs = new wchar_t[src.length() + 1];
+
+	size_t ret_val;
+	mbstowcs_s(&ret_val, wcs, src.length() + 1, src.c_str(), _TRUNCATE);
+
+	dest = wcs; delete[] wcs;
+	return;
 }

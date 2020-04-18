@@ -194,9 +194,13 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\bmp\alube.bmp" />
+    <Image Include="..\bmp\analy2.bmp" />
+    <Image Include="..\bmp\clerk2.bmp" />
     <Image Include="..\bmp\comm1.bmp" />
     <Image Include="..\bmp\comm2.bmp" />
+    <Image Include="..\bmp\comm3.bmp" />
     <Image Include="..\bmp\Ply1.bmp" />
+    <Image Include="..\bmp\pr1.bmp" />
     <Image Include="small.ico" />
     <Image Include="SwaySensorA.ico" />
   </ItemGroup>

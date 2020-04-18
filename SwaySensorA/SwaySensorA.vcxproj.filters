@@ -129,5 +129,17 @@
     <Image Include="..\bmp\comm2.bmp">
       <Filter>リソース ファイル</Filter>
     </Image>
+    <Image Include="..\bmp\comm3.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\pr1.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\clerk2.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\analy2.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
 </Project>

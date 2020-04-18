@@ -28,6 +28,8 @@ using namespace std;
 #define ID_TIMER_EVENT				0				//タイマー用イベント配列の位置
 #define ID_OPT1_EVENT				1				//オプションイベント配列の位置
 
+#define MSG_LIST_MAX				14				//メインウィンドウリストボックス表示行数
+
 /***********************************************************************
 タスクオブジェクトの個別管理情報構造体
 ************************************************************************/
@@ -64,6 +66,7 @@ typedef struct {
 	HWND			hWnd_opepane;					//自メインウィンドウのハンドル（メインフレーム上に配置）
 	HWND			hWnd_msgList;					//自メインウィンドウのメッセージ表示用リストコントロールへのハンドル
 	HWND			hWnd_work;						//自専用作業用ウィンドウのハンドル
+	HINSTANCE		hInstance;						//アプリケーションのインスタンス
 
 	//-操作パネル関連
 	int				cnt_PNLlist_msg = 0;			//パネルメッセージリストのカウント数
@@ -90,5 +93,22 @@ public:
 
 	virtual void init_task(void *pobj);
 	virtual void routine_work(void *param);
+
+	//タスク設定ウィンドウ用メソッド
+	virtual LRESULT CALLBACK PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp);
+	virtual void set_panel_tip_txt();															//タブパネルの説明用Staticテキストを設定
+	virtual void set_panel_pb_txt() { return; };												//タブパネルのFunctionボタンのStaticテキストを設定
+	virtual void set_PNLparam_value(float p1, float p2, float p3, float p4, float p5, float p6);//パラメータ初期表示値設定
+
+protected:
+	ostringstream s;
+	wostringstream ws;
+	wstring wstr;
+	string  str;
+
+	void tweet2owner(const std::string &src);			//メインウィンドウへのショートメッセージ表示
+	void tweet2owner(const std::wstring &srcw);			//メインウィンドウへのショートメッセージ表示
+	void txout2msg_listbox(const std::wstring str);		//リストコントロールへのショートメッセージ表示
+	void txout2msg_listbox(const std::string str);		//リストコントロールへのショートメッセージ表示
 };
 

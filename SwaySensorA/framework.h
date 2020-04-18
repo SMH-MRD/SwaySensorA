@@ -17,6 +17,7 @@
 
 // プログラムに必要な追加ヘッダー
 #include <string>
+#include <commctrl.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
