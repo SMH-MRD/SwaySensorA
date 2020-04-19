@@ -9,5 +9,8 @@ class CPublicRelation :	public CTaskObj
 public:
 	CPublicRelation();
 	~CPublicRelation();
+
+	HWND OpenCameraPanel();														//メンテナンスパネル表示
+	LRESULT CALLBACK DispWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);		//メンテナンスパネルWnd用コールバック関数
 };
 

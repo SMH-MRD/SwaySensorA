@@ -47,7 +47,50 @@
 #define IDC_STATIC_TASKSET9             1032
 #define IDC_STATIC_TASKSET10            1033
 #define IDC_LIST1                       1034
+
+#define IDC_BUTTON_CAM_START            2002
+#define IDC_BUTTON_SET_CAM_PARAM        2002
+#define IDC_STATIC_PIC                  2027
+#define IDC_BUTTON_CAM_STOP             2028
+#define IDC_EDIT_GRA_POSX               2029
+#define IDC_EDIT_GRA_POSY               2030
+#define IDC_EDIT_EXPOSURE_TIME          2031
+#define IDC_EDIT_CAP_WIDTH              2032
+#define IDC_EDIT_CAP_HEIGHT             2033
+#define IDC_EDIT_PORT1_ANGLE            2036
+#define IDC_EDIT_PORT2_ANGLE            2037
+#define IDC_EDIT_CAM_FRAMERATE          2039
+#define IDC_STATIC_PIC_MASK             2040
+#define IDC_BUTTON_SAVE                 2041
+#define IDC_EDIT_PORT1_MA               2042
+#define IDC_EDIT_PORT2_MA               2043
+#define IDC_EDIT_HUE1_MIN               2044
+#define IDC_EDIT_HUE1_MAX               2045
+#define IDC_EDIT_HUE2_MIN               2046
+#define IDC_EDIT_HUE2_MAX               2047
+#define IDC_EDIT_HUE3_MIN               2048
+#define IDC_EDIT_HUE3_MAX               2049
+#define IDC_CHECK_HUE1_EN               2050
+#define IDC_CHECK_HUE2_EN               2051
+#define IDC_CHECK_HUE3_EN               2052
+#define IDC_BUTTON_SET                  2053
+#define IDC_BUTTON_SET_PICPROC_PARAM    2053
+#define IDC_RADIO_COG_ALL               2054
+#define IDC_RADIO_COG_LEN               2055
+#define IDC_BUTTON_OPEN_SET             2056
+#define IDC_BUTTON_PIC_PROC             2057
+#define IDC_EDIT_FRAMERATE              2058
+#define IDC_EDIT_PROC_TIME              2059
+
+
+
+
 #define IDC_STATIC                      -1
+
+
+
+
+
 
 // Next default values for new objects
 // 
