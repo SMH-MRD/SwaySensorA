@@ -12,6 +12,7 @@
 #include <commctrl.h>	//コモンコントロール用
 #include <shlwapi.h>	//Win32 APIでパスを扱うには shlwapi.h に定義されている関数群(Path Routines)を使用
 
+
 using namespace std;
 
 #define MAX_LOADSTRING 100
@@ -22,11 +23,13 @@ WCHAR szTitle[MAX_LOADSTRING];                  // タイトル バーのテキ�
 WCHAR szWindowClass[MAX_LOADSTRING];            // メイン ウィンドウ クラス名
 
 vector<void*>	VectpCTaskObj;					//タスクオブジェクトのポインタ
+CSharedObject*	g_pSharedObject;				//タスク間共有データのポインタ
 ST_iTask g_itask;								//タスクID参照用グローバル変数
 
 SYSTEMTIME		gAppStartTime;					//アプリケーション開始時間
 LPWSTR			pszInifile;						// iniファイルのパス
 wstring			wstrPathExe;					// 実行ファイルのパス
+
 
 // スタティック変数:
 // マルチタスク管理用
@@ -101,6 +104,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
 
+	for (unsigned i = 0; i < knl_manage_set.num_of_task; i++) {
+		CTaskObj * pobj = (CTaskObj *)VectpCTaskObj[i];
+		delete pobj;
+	}
+
     return (int) msg.wParam;
 }
 
@@ -148,12 +156,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    if (!hWnd)  return FALSE;
 
+   g_pSharedObject = new CSharedObject();
 	 /// -タスク設定	
    Init_tasks(hWnd);//タスク個別設定
 
 	///WM_PAINTを発生させてアイコンを描画させる
    InvalidateRect(hWnd, NULL, FALSE);
-   UpdateWindow(hWnd);
 	
    ///実行させる各オブジェクトのスレッドを起動 マルチメディアタイマー起動
    knlTaskStartUp();
@@ -207,6 +215,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
+		for (unsigned i = 0; i < knl_manage_set.num_of_task; i++) {
+			CTaskObj * pobj = (CTaskObj *)VectpCTaskObj[i];
+			pobj->inf.thread_com = TERMINATE_THREAD;
+		}
+		Sleep(100);
         PostQuitMessage(0);
         break;
     default:
@@ -402,40 +415,7 @@ int  Init_tasks(HWND hWnd) {
 
 	}
 
-	//###Task6 設定
-	{
-		/// -タスクインスタンス作成->リスト登録
-		ptempobj = new CPublicRelation();
-		VectpCTaskObj.push_back((void*)ptempobj);
-		g_itask.pr = task_index;
-
-		/// -タスクインデクスセット
-		ptempobj->inf.index = task_index++;
-
-		/// -イベントオブジェクトクリエイト->リスト登録	
-		VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));//自動リセット,初期値非シグナル
-
-																											/// -スレッド起動周期セット
-		ptempobj->inf.cycle_ms = 50;
-
-		/// -ツイートメッセージ用iconセット
-		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_PR");//ビットマップ割り当て
-		ImageList_AddMasked(hImgListTaskIcon, hBmp, RGB(255, 255, 255));
-		DeleteObject(hBmp);
-
-		///オブジェクト名セット
-		DWORD	str_num = GetPrivateProfileString(OBJ_NAME_SECT_OF_INIFILE, PR_KEY_OF_INIFILE, L"No Name", ptempobj->inf.name, sizeof(ptempobj->inf.name) / 2, PATH_OF_INIFILE);
-		str_num = GetPrivateProfileString(OBJ_SNAME_SECT_OF_INIFILE, PR_KEY_OF_INIFILE, L"No Name", ptempobj->inf.sname, sizeof(ptempobj->inf.sname) / 2, PATH_OF_INIFILE);
-
-		///実行関数選択
-		ptempobj->inf.work_select = THREAD_WORK_ROUTINE;
-
-		///スレッド起動に使うイベント数（定周期タイマーのみの場合１）
-		ptempobj->inf.n_active_events = 1;
-
-	}
-
-	//###Task7 設定
+	//###Task6 設定 CLERK
 	{
 		/// -タスクインスタンス作成->リスト登録
 		ptempobj = new CClerk();
@@ -468,7 +448,7 @@ int  Init_tasks(HWND hWnd) {
 
 	}
 
-	//###Task8 設定
+	//###Task7 設定 ANALYST
 	{
 		/// -タスクインスタンス作成->リスト登録
 		ptempobj = new CAnalyst;
@@ -501,9 +481,40 @@ int  Init_tasks(HWND hWnd) {
 
 	}
 
+	//###Task8 設定 PUBLICRELATION
+	{
+		/// -タスクインスタンス作成->リスト登録
+		ptempobj = new CPublicRelation();
+		VectpCTaskObj.push_back((void*)ptempobj);
+		g_itask.pr = task_index;
+
+		/// -タスクインデクスセット
+		ptempobj->inf.index = task_index++;
+
+		/// -イベントオブジェクトクリエイト->リスト登録	
+		VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));//自動リセット,初期値非シグナル
+
+																											/// -スレッド起動周期セット
+		ptempobj->inf.cycle_ms = 50;
+
+		/// -ツイートメッセージ用iconセット
+		hBmp = (HBITMAP)LoadBitmap(hInst, L"IDB_PR");//ビットマップ割り当て
+		ImageList_AddMasked(hImgListTaskIcon, hBmp, RGB(255, 255, 255));
+		DeleteObject(hBmp);
+
+		///オブジェクト名セット
+		DWORD	str_num = GetPrivateProfileString(OBJ_NAME_SECT_OF_INIFILE, PR_KEY_OF_INIFILE, L"No Name", ptempobj->inf.name, sizeof(ptempobj->inf.name) / 2, PATH_OF_INIFILE);
+		str_num = GetPrivateProfileString(OBJ_SNAME_SECT_OF_INIFILE, PR_KEY_OF_INIFILE, L"No Name", ptempobj->inf.sname, sizeof(ptempobj->inf.sname) / 2, PATH_OF_INIFILE);
+
+		///実行関数選択
+		ptempobj->inf.work_select = THREAD_WORK_ROUTINE;
+
+		///スレッド起動に使うイベント数（定周期タイマーのみの場合１）
+		ptempobj->inf.n_active_events = 1;
+
+	}
 
 	hTabWnd = CreateTaskSettingWnd(hWnd);//タブウィンドウ作成
-
 	
 	//設定タスク数登録
 	knl_manage_set.num_of_task = (unsigned int)VectpCTaskObj.size();
@@ -728,7 +739,7 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 }
 
 ///# 関数: 共有オブジェクト初期化 ********************************************************************
-// 共有オブジェクトはCSharedObjct.cppのstatic変数でメモリ確保
+
 void CreateSharedData(void) {
 	
 	// ini file path
@@ -745,38 +756,38 @@ void CreateSharedData(void) {
 	ST_INI_INF ini;
 	 setIniParameter(&ini, dstpath);
 	 
-	cSharedData = new CSharedObject();
-	cSharedData->InitSharedObject();
+//	cSharedData = new CSharedObject();
+	g_pSharedObject->InitSharedObject();
 
-	cSharedData->SetParam(PARAM_ID_CAM_EXPOSURE_TIME, (UINT32)ini.exposureTime);
-	cSharedData->SetParam(PARAM_ID_CAM_FRAMERATE, (UINT32)ini.frameRate);
-	cSharedData->SetParam(PARAM_ID_CAM_WIDTH, (UINT32)ini.camWidth);
-	cSharedData->SetParam(PARAM_ID_CAM_HEIGHT, (UINT32)ini.camHeight);
+	g_pSharedObject->SetParam(PARAM_ID_CAM_EXPOSURE_TIME, (UINT32)ini.exposureTime);
+	g_pSharedObject->SetParam(PARAM_ID_CAM_FRAMERATE, (UINT32)ini.frameRate);
+	g_pSharedObject->SetParam(PARAM_ID_CAM_WIDTH, (UINT32)ini.camWidth);
+	g_pSharedObject->SetParam(PARAM_ID_CAM_HEIGHT, (UINT32)ini.camHeight);
 
-	cSharedData->SetParam(PARAM_ID_PIC_HUE1_EN, (UINT32)ini.mask1En);
-	cSharedData->SetParam(PARAM_ID_PIC_HUE1_MIN, (UINT32)ini.mask1Min);
-	cSharedData->SetParam(PARAM_ID_PIC_HUE1_MAX, (UINT32)ini.mask1Max);
-	cSharedData->SetParam(PARAM_ID_PIC_HUE2_EN, (UINT32)ini.mask2En);
-	cSharedData->SetParam(PARAM_ID_PIC_HUE2_MIN, (UINT32)ini.mask2Min);
-	cSharedData->SetParam(PARAM_ID_PIC_HUE2_MAX, (UINT32)ini.mask2Max);
-	cSharedData->SetParam(PARAM_ID_PIC_HUE3_EN, (UINT32)ini.mask3En);
-	cSharedData->SetParam(PARAM_ID_PIC_HUE3_MIN, (UINT32)ini.mask3Min);
-	cSharedData->SetParam(PARAM_ID_PIC_HUE3_MAX, (UINT32)ini.mask3Max);
-	cSharedData->SetParam(PARAM_ID_PIC_COG_ALGO, (UINT32)ini.procAlgo);
+	g_pSharedObject->SetParam(PARAM_ID_PIC_HUE1_EN, (UINT32)ini.mask1En);
+	g_pSharedObject->SetParam(PARAM_ID_PIC_HUE1_MIN, (UINT32)ini.mask1Min);
+	g_pSharedObject->SetParam(PARAM_ID_PIC_HUE1_MAX, (UINT32)ini.mask1Max);
+	g_pSharedObject->SetParam(PARAM_ID_PIC_HUE2_EN, (UINT32)ini.mask2En);
+	g_pSharedObject->SetParam(PARAM_ID_PIC_HUE2_MIN, (UINT32)ini.mask2Min);
+	g_pSharedObject->SetParam(PARAM_ID_PIC_HUE2_MAX, (UINT32)ini.mask2Max);
+	g_pSharedObject->SetParam(PARAM_ID_PIC_HUE3_EN, (UINT32)ini.mask3En);
+	g_pSharedObject->SetParam(PARAM_ID_PIC_HUE3_MIN, (UINT32)ini.mask3Min);
+	g_pSharedObject->SetParam(PARAM_ID_PIC_HUE3_MAX, (UINT32)ini.mask3Max);
+	g_pSharedObject->SetParam(PARAM_ID_PIC_COG_ALGO, (UINT32)ini.procAlgo);
 
 	char* cstr = (char*)malloc(sizeof(ini.rioIpAddr));
 	if (cstr != NULL) {
 		size_t size;
 		wcstombs_s(&size, cstr, sizeof(ini.rioIpAddr), ini.rioIpAddr, sizeof(ini.rioIpAddr));
 		string str = cstr;
-		cSharedData->SetParam(PARAM_ID_STR_RIO_IPADDR, str);
+		g_pSharedObject->SetParam(PARAM_ID_STR_RIO_IPADDR, str);
 		free(cstr);
 	}
-	cSharedData->SetParam(PARAM_ID_RIO_TCPPORT, (UINT32)ini.rioTcpPortNum);
-	cSharedData->SetParam(PARAM_ID_RIO_SLAVEADDR, (UINT32)ini.rioSlaveAddr);
-	cSharedData->SetParam(PARAM_ID_RIO_TIMEOUT, (UINT32)ini.rioTimeOut);
-	cSharedData->SetParam(PARAM_ID_RIO_XPORT, (UINT32)ini.rioXPortNum);
-	cSharedData->SetParam(PARAM_ID_RIO_YPORT, (UINT32)ini.rioYPortNum);
+	g_pSharedObject->SetParam(PARAM_ID_RIO_TCPPORT, (UINT32)ini.rioTcpPortNum);
+	g_pSharedObject->SetParam(PARAM_ID_RIO_SLAVEADDR, (UINT32)ini.rioSlaveAddr);
+	g_pSharedObject->SetParam(PARAM_ID_RIO_TIMEOUT, (UINT32)ini.rioTimeOut);
+	g_pSharedObject->SetParam(PARAM_ID_RIO_XPORT, (UINT32)ini.rioXPortNum);
+	g_pSharedObject->SetParam(PARAM_ID_RIO_YPORT, (UINT32)ini.rioYPortNum);
 }
 
 ///# 関数: ステータスバー作成		*****************************************************************
@@ -826,8 +837,8 @@ HWND CreateTaskSettingWnd(HWND hWnd) {
 		pObj->set_panel_pb_txt();
 		MoveWindow(pObj->inf.hWnd_opepane, TAB_POS_X, TAB_POS_Y + TAB_SIZE_H, TAB_DIALOG_W, TAB_DIALOG_H - TAB_SIZE_H, TRUE);
 
-		//初期値はindex 0のウィンドウを表示
-		if (i == 0) {
+		//初期値はindex 最後のウィンドウを表示
+		if (i == VectpCTaskObj.size()-1) {
 			ShowWindow(pObj->inf.hWnd_opepane, SW_SHOW);
 			SetWindowText(GetDlgItem(pObj->inf.hWnd_opepane, IDC_TAB_TASKNAME), pObj->inf.name);//タスク名をスタティックテキストに表示
 		}

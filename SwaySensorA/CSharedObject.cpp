@@ -1,25 +1,6 @@
 #include "CSharedObject.h"
 
-/************************************/
-/* 変数定義							*/
-/************************************/
-static STMngImageData m_stImage[IMAGE_ID_CAM_MAX];
-static STMngProcData m_stProcImage[IMAGE_ID_PROC_MAX];
-static STMngInclinoData m_stInclinoData[INCLINO_ID_MAX];
-static UINT32 m_u32Param[PARAM_ID_MAX];
-static string m_strParam[PARAM_ID_STR_MAX];
-static DOUBLE m_dParam[PARAM_ID_DOUBLE_MAX];
 
-static CRITICAL_SECTION csImage[IMAGE_ID_CAM_MAX];
-static CRITICAL_SECTION csProcImage[IMAGE_ID_PROC_MAX];
-static CRITICAL_SECTION csInclino[INCLINO_ID_MAX];
-static CRITICAL_SECTION csParam[PARAM_ID_MAX];
-static CRITICAL_SECTION csStrParam[PARAM_ID_STR_MAX];
-static CRITICAL_SECTION csDoubleParam[PARAM_ID_DOUBLE_MAX];
-
-/************************************/
-/* 関数プロトタイプ					*/
-/************************************/
 CSharedObject::CSharedObject() {}
 CSharedObject::~CSharedObject() {}
 

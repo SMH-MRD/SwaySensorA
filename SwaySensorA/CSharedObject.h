@@ -125,4 +125,18 @@ public:
 	INT GetParam(UINT8 id, string* str);
 	INT SetParam(UINT8 id, DOUBLE data);
 	INT GetParam(UINT8 id, DOUBLE* data);
+
+	STMngImageData m_stImage[IMAGE_ID_CAM_MAX];
+	STMngProcData m_stProcImage[IMAGE_ID_PROC_MAX];
+	STMngInclinoData m_stInclinoData[INCLINO_ID_MAX];
+	UINT32 m_u32Param[PARAM_ID_MAX];
+	string m_strParam[PARAM_ID_STR_MAX];
+	DOUBLE m_dParam[PARAM_ID_DOUBLE_MAX];
+
+	CRITICAL_SECTION csImage[IMAGE_ID_CAM_MAX];
+	CRITICAL_SECTION csProcImage[IMAGE_ID_PROC_MAX];
+	CRITICAL_SECTION csInclino[INCLINO_ID_MAX];
+	CRITICAL_SECTION csParam[PARAM_ID_MAX];
+	CRITICAL_SECTION csStrParam[PARAM_ID_STR_MAX];
+	CRITICAL_SECTION csDoubleParam[PARAM_ID_DOUBLE_MAX];
 };

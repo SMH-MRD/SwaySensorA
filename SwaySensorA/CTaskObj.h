@@ -4,6 +4,9 @@
 #include "AppCommon.h"
 #include <process.h>								//threads and processes関数ヘッダ
 
+extern vector<void*>	VectpCTaskObj;	//タスクオブジェクトのポインタ
+extern ST_iTask g_itask;
+
 using namespace std;
 
 //#タスク条件設定部
