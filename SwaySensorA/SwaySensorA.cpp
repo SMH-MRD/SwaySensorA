@@ -204,6 +204,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+	case WM_NOTIFY: {
+		
+		int tab_index = TabCtrl_GetCurSel(((NMHDR *)lParam)->hwndFrom);//選択タブID取得
+
+		for (unsigned i = 0; i < VectpCTaskObj.size(); i++) {
+
+			CTaskObj * pObj = (CTaskObj *)VectpCTaskObj[i];
+			//MoveWindow(pObj->inf.hWnd_opepane, TAB_POS_X, TAB_POS_Y + TAB_SIZE_H, TAB_DIALOG_W, TAB_DIALOG_H - TAB_SIZE_H, TRUE);
+			if ((VectpCTaskObj.size() - 1 - pObj->inf.index) == tab_index) {
+				//タブ選択されたパネルウィンドウ表示
+				ShowWindow(pObj->inf.hWnd_opepane, SW_SHOW);
+				//パネルウィンドウにタブ選択されたパネルウィンドウ表示
+				HWND hname_static = GetDlgItem(pObj->inf.hWnd_opepane, IDC_TAB_TASKNAME);
+				SetWindowText(hname_static, pObj->inf.name);
+				pObj->set_panel_pb_txt();
+#if 0
+				//実行関数の設定状況に応じてOption Checkボタンセット
+				if (pObj->inf.work_select == THREAD_WORK_OPTION1) {
+					SendMessage(GetDlgItem(pObj->inf.hWnd_opepane, IDC_TASK_OPTION_CHECK1), BM_SETCHECK, BST_CHECKED, 0L);
+					SendMessage(GetDlgItem(pObj->inf.hWnd_opepane, IDC_TASK_OPTION_CHECK2), BM_SETCHECK, BST_UNCHECKED, 0L);
+				}
+				else if (pObj->inf.work_select == THREAD_WORK_OPTION2) {
+					SendMessage(GetDlgItem(pObj->inf.hWnd_opepane, IDC_TASK_OPTION_CHECK1), BM_SETCHECK, BST_UNCHECKED, 0L);
+					SendMessage(GetDlgItem(pObj->inf.hWnd_opepane, IDC_TASK_OPTION_CHECK2), BM_SETCHECK, BST_CHECKED, 0L);
+				}
+				else {
+					SendMessage(GetDlgItem(pObj->inf.hWnd_opepane, IDC_TASK_OPTION_CHECK1), BM_SETCHECK, BST_UNCHECKED, 0L);
+					SendMessage(GetDlgItem(pObj->inf.hWnd_opepane, IDC_TASK_OPTION_CHECK2), BM_SETCHECK, BST_UNCHECKED, 0L);
+				}
+#endif
+				// ウィンドウをフォアグラウンドに持ってくる 
+				SetForegroundWindow(pObj->inf.hWnd_opepane);
+			}
+			else {
+				ShowWindow(pObj->inf.hWnd_opepane, SW_HIDE);
+			}
+		}
+	}break;
     case WM_PAINT:
         {
             PAINTSTRUCT ps;

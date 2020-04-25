@@ -10,14 +10,13 @@ CPublicRelation::CPublicRelation() {
 }
 CPublicRelation::~CPublicRelation() {}
 
-///######  メンテナンスパネル表示
+///######  センサパネル表示
 HWND CPublicRelation::OpenCameraPanel() {
 	
 
 	return hCamDlg;
 }
-
-///######メンテナンスパネルWnd用コールバック関数
+///######　センサパネルWnd用コールバック関数
 LRESULT CALLBACK CPublicRelation::DispWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 	INT wmId = LOWORD(wp);
 
@@ -95,7 +94,7 @@ LRESULT CALLBACK CPublicRelation::DispWndProc(HWND hwnd, UINT msg, WPARAM wp, LP
 
 	return FALSE;
 }
-
+///######　タスクパネルWnd用コールバック関数
 LRESULT CALLBACK CPublicRelation::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp) {
 
 	switch (msg) {
@@ -232,7 +231,6 @@ LRESULT CALLBACK CPublicRelation::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPAR
 			set_PNLparam_value(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
 		}break;
-
 		case IDC_TASK_OPTION_CHECK1:
 			SendMessage(GetDlgItem(hDlg, IDC_TASK_OPTION_CHECK2), BM_SETCHECK, BST_UNCHECKED, 0L);
 			if (IsDlgButtonChecked(hDlg, IDC_TASK_OPTION_CHECK1) == BST_CHECKED) inf.work_select = THREAD_WORK_OPTION1;
@@ -249,6 +247,24 @@ LRESULT CALLBACK CPublicRelation::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPAR
 	}
 	return 0;
 };
+
+void CPublicRelation::set_panel_pb_txt() {
+	wstring wstr;
+	wstr = L"PANEL";
+	SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_TASK_FUNC_RADIO1), wstr.c_str()); wstr.clear();
+	wstr = L"-";
+	SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_TASK_FUNC_RADIO2), wstr.c_str()); wstr.clear();
+	wstr = L"-";
+	SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_TASK_FUNC_RADIO3), wstr.c_str()); wstr.clear();
+	wstr = L"-";
+	SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_TASK_FUNC_RADIO4), wstr.c_str()); wstr.clear();
+	wstr = L"-";
+	SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_TASK_FUNC_RADIO5), wstr.c_str()); wstr.clear();
+	wstr = L"-";
+	SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_TASK_FUNC_RADIO6), wstr.c_str()); wstr.clear();
+
+	return; 
+}
 
 void CPublicRelation::set_panel_tip_txt()
 {
@@ -422,10 +438,8 @@ void CPublicRelation::set_PNLparam_value(float p1, float p2, float p3, float p4,
 void CPublicRelation::init_task(void *pobj) {
 
 	//タグパネルPB表示設定
-	wstring wstr;
-	wstr = L"PANEL";
-	SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_TASK_FUNC_RADIO1), wstr.c_str()); wstr.clear();
 
+	set_panel_pb_txt();
 	set_panel_tip_txt();
 	return;
 };
