@@ -14,6 +14,7 @@
 #define IDR_MAINFRAME                   128
 #define IDB_BITMAP1                     132
 #define IDB_BITMAP3                     136
+#define IDD_DIALOG_CAMMAIN              138
 #define ID_TASK_RESET                   1000
 #define ID_TASK_SET                     1001
 #define IDC_TASK_OPTION_CHECK1          1003
@@ -47,7 +48,6 @@
 #define IDC_STATIC_TASKSET9             1032
 #define IDC_STATIC_TASKSET10            1033
 #define IDC_LIST1                       1034
-
 #define IDC_BUTTON_CAM_START            2002
 #define IDC_BUTTON_SET_CAM_PARAM        2002
 #define IDC_STATIC_PIC                  2027
@@ -81,23 +81,14 @@
 #define IDC_BUTTON_PIC_PROC             2057
 #define IDC_EDIT_FRAMERATE              2058
 #define IDC_EDIT_PROC_TIME              2059
-
-
-
-
 #define IDC_STATIC                      -1
-
-
-
-
-
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        137
+#define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           110

@@ -47,7 +47,7 @@ static HWND					hWnd_status_bar;	//ステータスバーのウィンドウのハ
 // # アプリケーション専用関数:	************************************
 // コア関数
 VOID	CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);	//マルチメディアタイマ処理関数　スレッドのイベントオブジェクト処理
-int		Init_tasks(HWND hWnd);																	//アプリケーション毎のタスクオブジェクトの初期設定
+int		Init_tasks(HWND hWnd, HINSTANCE hInstance);																	//アプリケーション毎のタスクオブジェクトの初期設定
 DWORD	knlTaskStartUp();																//実行させるタスクの起動処理
 INT		setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName);							//iniファイルパラメータ設定処理
 void	CreateSharedData(void);															//共有メモリCreate処理
@@ -158,7 +158,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    g_pSharedObject = new CSharedObject();
 	 /// -タスク設定	
-   Init_tasks(hWnd);//タスク個別設定
+   Init_tasks(hWnd,hInst);//タスク個別設定
 
 	///WM_PAINTを発生させてアイコンを描画させる
    InvalidateRect(hWnd, NULL, FALSE);
@@ -215,6 +215,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
+		//各タスクスレッド停止
 		for (unsigned i = 0; i < knl_manage_set.num_of_task; i++) {
 			CTaskObj * pobj = (CTaskObj *)VectpCTaskObj[i];
 			pobj->inf.thread_com = TERMINATE_THREAD;
@@ -229,7 +230,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 ///# 関数: スレッドタスクの登録、設定 ***
-int  Init_tasks(HWND hWnd) {
+int  Init_tasks(HWND hWnd, HINSTANCE hInstance) {
 	HBITMAP hBmp;
 	CTaskObj *ptempobj;
 	int task_index = 0;
@@ -526,7 +527,7 @@ int  Init_tasks(HWND hWnd) {
 		pobj->inf.index = i;			//設定順でタスクインデックスセット
 
 		pobj->inf.hWnd_parent = hWnd;	//親ウィンドウのハンドルセット
-		pobj->inf.hInstance = hInst;	//アプリケーションのハンドル
+		pobj->inf.hInstance = hInstance;	//アプリケーションのハンドル
 		// -ツイートメッセージ用Static window作成->リスト登録	
 		pobj->inf.hWnd_msgStatics = CreateWindow(L"STATIC", L"...", WS_CHILD | WS_VISIBLE, MSG_WND_ORG_X, MSG_WND_ORG_Y + MSG_WND_H * i + i * MSG_WND_Y_SPACE, MSG_WND_W, MSG_WND_H, hWnd, (HMENU)ID_STATIC_MAIN, hInst, NULL);
 		VectTweetHandle.push_back(pobj->inf.hWnd_msgStatics);
