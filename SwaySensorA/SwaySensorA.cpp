@@ -860,7 +860,7 @@ HWND CreateTaskSettingWnd(HWND hWnd) {
 
 	GetClientRect(hWnd, &rc);
 	HWND hTab = CreateWindowEx(
-		0, WC_TABCONTROL, NULL, WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
+		0, WC_TABCONTROL, NULL, WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE | TCS_BUTTONS,
 		rc.left + TAB_POS_X, rc.top + TAB_POS_Y, TAB_DIALOG_W, TAB_DIALOG_H, 
 		hWnd, (HMENU)ID_TASK_SET_TAB, hInst, NULL
 	);
