@@ -10,10 +10,20 @@ CPublicRelation::CPublicRelation() {
 }
 CPublicRelation::~CPublicRelation() {}
 
+HWND CPublicRelation::hCamDlg;
+
 ///######  センサパネル表示
 HWND CPublicRelation::OpenCameraPanel() {
-	
+	if (hCamDlg == NULL) {
+		hCamDlg = CreateDialog(inf.hInstance, MAKEINTRESOURCE(IDD_DIALOG_CAMMAIN), nullptr, (DLGPROC)DispWndProc);
+		ShowWindow(hCamDlg, SW_SHOW);
 
+		TCHAR msg[10];
+		_stprintf_s(msg, TEXT("-"));
+		SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_GRA_POSX), msg);
+		_stprintf_s(msg, TEXT("-"));
+		SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_GRA_POSY), msg);
+	}
 	return hCamDlg;
 }
 ///######　センサパネルWnd用コールバック関数
@@ -87,9 +97,14 @@ LRESULT CALLBACK CPublicRelation::DispWndProc(HWND hwnd, UINT msg, WPARAM wp, LP
 
 		break;
 	case WM_CLOSE:
-		PostQuitMessage(0);
+		EndDialog(hwnd, LOWORD(wp));
+		hCamDlg = NULL;
+		return (INT_PTR)TRUE;
+		//PostQuitMessage(0);
 		break;
 
+	default:
+		return DefWindowProc(hwnd,msg,wp,lp);
 	}
 
 	return FALSE;
@@ -121,17 +136,7 @@ LRESULT CALLBACK CPublicRelation::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPAR
 			//### 各FUNCTION PB処理
 			if (inf.panel_func_id == IDC_TASK_FUNC_RADIO1) {
 				if (inf.panel_type_id == IDC_TASK_ITEM_RADIO1) {
-
-					if (hCamDlg == NULL) {
-						hCamDlg = CreateDialog(inf.hInstance, MAKEINTRESOURCE(IDD_DIALOG_CAMMAIN), nullptr, (DLGPROC)DispWndProc);
-						ShowWindow(hCamDlg, SW_SHOW);
-
-						TCHAR msg[10];
-						_stprintf_s(msg, TEXT("-"));
-						SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_GRA_POSX), msg);
-						_stprintf_s(msg, TEXT("-"));
-						SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_GRA_POSY), msg);
-					}
+					OpenCameraPanel();
 				}
 				else if (inf.panel_type_id == IDC_TASK_ITEM_RADIO2) {
 					;

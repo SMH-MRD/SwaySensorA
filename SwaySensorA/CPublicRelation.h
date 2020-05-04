@@ -10,7 +10,7 @@ public:
 	CPublicRelation();
 	~CPublicRelation();
 
-	HWND hCamDlg;
+	static HWND hCamDlg;
 	
 	HWND OpenCameraPanel();														//メンテナンスパネル表示
 	static LRESULT CALLBACK DispWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);	//メンテナンスパネルWnd用コールバック関数
