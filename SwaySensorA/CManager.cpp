@@ -1,7 +1,20 @@
 #include "CManager.h"
 #include "CSharedObject.h"
 
-extern CSharedObject*	g_pSharedObject;//タスク間共有データのポインタ
+extern CSharedObject*   g_pSharedObject;    // タスク間共有データのポインタ
 
-CManager::CManager(){}
-CManager::~CManager(){}
+/// @brief コンストラクタ
+/// @param
+/// @return 
+/// @note
+CManager::CManager()
+{
+}
+
+/// @brief デストラクタ
+/// @param
+/// @return 
+/// @note
+CManager::~CManager()
+{
+}

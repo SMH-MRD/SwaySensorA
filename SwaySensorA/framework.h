@@ -14,7 +14,6 @@
 #include <memory.h>
 #include <tchar.h>
 
-
 // プログラムに必要な追加ヘッダー
 #include <string>
 #include <commctrl.h>
@@ -32,17 +31,15 @@ using namespace cv;
 using namespace GenApi;
 using namespace Pylon;
 
-//iostream用
+// iostream用
 #include <iostream>
 #include <iomanip>
-#include <sstream> //stringstream用
+#include <sstream>  // stringstream用
 #include <vector>
 #include <stdio.h>
 
-//マルチメディアタイマー用
+// マルチメディアタイマー用
 #include <mmsystem.h>
 
-
-//アプリケーション共通フォーマット、CODE定義ヘッダ
+// アプリケーション共通フォーマット、CODE定義ヘッダ
 #include "AppCommon.h"
-
