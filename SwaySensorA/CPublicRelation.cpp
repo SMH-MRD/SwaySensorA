@@ -34,7 +34,7 @@ LRESULT CALLBACK CPublicRelation::DispWndProc(HWND hwnd, UINT msg, WPARAM wp, LP
 	case WM_INITDIALOG:
 
 		break;
-#if 0
+#if 0//
 	case WM_COMMAND:
 		// ‘I‘ð‚³‚ê‚½ƒƒjƒ…[‚Ì‰ðÍ:
 		switch (wmId)
