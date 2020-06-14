@@ -61,12 +61,12 @@ void CPublicRelation::routine_work(void *param)
         if (!isnan(port2Ma))    {_stprintf_s(msg, TEXT("%.3f"), port2Ma);       SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_Y), msg);}
         else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_Y), msg);}
     }
-    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_ANGLE, &port1Angle) == RESULT_OK)
+    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_RAD, &port1Angle) == RESULT_OK)
     {
         if (!isnan(port1Angle)) {_stprintf_s(msg, TEXT("%.3f"), port1Angle);    SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_X_DEG), msg);}
         else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_X_DEG), msg);}
     }
-    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_ANGLE, &port2Angle) == RESULT_OK)
+    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_RAD, &port2Angle) == RESULT_OK)
     {
         if (!isnan(port2Angle)) {_stprintf_s(msg, TEXT("%.3f"), port2Angle);    SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_Y_DEG), msg);}
         else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_Y_DEG), msg);}
