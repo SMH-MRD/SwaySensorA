@@ -490,7 +490,7 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));    // 自動リセット,初期値非シグナル
 
     // -スレッド起動周期セット
-    ptempobj->inf.cycle_ms = 1000;
+    ptempobj->inf.cycle_ms = 100;
 
     // -ツイートメッセージ用iconセット
     hBmp = (HBITMAP)LoadBitmap(hInst, MAKEINTRESOURCE(IDB_CLERK));  // ビットマップ割り当て

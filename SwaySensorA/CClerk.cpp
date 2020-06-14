@@ -62,20 +62,11 @@ LRESULT CALLBACK CClerk::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp) {
 				MKChart::CMKChart::init_chartfunc();
 				if (inf.panel_type_id == IDC_RADIO_TASK_ITEM1) {
 
-					g_pSharedObject->m_stInclinoData[INCLINO_ID_PORT_1_ANALOG].data = 0.01;
-					g_pSharedObject->m_stInclinoData[INCLINO_ID_PORT_2_ANALOG].data = 0.03;
 					//PORT1 生データ
-					MKChart::CMKChart::set_double_data(&(g_pSharedObject->m_stInclinoData[INCLINO_ID_PORT_1_ANALOG].data), MK_CHART1, 0, 0, 0.05, false);
+					MKChart::CMKChart::set_double_data(&(g_pSharedObject->m_stInclinoData[INCLINO_ID_PORT_1_MA].data), MK_CHART1, 0, 0, 20.0, false);
 					//PORT1 生データ
-					MKChart::CMKChart::set_double_data(&(g_pSharedObject->m_stInclinoData[INCLINO_ID_PORT_2_ANALOG].data), MK_CHART1, 0, 1, 0.05, false);
-					/*
-										MKChart::CMKChart::set_double_data(&(pIO_Table->physics.vR), MK_CHART1, 0, 1, 0.10, false);
-										MKChart::CMKChart::set_double_data(&(pPly->auto_vref[MOTION_ID_BH]), MK_CHART1, 0, 2, 0.10, false);
+					MKChart::CMKChart::set_double_data(&(g_pSharedObject->m_stInclinoData[INCLINO_ID_PORT_2_MA].data), MK_CHART1, 0, 1, 20.0, false);
 
-										MKChart::CMKChart::set_double_data(&(pIO_Table->physics.PhPlane_t.x), MK_CHART1, 1, 0, 0.05, false);
-										MKChart::CMKChart::set_double_data(&(pIO_Table->physics.wth), MK_CHART1, 1, 1, 0.1, false);
-										MKChart::CMKChart::set_double_data(&(pPly->auto_vref[MOTION_ID_SLEW]), MK_CHART1, 1, 2, 0.1, false);
-					*/
 					MKChart::CMKChart::open_chart(MK_CHART1, hDlg);
 					MKChart::CMKChart::set_chart_spd(MK_CHART1, 30000);
 				}

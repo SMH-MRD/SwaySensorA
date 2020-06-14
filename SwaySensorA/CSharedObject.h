@@ -26,8 +26,8 @@ enum
     INCLINO_ID_PORT_2_ANALOG,       // RIO PORT2入力値(生値)
     INCLINO_ID_PORT_1_MA,           // RIO PORT1入力値(mA)
     INCLINO_ID_PORT_2_MA,           // RIO PORT2入力値(mA)
-    INCLINO_ID_PORT_1_ANGLE,        // RIO PORT1入力値(角度)
-    INCLINO_ID_PORT_2_ANGLE,        // RIO PORT2入力値(角度)
+    INCLINO_ID_PORT_1_RAD,			// RIO PORT1入力値(角度 radian)
+    INCLINO_ID_PORT_2_RAD,			// RIO PORT2入力値(角度 radian)
     INCLINO_ID_MAX
 };
 

@@ -72,7 +72,10 @@ void CComRIO::routine_work(void *param)
             // PORT1“Ç‚Ýž‚Ýƒf[ƒ^ mA•ÏŠ·
             if      (temp == 0x7FFF) {stRIO_ph.RIO_ai_p1_mA = 22.81;}
             else if (temp == 0x8000) {stRIO_ph.RIO_ai_p1_mA = 1.186;}
-            else                     {stRIO_ph.RIO_ai_p1_mA = 4.0 + 16.0 / 30000.0 * (double)(temp);}
+			else if (temp | 0x8000) { stRIO_ph.RIO_ai_p1_mA = 0.0; }//ERROR
+            else                     {
+				stRIO_ph.RIO_ai_p1_mA = 4.0 + 16.0 / 30000.0 * (double)(temp);
+			}
             g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANALOG, (double)temp);
             g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_MA,     stRIO_ph.RIO_ai_p1_mA);
         }
@@ -93,6 +96,7 @@ void CComRIO::routine_work(void *param)
             UINT temp = (stRIO_ph.RIO_ai_port2.uint8[0] << 8) | stRIO_ph.RIO_ai_port2.uint8[1];
             if      (temp == 0x7FFF) {stRIO_ph.RIO_ai_p2_mA = 22.81;}
             else if (temp == 0x8000) {stRIO_ph.RIO_ai_p2_mA = 1.186;}
+			else if (temp | 0x8000) { stRIO_ph.RIO_ai_p1_mA = 0.0; }//ERROR
             else                     {stRIO_ph.RIO_ai_p2_mA = 4.0 + 16.0 / 30000.0 * (double)(temp);}
             g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_ANALOG, (double)temp);
             g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_MA,     stRIO_ph.RIO_ai_p2_mA);
