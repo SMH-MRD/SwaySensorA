@@ -15,7 +15,7 @@ extern ST_iTask         g_itask;
 
 // RIOセットパラメータ
 #define RIO_COMMAND_REGISTER            2006    // COMMAND REGISTER 
-#define RIO_COMMAND_AI_PORT_ACTIVE      0x8000  // 2006書き込みで2100-2279への設定値を有効にする
+#define RIO_COMMAND_AI_PORT_ACTIVE      0x8000  // 2006へ書き込みで2100-2279への設定値を有効にする
 #define RIO_PORT_REGISTER_PORT1_MODE    2120    // PORT1のmode設定レジスタ 2006書き込みで有効となる
 #define RIO_PORT_REGISTER_PORT2_MODE    2140    // PORT2のmode設定レジスタ 2006書き込みで有効となる
 #define RIO_PORT_REGISTER_PORT3_MODE    2160    // PORT3のmode設定レジスタ 2006書き込みで有効となる
@@ -48,13 +48,13 @@ extern ST_iTask         g_itask;
 #define ADDR_HIGH   1
 #define ADDR_LOW    0
 
-union UNION_WandB
+union UNION_WandB // 1WORD/2BYTE
 {
     uint16_t    uint16;
     uint8_t     uint8[2];
 };
 
-typedef struct _stRioPh
+typedef struct _stRioPh // Pheonix Contact製RIO用構造体
 {
     ModbusTCPDesc       modbusDesc;
     ST_MODBUS_TCP_REQ   stModbusTcpReq;
