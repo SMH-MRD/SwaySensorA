@@ -37,7 +37,7 @@ void CAnalyst::routine_work(void* param)
     tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
     ImageProc();
-    BevelProc();
+    InclinationProc();
 
     return;
 }
@@ -202,43 +202,48 @@ void CAnalyst::ImageProc(void)
 /// @param
 /// @return 
 /// @note
-void CAnalyst::BevelProc(void)
+void CAnalyst::InclinationProc(void)
 {
-#if 0
-    // 傾斜計データ処理
     DOUBLE port1AnaData, port2AnaData;
     DOUBLE port1AngleData, port2AngleData;
 
-    if (g_pSharedObject->GetBevelData(BEVEL_ID_PORT_1_MA, &port1AnaData) == RESULT_OK) {
-        if (isnan(port1AnaData)) {
+    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_MA, &port1AnaData) == RESULT_OK)
+    {
+        if (isnan(port1AnaData))
+        {
             port1AngleData = (DOUBLE)NAN;
         }
-        else if (port1AnaData < 12.0) {
+        else if (port1AnaData < 12.0)
+        {
             // 12.0mA未満ならば角度は-方向に倒れている(4mAで-30度)
             port1AngleData = ((port1AnaData - 4.0) - 8.0) / 8.0 * BEVEL_MAX_ANGLE;
         }
-        else {
+        else
+        {
             // 12.0mA以上ならば角度は+方向に倒れている(20mAで30度)
             port1AngleData = (port1AnaData - 12.0) / 8.0 * BEVEL_MAX_ANGLE;
         }
-        g_pSharedObject->SetBevelData(BEVEL_ID_PORT_1_ANGLE, port1AngleData);
+        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANGLE, port1AngleData);
     }
 
-    if (g_pSharedObject->GetBevelData(BEVEL_ID_PORT_2_MA, &port2AnaData) == RESULT_OK) {
-        if (isnan(port2AnaData)) {
+    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_2_MA, &port2AnaData) == RESULT_OK)
+    {
+        if (isnan(port2AnaData))
+        {
             port2AngleData = (DOUBLE)NAN;
         }
-        else if (port2AnaData < 12.0) {
+        else if (port2AnaData < 12.0)
+        {
             // 12.0mA未満ならば角度は-方向に倒れている(4mAで-30度)
             port2AngleData = ((port2AnaData - 4.0) - 8.0) / 8.0 * BEVEL_MAX_ANGLE;
         }
-        else {
+        else
+        {
             // 12.0mA以上ならば角度は+方向に倒れている(20mAで30度)
             port2AngleData = (port2AnaData - 12.0) / 8.0 * BEVEL_MAX_ANGLE;
         }
-        g_pSharedObject->SetBevelData(BEVEL_ID_PORT_2_ANGLE, port2AngleData);
+        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_ANGLE, port2AngleData);
     }
-#endif
 }
 
 /// @brief 重心位置算出アルゴリズム1
