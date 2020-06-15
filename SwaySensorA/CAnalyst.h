@@ -24,7 +24,7 @@ private:
     BOOL m_bSaveImageArea;
 
     void ImageProc(void);
-    void BevelProc(void);
+    void InclinationProc(void);
     void CalcCenterOfGravity1(InputOutputArray image, vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY);
     void CalcCenterOfGravity2(InputOutputArray image, vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY);
 };
