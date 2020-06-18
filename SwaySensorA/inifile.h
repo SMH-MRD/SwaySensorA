@@ -29,17 +29,15 @@
 #define	INI_KEY_CAM_HEIGHT      L"Height"       // キー名：カメラ撮影高さ
 #define	INI_KEY_CAM_FRAMERATE   L"FrameRate"    // キー名：フレームレート
 
-// ------------------ OPENCV設定セクションのキー名 ---------------------------
-#define	INI_KEY_OPENCV_MASK1_EN	    L"Mask1En"  // キー名：OpenCVマスク1有効無効
-#define	INI_KEY_OPENCV_MASK1_MIN    L"Mask1Min" // キー名：OpenCVマスク1最小値
-#define	INI_KEY_OPENCV_MASK1_MAX    L"Mask1Max" // キー名：OpenCVマスク1最大値
-#define	INI_KEY_OPENCV_MASK2_EN     L"Mask2En"  // キー名：OpenCVマスク2有効無効
-#define	INI_KEY_OPENCV_MASK2_MIN    L"Mask2Min" // キー名：OpenCVマスク2最小値
-#define	INI_KEY_OPENCV_MASK2_MAX    L"Mask2Max" // キー名：OpenCVマスク2最大値
-#define	INI_KEY_OPENCV_MASK3_EN     L"Mask3En"  // キー名：OpenCVマスク3有効無効
-#define	INI_KEY_OPENCV_MASK3_MIN    L"Mask3Min" // キー名：OpenCVマスク3最小値
-#define	INI_KEY_OPENCV_MASK3_MAX    L"Mask3Max" // キー名：OpenCVマスク3最大値
-#define	INI_KEY_OPENCV_PROC_ALGO    L"ProcAlgo" // キー名：OpenCVアルゴリズム
+// ------------------ 画像処理設定セクションのキー名 ---------------------------
+#define	INI_KEY_OPENCV_MASK1_VALID	L"Mask1Valid"   // キー名：画像1マスク有効設定
+#define	INI_KEY_OPENCV_MASK1_LOW    L"Mask1Low"     // キー名：画像1マスク下限(H,S,V)
+#define	INI_KEY_OPENCV_MASK1_UPP    L"Mask1Upp"     // キー名：画像1マスク上限(H,S,V)
+#define	INI_KEY_OPENCV_MASK2_VALID	L"Mask2Valid"   // キー名：画像2マスク有効無効
+#define	INI_KEY_OPENCV_MASK2_LOW    L"Mask2Low"     // キー名：画像2マスク下限(H,S,V)
+#define	INI_KEY_OPENCV_MASK2_UPP    L"Mask2Upp"     // キー名：画像2マスク上限(H,S,V)
+#define	INI_KEY_OPENCV_NOISEFILTER  L"NoiseFilter"  // キー名：ノイズフィルタ
+#define	INI_KEY_OPENCV_ALGORITHM    L"Algorithm"    // キー名：ターゲット検出アルゴリズム
 
 // ------------------ RIO設定セクションのキー名 ---------------------------
 #define INI_KEY_RIO_IPADDR      L"IpAddr"       // キー名:RIO IPアドレス
@@ -56,16 +54,25 @@ typedef struct _stIniInf    //***** Iniファイル情報 *****
     INT     camWidth;       // カメラ取得横幅
     INT     camHeight;      // カメラ取得高さ
     INT     frameRate;      // フレームレート
-    INT     mask1En;        // 映像処理マスク1有効無効
-    INT     mask1Min;       // 映像処理マスク1最小
-    INT     mask1Max;       // 映像処理マスク1最大
-    INT     mask2En;        // 映像処理マスク2有効無効
-    INT     mask2Min;       // 映像処理マスク2最小
-    INT     mask2Max;       // 映像処理マスク2最大
-    INT     mask3En;        // 映像処理マスク3有効無効
-    INT     mask3Min;       // 映像処理マスク3最小
-    INT     mask3Max;       // 映像処理マスク3最大
-    INT     procAlgo;       // 画像処理アルゴリズム
+
+    INT     mask1Valid;     // 画像マスク1有効無効
+    INT     mask1HLow;      // 画像マスク1(H)下限
+    INT     mask1HUpp;      // 画像マスク1(H)上限
+    INT     mask1SLow;      // 画像マスク1(S)下限
+    INT     mask1SUpp;      // 画像マスク1(S)上限
+    INT     mask1VLow;      // 画像マスク1(V)下限
+    INT     mask1VUpp;      // 画像マスク1(V)上限
+    INT     mask2Valid;     // 画像マスク2有効無効
+    INT     mask2HLow;      // 画像マスク2(H)下限
+    INT     mask2HUpp;      // 画像マスク2(H)上限
+    INT     mask2SLow;      // 画像マスク2(S)下限
+    INT     mask2SUpp;      // 画像マスク2(S)上限
+    INT     mask2VLow;      // 画像マスク2(V)下限
+    INT     mask2VUpp;      // 画像マスク2(V)上限
+    INT     noiseFilter;    // ノイズフィルタ
+    INT     noiseFilterVal; // ノイズフィルタ値
+    INT     algorithm;      // ターゲット検出アルゴリズム
+
     TCHAR   rioIpAddr[256]; // RIO IPアドレス
     INT     rioTcpPortNum;  // RIO TCPポート番号
     INT     rioSlaveAddr;   // RIOスレーブアドレス

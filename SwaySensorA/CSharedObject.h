@@ -41,16 +41,23 @@ enum
     PARAM_ID_CAM_HEIGHT,            // カメラ設定(キャプチャサイズ高さ)
     PARAM_ID_CAM_READ_FRAMERATE,    // カメラ読出し(フレームレート)
     PARAM_ID_PIC_PROC_FLAG,         // 画像解析実行フラグ
-    PARAM_ID_PIC_HUE1_EN,           // 画像処理設定(色相マスク1有効無効)
-    PARAM_ID_PIC_HUE1_MIN,          // 画像処理設定(色相マスク1最低値)
-    PARAM_ID_PIC_HUE1_MAX,          // 画像処理設定(色相マスク1最大値)
-    PARAM_ID_PIC_HUE2_EN,           // 画像処理設定(色相マスク2有効無効)
-    PARAM_ID_PIC_HUE2_MIN,          // 画像処理設定(色相マスク2最低値)
-    PARAM_ID_PIC_HUE2_MAX,          // 画像処理設定(色相マスク2最大値)
-    PARAM_ID_PIC_HUE3_EN,           // 画像処理設定(色相マスク3有効無効)
-    PARAM_ID_PIC_HUE3_MIN,          // 画像処理設定(色相マスク3最低値)
-    PARAM_ID_PIC_HUE3_MAX,          // 画像処理設定(色相マスク3最大値)
-    PARAM_ID_PIC_COG_ALGO,          // 画像処理設定(重心位置算出アルゴリズム)
+    PARAM_ID_PIC_MASK1_VALID,       // 画像処理設定(画像マスク1有効無効)
+    PARAM_ID_PIC_MASK1_HLOW,        // 画像処理設定(画像マスク1(H)下限)
+    PARAM_ID_PIC_MASK1_HUPP,        // 画像処理設定(画像マスク1(H)上限)
+    PARAM_ID_PIC_MASK1_SLOW,        // 画像処理設定(画像マスク1(S)下限)
+    PARAM_ID_PIC_MASK1_SUPP,        // 画像処理設定(画像マスク1(S)上限)
+    PARAM_ID_PIC_MASK1_VLOW,        // 画像処理設定(画像マスク1(V)下限)
+    PARAM_ID_PIC_MASK1_VUPP,        // 画像処理設定(画像マスク1(V)上限)
+    PARAM_ID_PIC_MASK2_VALID,       // 画像処理設定(画像マスク2有効無効)
+    PARAM_ID_PIC_MASK2_HLOW,        // 画像処理設定(画像マスク2(H)下限)
+    PARAM_ID_PIC_MASK2_HUPP,        // 画像処理設定(画像マスク2(H)上限)
+    PARAM_ID_PIC_MASK2_SLOW,        // 画像処理設定(画像マスク2(S)下限)
+    PARAM_ID_PIC_MASK2_SUPP,        // 画像処理設定(画像マスク2(S)上限)
+    PARAM_ID_PIC_MASK2_VLOW,        // 画像処理設定(画像マスク2(V)下限)
+    PARAM_ID_PIC_MASK2_VUPP,        // 画像処理設定(画像マスク2(V)上限)
+    PARAM_ID_PIC_NOISEFILTER,       // 画像処理設定(ノイズフィルタ)
+    PARAM_ID_PIC_NOISEFILTERVAL,    // 画像処理設定(ノイズフィルタ)
+    PARAM_ID_PIC_ALGORITHM,         // 画像処理設定(重心位置算出アルゴリズム)
     PARAM_ID_RIO_TCPPORT,           // RIO TCPポート番号
     PARAM_ID_RIO_SLAVEADDR,         // RIOスレーブアドレス
     PARAM_ID_RIO_TIMEOUT,           // RIOタイムアウト
@@ -74,8 +81,17 @@ enum
 
 enum
 {
-    COG_ALGO_KIND_ALL = 0,  // 重心位置算出アルゴリズム(全輪郭点)
-    COG_ALGO_KIND_LEN       // 重心位置算出アルゴリズム(最大輪郭長)
+    NOISEFILTER_NONE = 0,           // ノイズフィルタ:なし
+    NOISEFILTER_MEDIAN,             // ノイズフィルタ:中央値フィルタ
+    NOISEFILTER_OPENNING,           // ノイズフィルタ:オープニング処理
+    NOIZEFILTER
+};
+
+enum
+{
+    COG_ALGORITHM_ALL = 1,          // 重心位置算出アルゴリズム(全輪郭点)
+    COG_ALGORITHM_LEN,              // 重心位置算出アルゴリズム(最大輪郭長)
+    COG_ALGORITHM
 };
 
 // 構造体定義

@@ -2,10 +2,11 @@
 #include "resource.h"
 #include "CSharedObject.h"
 #include <Commdlg.h>
+#include <commctrl.h>
 
 extern CSharedObject*   g_pSharedObject;    // タスク間共有データのポインタ
 
-HWND CPublicRelation::hCamDlg;
+HWND CPublicRelation::m_hCamDlg;
 Mat CPublicRelation::m_mtSaveImage;
 
 /// @brief コンストラクタ
@@ -14,7 +15,7 @@ Mat CPublicRelation::m_mtSaveImage;
 /// @note
 CPublicRelation::CPublicRelation()
 {
-    hCamDlg = NULL;
+    m_hCamDlg = NULL;
 }
 
 /// @brief デストラクタ
@@ -50,36 +51,39 @@ void CPublicRelation::routine_work(void *param)
     DOUBLE  port1Ma, port2Ma, port1Angle, port2Angle;
     TCHAR   msg[10];
 
+    //----------------------------------------------------------------------------
     // 傾斜計データ更新
     if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_ANALOG, &port1Ma) == RESULT_OK)
     {
-        if (!isnan(port1Ma))    {_stprintf_s(msg, TEXT("%.3f"), port1Ma);       SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_X), msg);}
-        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_X), msg);}
+        if (!isnan(port1Ma))    {_stprintf_s(msg, TEXT("%.3f"), port1Ma);       SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_X), msg);}
+        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_X), msg);}
     }
     if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_2_ANALOG, &port2Ma) == RESULT_OK)
     {
-        if (!isnan(port2Ma))    {_stprintf_s(msg, TEXT("%.3f"), port2Ma);       SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_Y), msg);}
-        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_Y), msg);}
+        if (!isnan(port2Ma))    {_stprintf_s(msg, TEXT("%.3f"), port2Ma);       SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_Y), msg);}
+        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_Y), msg);}
     }
     if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_RAD, &port1Angle) == RESULT_OK)
     {
-        if (!isnan(port1Angle)) {_stprintf_s(msg, TEXT("%.3f"), port1Angle);    SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_X_DEG), msg);}
-        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_X_DEG), msg);}
+        if (!isnan(port1Angle)) {_stprintf_s(msg, TEXT("%.3f"), port1Angle);    SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_X_DEG), msg);}
+        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_X_DEG), msg);}
     }
     if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_RAD, &port2Angle) == RESULT_OK)
     {
-        if (!isnan(port2Angle)) {_stprintf_s(msg, TEXT("%.3f"), port2Angle);    SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_Y_DEG), msg);}
-        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_INC_Y_DEG), msg);}
+        if (!isnan(port2Angle)) {_stprintf_s(msg, TEXT("%.3f"), port2Angle);    SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_Y_DEG), msg);}
+        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_Y_DEG), msg);}
     }
 
+    //----------------------------------------------------------------------------
     // フレームレート更新
     UINT32 frameRate;
     if (g_pSharedObject->GetParam(PARAM_ID_CAM_READ_FRAMERATE, &frameRate) == RESULT_OK)
     {
         _stprintf_s(msg, TEXT("%d"), frameRate);
-        SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_FPS), msg);
+        SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_FPS), msg);
     }
 
+    //----------------------------------------------------------------------------
     // 画像更新
     HBITMAP     bmp;        // 画像(bitmapファイル)
     STProcData  stProcData;
@@ -111,13 +115,13 @@ void CPublicRelation::routine_work(void *param)
     bmp = CreateBitmap(dispImage.cols, dispImage.rows, 1, 32, ColorBuf);
     free(ColorBuf);
 
-    SendMessage(GetDlgItem(hCamDlg, IDC_STATIC_IMAGE_RAW), STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)bmp);
+    SendMessage(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_RAW), STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)bmp);
     DeleteObject(bmp);
 
-    if (!isnan(stProcData.posx)) {_stprintf_s(msg, TEXT("%.3f"), stProcData.posx);  SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_GRV_X), msg);}
-    else                         {_stprintf_s(msg, TEXT("-"));                      SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_GRV_X), msg);}
-    if (!isnan(stProcData.posy)) {_stprintf_s(msg, TEXT("%.3f"), stProcData.posy);  SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_GRV_Y), msg);}
-    else                         {_stprintf_s(msg, TEXT("-"));                      SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_GRV_Y), msg);}
+    if (!isnan(stProcData.posx)) {_stprintf_s(msg, TEXT("%.3f"), stProcData.posx);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_X), msg);}
+    else                         {_stprintf_s(msg, TEXT("-"));                      SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_X), msg);}
+    if (!isnan(stProcData.posy)) {_stprintf_s(msg, TEXT("%.3f"), stProcData.posy);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_Y), msg);}
+    else                         {_stprintf_s(msg, TEXT("-"));                      SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_Y), msg);}
 
     Mat maskImage;
     if (g_pSharedObject->GetImage(IMAGE_ID_MASK_A, &maskImage) != RESULT_OK)
@@ -142,7 +146,7 @@ void CPublicRelation::routine_work(void *param)
     bmp = CreateBitmap(dispImage.cols, dispImage.rows, 1, 32, ColorBuf);
     free(ColorBuf);
 
-    SendMessage(GetDlgItem(hCamDlg, IDC_STATIC_IMAGE_MASK), STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)bmp);
+    SendMessage(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_MASK), STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)bmp);
     DeleteObject(bmp);
 
     DOUBLE procTime;
@@ -150,7 +154,7 @@ void CPublicRelation::routine_work(void *param)
     if (!isnan(procTime))
     {
         _stprintf_s(msg, TEXT("%.3f"), procTime);
-        SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_PROC_TIME), msg);
+        SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_PROC_TIME), msg);
     }
 
     return;
@@ -475,18 +479,170 @@ void CPublicRelation::set_PNLparam_value(float p1, float p2, float p3, float p4,
 /// @note
 HWND CPublicRelation::OpenCameraPanel()
 {
-    if (hCamDlg == NULL)
+    if (m_hCamDlg == NULL)
     {
-        hCamDlg = CreateDialog(inf.hInstance, MAKEINTRESOURCE(IDD_DIALOG_CAMMAIN), nullptr, (DLGPROC)CameraWndProc);
-        MoveWindow(GetDlgItem(hCamDlg, IDC_STATIC_IMAGE_RAW),  DISP_IMG_X0,                            DISP_IMG_Y0, (int)DISP_IMG_WIDTH, (int)DISP_IMG_HEIGHT, false);
-        MoveWindow(GetDlgItem(hCamDlg, IDC_STATIC_IMAGE_MASK), DISP_IMG_X0 + (int)DISP_IMG_WIDTH + 10, DISP_IMG_Y0, (int)DISP_IMG_WIDTH, (int)DISP_IMG_HEIGHT, false);
-        ShowWindow(hCamDlg, SW_SHOW);
+        m_hCamDlg = CreateDialog(inf.hInstance, MAKEINTRESOURCE(IDD_DIALOG_CAMMAIN), nullptr, (DLGPROC)CameraWndProc);
+        MoveWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_RAW),  DISP_IMG_X0,                            DISP_IMG_Y0, (int)DISP_IMG_WIDTH, (int)DISP_IMG_HEIGHT, false);
+        MoveWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_MASK), DISP_IMG_X0 + (int)DISP_IMG_WIDTH + 10, DISP_IMG_Y0, (int)DISP_IMG_WIDTH, (int)DISP_IMG_HEIGHT, false);
+        ShowWindow(m_hCamDlg, SW_SHOW);
 
         TCHAR msg[10];
-        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_GRV_X), msg);
-        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(hCamDlg, IDC_EDIT_GRV_Y), msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_X), msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_Y), msg);
+
+        HWND    wndhdl;
+        UINT32  val;
+        //----------------------------------------------------------------------------
+        // 画像1
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VALID, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_CHECK_MASK1);
+        if(val) {SendMessage(wndhdl, BM_SETCHECK, BST_CHECKED,   0);}
+        else    {SendMessage(wndhdl, BM_SETCHECK, BST_UNCHECKED, 0);}
+        // 色相H(Low)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_HLOW, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_H1_LOW);
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 179)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  20,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_H1_LOW);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 色相H(Upp)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_HUPP, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_H1_UPP);
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 170)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  20,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_H1_UPP);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 彩度S(Low)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_SLOW, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_S1_LOW);
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_S1_LOW);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 彩度S(Upp)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_SUPP, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_S1_UPP);
+        SendMessage(wndhdl, TBM_SETRANGE,   TRUE,  MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_S1_UPP);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 明度V(Low)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VLOW, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_V1_LOW);
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_V1_LOW);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 明度V(Upp)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VUPP, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_V1_UPP);
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_V1_UPP);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+
+        //----------------------------------------------------------------------------
+        // 画像2
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VALID, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_CHECK_MASK2);
+        if (val) {SendMessage(wndhdl, BM_SETCHECK, BST_CHECKED,   0);}
+        else     {SendMessage(wndhdl, BM_SETCHECK, BST_UNCHECKED, 0);}
+        // 色相H(Low)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_HLOW, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_H2_LOW);
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 179)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  20,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_H2_LOW);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 色相H(Upp)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_HUPP, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_H2_UPP);
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 179)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  20,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_H2_UPP);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 彩度S(Low)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_SLOW, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_S2_LOW);
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_S2_LOW);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 彩度S(Upp)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_SUPP, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_S2_UPP);
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_S2_UPP);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 明度V(Low)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VLOW, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_V2_LOW);
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_V2_LOW);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 明度V(Upp)
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VUPP, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_V2_UPP);
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_V2_UPP);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+
+        //----------------------------------------------------------------------------
+        // ノイズフィルタ
+        // 種類
+        LPCTSTR strItem[] = { TEXT("なし"), TEXT("中央値フィルタ"), TEXT("オープニング処理") };
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER);
+        for (int i = 0; i < NOIZEFILTER; i++) {SendMessage(wndhdl, CB_ADDSTRING, 0, (LPARAM)strItem[i]);}
+        g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTER, &val);
+        SendMessage(wndhdl, CB_SETCURSEL, val, 0);
+        if ((val == NOISEFILTER_MEDIAN) || (val == NOISEFILTER_OPENNING))
+        {
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER),     SW_SHOW);
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), SW_SHOW);
+        }
+        else
+        {
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER),     SW_HIDE);
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), SW_HIDE);
+        }
+        // フィルタ値
+        g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTERVAL, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER);
+        SendMessage(wndhdl, TBM_SETRANGE, TRUE, MAKELPARAM(1, 15)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ, 5, 0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS, TRUE, val);                 // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0, 2);                 // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
     }
-    return hCamDlg;
+    return m_hCamDlg;
 }
 
 /// @brief センサパネルWnd用コールバック関数
@@ -496,10 +652,121 @@ HWND CPublicRelation::OpenCameraPanel()
 LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
     INT wmId = LOWORD(wp);
-
+    
     switch (msg)
     {
     case WM_INITDIALOG:
+        break;
+    case WM_HSCROLL:
+        {
+        TCHAR   str[10];
+        int     pos;
+        //----------------------------------------------------------------------------
+        // 画像1
+        // 色相H
+        if (GetDlgItem(m_hCamDlg, IDC_SLIDER_H1_LOW) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_H1_LOW), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_H1_LOW), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_HLOW, (UINT32)pos);
+        }
+        else if (GetDlgItem(m_hCamDlg, IDC_SLIDER_H1_UPP) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_H1_UPP), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_H1_UPP), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_HUPP, (UINT32)pos);
+        }
+        else ;
+        // 彩度S
+        if (GetDlgItem(m_hCamDlg, IDC_SLIDER_S1_LOW) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_S1_LOW), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_S1_LOW), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_SLOW, (UINT32)pos);
+        }
+        else if (GetDlgItem(m_hCamDlg, IDC_SLIDER_S1_UPP) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_S1_UPP), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_S1_UPP), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_SUPP, (UINT32)pos);
+        }
+        else ;
+        // 明度V
+        if (GetDlgItem(m_hCamDlg, IDC_SLIDER_V1_LOW) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_V1_LOW), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_V1_LOW), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VLOW, (UINT32)pos);
+        }
+        else if (GetDlgItem(m_hCamDlg, IDC_SLIDER_V1_UPP) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_V1_UPP), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_V1_UPP), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VUPP, (UINT32)pos);
+        }
+        else ;
+
+        //----------------------------------------------------------------------------
+        // 画像2
+        // 色相H
+        if (GetDlgItem(m_hCamDlg, IDC_SLIDER_H2_LOW) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_H2_LOW), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_H2_LOW), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_HLOW, (UINT32)pos);
+        }
+        else if (GetDlgItem(m_hCamDlg, IDC_SLIDER_H2_UPP) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_H2_UPP), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_H2_UPP), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_HUPP, (UINT32)pos);
+        }
+        else ;
+        // 彩度S
+        if (GetDlgItem(m_hCamDlg, IDC_SLIDER_S2_LOW) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_S2_LOW), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_S2_LOW), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_SLOW, (UINT32)pos);
+        }
+        else if (GetDlgItem(m_hCamDlg, IDC_SLIDER_S2_UPP) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_S2_UPP), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_S2_UPP), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_SUPP, (UINT32)pos);
+        }
+        else ;
+        // 明度V
+        if (GetDlgItem(m_hCamDlg, IDC_SLIDER_V2_LOW) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_V2_LOW), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_V2_LOW), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VLOW, (UINT32)pos);
+        }
+        else if (GetDlgItem(m_hCamDlg, IDC_SLIDER_V2_UPP) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_V2_UPP), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_V2_UPP), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VUPP, (UINT32)pos);
+        }
+        else ;
+
+        //----------------------------------------------------------------------------
+        // ノイズフィルタ
+        if (GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER) == (HWND)lp)
+        {
+            UINT32  val;
+            g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTER, &val);
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER), TBM_GETPOS, 0, 0);
+            if (val == NOISEFILTER_MEDIAN)
+            {
+                if ((pos % 2) == 0) {pos = pos + 1;}
+                SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER), TBM_SETPOS, TRUE, pos);  // 位置の設定
+            }
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_PIC_NOISEFILTERVAL, (UINT32)pos);
+        }
+        }
         break;
     case WM_COMMAND:
         // 選択されたメニューの解析:
@@ -507,18 +774,15 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
         {
         case IDC_BUTTON_CAM_START:
             g_pSharedObject->SetParam(PARAM_ID_CAM_PROC, (UINT32)TRUE);
-            EnableWindow(GetDlgItem(hCamDlg, IDC_BUTTON_IMG_PROC), FALSE);
+            EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_IMG_PROC), FALSE);
             break;
         case IDC_BUTTON_CAM_STOP:
             g_pSharedObject->SetParam(PARAM_ID_CAM_PROC, (UINT32)FALSE);
-            EnableWindow(GetDlgItem(hCamDlg, IDC_BUTTON_IMG_PROC), TRUE);
+            EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_IMG_PROC), TRUE);
             break;
         case IDC_BUTTON_SAVE:
             if (m_mtSaveImage.empty() != TRUE) {imwrite("procImage.bmp", m_mtSaveImage);}
-            else                               {MessageBox(hCamDlg, L"保存する画像がありません。", L"エラー", MB_OK);}
-            break;
-        case IDC_BUTTON_SETTING:
-//@@@            DispSetDialog();
+            else                               {MessageBox(m_hCamDlg, L"保存する画像がありません。", L"エラー", MB_OK);}
             break;
         case IDC_BUTTON_IMG_PROC:
             {
@@ -527,7 +791,7 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
 
             ZeroMemory(&ofn, sizeof(ofn));
             ofn.lStructSize = sizeof(OPENFILENAME);
-            ofn.hwndOwner   = hCamDlg;
+            ofn.hwndOwner   = m_hCamDlg;
             ofn.lpstrFilter = TEXT("Image files {*.jpg;*.bmp;*.png}\0*.jpg;*.bmp;*.png\0")
             TEXT("All files {*.*}\0*.*\0\0");
             ofn.lpstrCustomFilter = strCustom;
@@ -549,11 +813,59 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
                     g_pSharedObject->SetParam(PARAM_ID_PIC_PROC_FLAG, (UINT32)TRUE);
                 }
             }
-            break;
             }
+            break;
+        case IDC_CHECK_MASK1:
+            if (BST_CHECKED == SendMessage(GetDlgItem(m_hCamDlg, IDC_CHECK_MASK1), BM_GETCHECK, 0, 0))
+            {
+                g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VALID, (UINT32)TRUE);
+            }
+            else
+            {
+                g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VALID, (UINT32)FALSE);
+            }
+            break;
+        case IDC_CHECK_MASK2:
+            if (BST_CHECKED == SendMessage(GetDlgItem(m_hCamDlg, IDC_CHECK_MASK2), BM_GETCHECK, 0, 0))
+            {
+                g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VALID, (UINT32)TRUE);
+            }
+            else
+            {
+                g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VALID, (UINT32)FALSE);
+            }
+            break;
+        case IDC_COMBO_NOISEFILTER:
+            if (HIWORD(wp) == CBN_SELCHANGE)
+            {
+                UINT    sel;
+                TCHAR   str[10];
+                int     pos;
+                sel = (UINT)SendMessage(GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER), CB_GETCURSEL, 0, 0);
+                if ((sel == NOISEFILTER_MEDIAN) || (sel == NOISEFILTER_OPENNING))
+                {
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER),     SW_SHOW);
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), SW_SHOW);
+                    if (sel == NOISEFILTER_MEDIAN)
+                    {
+                        pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER), TBM_GETPOS, 0, 0);
+                        if ((pos % 2) == 0) {pos = pos + 1;}
+                        SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER), TBM_SETPOS, TRUE, pos);  // 位置の設定
+                        _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), (LPCTSTR)str);
+                        g_pSharedObject->SetParam(PARAM_ID_PIC_NOISEFILTERVAL, (UINT32)pos);
+                    }
+                }
+                else
+                {
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER),     SW_HIDE);
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), SW_HIDE);
+                }
+                g_pSharedObject->SetParam(PARAM_ID_PIC_NOISEFILTER, (UINT32)sel);
+            }
+            break;
         case IDCANCEL:
 //          PostQuitMessage(0);
-            SendMessage(hCamDlg, WM_CLOSE, 0, 0);
+            SendMessage(m_hCamDlg, WM_CLOSE, 0, 0);
             break;
         }
         break;
@@ -561,7 +873,7 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
         break;
     case WM_CLOSE:
         EndDialog(hwnd, LOWORD(wp));
-        hCamDlg = NULL;
+        m_hCamDlg = NULL;
         return (INT_PTR)TRUE;
 //      PostQuitMessage(0);
         break;

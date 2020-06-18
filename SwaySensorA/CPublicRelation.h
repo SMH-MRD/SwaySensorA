@@ -28,6 +28,6 @@ private:
     HWND OpenCameraPanel(); // メンテナンスパネル表示
     static LRESULT CALLBACK CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);   // メンテナンスパネルWnd用コールバック関数
 
-    static HWND hCamDlg;
+    static HWND m_hCamDlg;
     static Mat m_mtSaveImage;
 };

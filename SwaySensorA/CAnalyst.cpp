@@ -49,7 +49,7 @@ void CAnalyst::routine_work(void* param)
 void CAnalyst::ImageProc(void)
 {
     // 画像変換処理
-    Mat     image;
+    cv::Mat imgSrc;
     UINT32  width = 0, height = 0;
 
     // 処理時間計測(開始時間取得)
@@ -58,106 +58,102 @@ void CAnalyst::ImageProc(void)
     LARGE_INTEGER    start;
     QueryPerformanceCounter(&start);
 
-    if (g_pSharedObject->GetImage(IMAGE_ID_CAM_A, &image) != RESULT_OK)
+    if (g_pSharedObject->GetImage(IMAGE_ID_CAM_A, &imgSrc) != RESULT_OK)
     {
-        if (g_pSharedObject->GetImage(IMAGE_ID_CAM_B, &image) != RESULT_OK)
-        {
-            return; // 成功以外のため、終了
-        }
+        if (g_pSharedObject->GetImage(IMAGE_ID_CAM_B, &imgSrc) != RESULT_OK) {return;}  // 成功以外のため、終了
     }
 
-    Mat hsvImage;
+//////////////////////////////////////////////////////////////////////////////
+#if 0
+    //----------------------------------------------------------------------------
     // ①画像色をBGR→HSVに変換
-    cvtColor(image, hsvImage, COLOR_BGR2HSV);
-#ifdef DEBUG
-    namedWindow("hsvImage", WINDOW_NORMAL | WINDOW_KEEPRATIO | WINDOW_GUI_EXPANDED);//other options:CV_AUTOSIZE,CV_FREERATIO
-    imshow("hsvImage", hsvImage);
-#endif
+    cv::Mat imgHSV;
+    cv::cvtColor(imgSrc, imgHSV, COLOR_BGR2HSV);
 
+    //----------------------------------------------------------------------------
     // ②色相でマスク画像作成
-    UINT32  maskEn, maskMin, maskMax;
-    Mat     maskImage1, maskImage2, maskImage3;
-    g_pSharedObject->GetParam(PARAM_ID_PIC_HUE1_EN, &maskEn);
-    if (maskEn == TRUE)
+    UINT32  maskValid, maskLow[3], maskUpp[3];
+    cv::Mat imgBinHSV, imgBinHSV1, imgBinHSV2;
+    // マスク1生成
     {
-        // マスク1生成
-        g_pSharedObject->GetParam(PARAM_ID_PIC_HUE1_MIN, &maskMin);
-        g_pSharedObject->GetParam(PARAM_ID_PIC_HUE1_MAX, &maskMax);
-        Scalar mask1Min = Scalar(maskMin, S_MIN, V_MIN);
-        Scalar mask1Max = Scalar(maskMax, S_MAX, V_MAX);
-        inRange(hsvImage, mask1Min, mask1Max, maskImage1);
-    }
-    else
-    {
-        Scalar mask1Min = Scalar(0, S_MIN, V_MIN);
-        Scalar mask1Max = Scalar(0, S_MAX, V_MAX);
-        inRange(hsvImage, mask1Min, mask1Max, maskImage1);
-    }
-
-    g_pSharedObject->GetParam(PARAM_ID_PIC_HUE2_EN, &maskEn);
-    if (maskEn == TRUE)
-    {
-        // マスク2生成
-        g_pSharedObject->GetParam(PARAM_ID_PIC_HUE2_MIN, &maskMin);
-        g_pSharedObject->GetParam(PARAM_ID_PIC_HUE2_MAX, &maskMax);
-        Scalar mask2Min = Scalar(maskMin, S_MIN, V_MIN);
-        Scalar mask2Max = Scalar(maskMax, S_MAX, V_MAX);
-        inRange(hsvImage, mask2Min, mask2Max, maskImage2);
-    }
-    else
-    {
-        Scalar mask2Min = Scalar(0, S_MIN, V_MIN);
-        Scalar mask2Max = Scalar(0, S_MAX, V_MAX);
-        inRange(hsvImage, mask2Min, mask2Max, maskImage2);
+        // 3チャンネルのLUT作成
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VALID, &maskValid);
+        if (maskValid)
+        {
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_HLOW, &maskLow[0]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_HUPP, &maskUpp[0]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_SLOW, &maskLow[1]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_SUPP, &maskUpp[1]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VLOW, &maskLow[2]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VUPP, &maskUpp[2]);
+        }
+        else
+        {
+            maskLow[0] = 0; maskUpp[0] = 0;
+            maskLow[1] = 0; maskUpp[1] = 255;
+            maskLow[2] = 0; maskUpp[2] = 255;
+        }
+        Scalar maskMin = Scalar(maskLow[0], maskLow[1], maskLow[2]);
+        Scalar maskMax = Scalar(maskUpp[0], maskUpp[1], maskUpp[2]);
+        inRange(imgHSV, maskMin, maskMax, imgBinHSV1);
     }
 
-    g_pSharedObject->GetParam(PARAM_ID_PIC_HUE3_EN, &maskEn);
-    if (maskEn == TRUE)
+    // マスク2生成
     {
-        // マスク3生成
-        g_pSharedObject->GetParam(PARAM_ID_PIC_HUE3_MIN, &maskMin);
-        g_pSharedObject->GetParam(PARAM_ID_PIC_HUE3_MAX, &maskMax);
-        Scalar mask3Min = Scalar(maskMin, S_MIN, V_MIN);
-        Scalar mask3Max = Scalar(maskMax, S_MAX, V_MAX);
-        inRange(hsvImage, mask3Min, mask3Max, maskImage3);
+        // 3チャンネルのLUT作成
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VALID, &maskValid);
+        if (maskValid)
+        {
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_HLOW, &maskLow[0]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_HUPP, &maskUpp[0]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_SLOW, &maskLow[1]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_SUPP, &maskUpp[1]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VLOW, &maskLow[2]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VUPP, &maskUpp[2]);
+        }
+        else
+        {
+            maskLow[0] = 0; maskUpp[0] = 0;
+            maskLow[1] = 0; maskUpp[1] = 255;
+            maskLow[2] = 0; maskUpp[2] = 255;
+        }
+        Scalar maskMin = Scalar(maskLow[0], maskLow[1], maskLow[2]);
+        Scalar maskMax = Scalar(maskUpp[0], maskUpp[1], maskUpp[2]);
+        inRange(imgHSV, maskMin, maskMax, imgBinHSV2);
     }
-    else
-    {
-        Scalar mask3Min = Scalar(0, S_MIN, V_MIN);
-        Scalar mask3Max = Scalar(0, S_MAX, V_MAX);
-        inRange(hsvImage, mask3Min, mask3Max, maskImage3);
-    }
 
-    // 色相マスク生成
-    Mat maskImage;
-    maskImage = maskImage1 + maskImage2 + maskImage3;
+    // 各チャンネルごとに2値化された画像の合成
+//  imgBinHSV = imgBinHSV1 + imgBinHSV2;
+    cv::add(imgBinHSV1, imgBinHSV2, imgBinHSV);
 
-    // ③V画像にマスクを掛けた後、2値化
-    Mat splitImage[3];
-    Mat maskedImg;
-    split(hsvImage, splitImage);
-    bitwise_and(splitImage[2], splitImage[2], maskedImg, maskImage);
+    //----------------------------------------------------------------------------
+    // ③3チャンネル全てのANDを取り、マスク画像を作成する
+    // チャンネルごとに二値化された画像をそれぞれのチャンネルに分解する
+    std::vector<cv::Mat> planes;
+    cv::split(imgHSV, planes); // チャンネルごとに分解
 
-    Mat binarizeImage;
-    threshold(maskedImg, binarizeImage, 100, 255, THRESH_BINARY);
+    cv::Mat imgMask;
+    cv::bitwise_and(planes[2], planes[2], imgMask, imgBinHSV);
+    imwrite("./imgMask.jpg", imgMask);
+
+    cv::Mat imgBin;
+    cv::threshold(imgMask, imgBin, 100, 255, THRESH_BINARY);
     if (m_bSaveImageArea == FALSE)
     {
-        g_pSharedObject->SetImage(IMAGE_ID_MASK_A, binarizeImage);
+        g_pSharedObject->SetImage(IMAGE_ID_MASK_A, imgBin);
         m_bSaveImageArea = TRUE;
     }
     else
     {
-        g_pSharedObject->SetImage(IMAGE_ID_MASK_B, binarizeImage);
+        g_pSharedObject->SetImage(IMAGE_ID_MASK_B, imgBin);
         m_bSaveImageArea = FALSE;
     }
-#ifdef DEBUG
-    namedWindow("maskImage", WINDOW_NORMAL | WINDOW_KEEPRATIO | WINDOW_GUI_EXPANDED);//other options:CV_AUTOSIZE,CV_FREERATIO
-    imshow("maskImage", binarizeImage);
-#endif
+
+    //----------------------------------------------------------------------------
     // ④領域抽出(ROI)でターゲット認識
     // 輪郭抽出
-    vector<vector<Point>> contours;
-    findContours(binarizeImage, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(imgMask, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
     // ⑤候補ターゲットの信頼性評価
 
@@ -166,18 +162,15 @@ void CAnalyst::ImageProc(void)
     double posY = 0;
 
     UINT32 algo;
-    g_pSharedObject->GetParam(PARAM_ID_PIC_COG_ALGO, &algo);
-    if (algo == COG_ALGO_KIND_ALL) {CalcCenterOfGravity1(image, contours, &posX, &posY);}
-    else                           {CalcCenterOfGravity2(image, contours, &posX, &posY);}
-#ifdef DEBUG
-    namedWindow("procImage", WINDOW_NORMAL | WINDOW_KEEPRATIO | WINDOW_GUI_EXPANDED);//other options:CV_AUTOSIZE,CV_FREERATIO
-    imshow("procImage", image);
-    waitKey(0);
-#endif
+    g_pSharedObject->GetParam(PARAM_ID_PIC_ALGORITHM, &algo);
+    if (algo == COG_ALGORITHM_ALL) {CalcCenterOfGravity1(imgSrc, contours, &posX, &posY);}
+    else                           {CalcCenterOfGravity2(imgSrc, contours, &posX, &posY);}
+
     STProcData stProcData;
-    stProcData.image = image;
+    stProcData.image = imgSrc;
     stProcData.posx  = posX;
     stProcData.posy  = posY;
+
     if (m_bSaveImageArea == FALSE)
     {
         g_pSharedObject->SetProcImage(IMAGE_ID_PROC_A, stProcData);
@@ -188,6 +181,178 @@ void CAnalyst::ImageProc(void)
         g_pSharedObject->SetProcImage(IMAGE_ID_PROC_B, stProcData);
         m_bSaveImageArea = FALSE;
     }
+//////////////////////////////////////////////////////////////////////////////
+#else
+    //----------------------------------------------------------------------------
+    // ①画像色をBGR→HSVに変換
+    cv::Mat imgHSV;
+    cv::cvtColor(imgSrc, imgHSV, COLOR_BGR2HSV);
+
+    //----------------------------------------------------------------------------
+    // ②各チャンネルごとに2値化(LUT変換)
+    UINT32  maskValid, maskLow[3], maskUpp[3];
+    cv::Mat imgBinHSV1, imgBinHSV2;
+    // 画像1
+    {
+        // 3チャンネルのLUT作成
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VALID, &maskValid);
+        if (maskValid)
+        {
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_HLOW, &maskLow[0]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_HUPP, &maskUpp[0]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_SLOW, &maskLow[1]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_SUPP, &maskUpp[1]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VLOW, &maskLow[2]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VUPP, &maskUpp[2]);
+            cv::Mat lut = cv::Mat(256, 1, CV_8UC3);
+            for (int i = 0; i < 256; i++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    if ((int)maskLow[k] <= (int)maskUpp[k])
+                    {
+                        if (((int)maskLow[k] <= i) && (i <= (int)maskUpp[k])) {lut.data[i*lut.step + k] = 255;}
+                        else                                                  {lut.data[i*lut.step + k] = 0;}
+                    }
+                    else
+                    {
+                        if ((i <= (int)maskUpp[k]) || ((int)maskLow[k] <= i)) {lut.data[i*lut.step + k] = 255;}
+                        else                                                  {lut.data[i*lut.step + k] = 0;}
+                    }
+                }
+            }
+            // チャンネルごとのLUT変換(各チャンネルごとに2値化処理)
+            cv::LUT(imgHSV, lut, imgBinHSV1);
+        }
+        else
+        {
+            imgBinHSV1 = cv::Mat::zeros(imgHSV.rows, imgHSV.cols, CV_8UC3);
+        }
+    }
+
+    // 画像2
+    {
+        // 3チャンネルのLUT作成
+        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VALID, &maskValid);
+        if (maskValid)
+        {
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_HLOW, &maskLow[0]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_HUPP, &maskUpp[0]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_SLOW, &maskLow[1]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_SUPP, &maskUpp[1]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VLOW, &maskLow[2]);
+            g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VUPP, &maskUpp[2]);
+            cv::Mat lut = cv::Mat(256, 1, CV_8UC3);
+            for (int i = 0; i < 256; i++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    if ((int)maskLow[k] <= (int)maskUpp[k])
+                    {
+                        if (((int)maskLow[k] <= i) && (i <= (int)maskUpp[k])) {lut.data[i*lut.step + k] = 255;}
+                        else                                                  {lut.data[i*lut.step + k] = 0;}
+                    }
+                    else
+                    {
+                        if ((i <= (int)maskUpp[k]) || ((int)maskLow[k] <= i)) {lut.data[i*lut.step + k] = 255;}
+                        else                                                  {lut.data[i*lut.step + k] = 0;}
+                    }
+                }
+            }
+            // チャンネルごとのLUT変換(各チャンネルごとに2値化処理)
+            cv::LUT(imgHSV, lut, imgBinHSV2);
+        }
+        else
+        {
+            imgBinHSV2 = cv::Mat::zeros(imgHSV.rows, imgHSV.cols, CV_8UC3);
+        }
+    }
+
+    //----------------------------------------------------------------------------
+    // ③3チャンネル全てのANDを取り、マスク画像を作成する
+    cv::Mat imgMask1, imgMask2;
+    std::vector<cv::Mat> planes;
+    // 画像1
+    cv::split(imgBinHSV1, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
+    cv::bitwise_and(planes[0], planes[1], imgMask1);
+    cv::bitwise_and(imgMask1,  planes[2], imgMask1);
+    // 画像2
+    cv::split(imgBinHSV2, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
+    cv::bitwise_and(planes[0], planes[1], imgMask2);
+    cv::bitwise_and(imgMask2,  planes[2], imgMask2);
+
+    // マスクされた画像の合成
+    cv::Mat imgMask;
+//  imgMask = imgMask1 + imgMask2;
+    cv::add(imgMask1, imgMask2, imgMask);
+
+//  // 出力
+//  cv::Mat imgMasked;
+//  imgSrc.copyTo(imgMasked, imgMask);
+
+    // ノイズ除去
+    UINT32 filter;
+    UINT32 filterval;
+    g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTER,    &filter);
+    g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTERVAL, &filterval);
+    switch (filter)
+    {
+    case NOISEFILTER_MEDIAN:    // 中央値フィルタ
+        cv::medianBlur(imgMask, imgMask, filterval);
+        break;
+    case NOISEFILTER_OPENNING:  // オープニング処理
+        cv::erode(imgMask,  imgMask, cv::Mat(), cv::Point(-1, -1), filterval);  // 収縮
+        cv::dilate(imgMask, imgMask, cv::Mat(), cv::Point(-1, -1), filterval);  // 膨張
+        break;
+    default:
+        break;
+    }
+
+    if (m_bSaveImageArea == FALSE)
+    {
+        g_pSharedObject->SetImage(IMAGE_ID_MASK_A, imgMask);
+        m_bSaveImageArea = TRUE;
+    }
+    else
+    {
+        g_pSharedObject->SetImage(IMAGE_ID_MASK_B, imgMask);
+        m_bSaveImageArea = FALSE;
+    }
+
+    //----------------------------------------------------------------------------
+    // ④領域抽出(ROI)でターゲット認識
+    // 輪郭抽出
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(imgMask, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+
+    // ⑤候補ターゲットの信頼性評価
+
+    // ⑥重心位置計算
+    double posX = 0;
+    double posY = 0;
+
+    UINT32 algo;
+    g_pSharedObject->GetParam(PARAM_ID_PIC_ALGORITHM, &algo);
+    if (algo == COG_ALGORITHM_ALL) {CalcCenterOfGravity1(imgSrc, contours, &posX, &posY);}
+    else                           {CalcCenterOfGravity2(imgSrc, contours, &posX, &posY);}
+
+    STProcData stProcData;
+    stProcData.image = imgSrc;
+    stProcData.posx  = posX;
+    stProcData.posy  = posY;
+
+    if (m_bSaveImageArea == FALSE)
+    {
+        g_pSharedObject->SetProcImage(IMAGE_ID_PROC_A, stProcData);
+        m_bSaveImageArea = TRUE;
+    }
+    else
+    {
+        g_pSharedObject->SetProcImage(IMAGE_ID_PROC_B, stProcData);
+        m_bSaveImageArea = FALSE;
+    }
+#endif
+//////////////////////////////////////////////////////////////////
 
     // 処理時間計測(終了時間取得)
     LARGE_INTEGER    end;
@@ -223,7 +388,7 @@ void CAnalyst::InclinationProc(void)
             // 12.0mA以上ならば角度は+方向に倒れている(20mAで30度)
             port1AngleData = (port1AnaData - 12.0) / 8.0 * BEVEL_MAX_ANGLE;
         }
-        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANGLE, port1AngleData);
+        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_RAD, port1AngleData);
     }
 
     if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_2_MA, &port2AnaData) == RESULT_OK)
@@ -242,7 +407,7 @@ void CAnalyst::InclinationProc(void)
             // 12.0mA以上ならば角度は+方向に倒れている(20mAで30度)
             port2AngleData = (port2AnaData - 12.0) / 8.0 * BEVEL_MAX_ANGLE;
         }
-        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_ANGLE, port2AngleData);
+        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_RAD, port2AngleData);
     }
 }
 

@@ -720,28 +720,66 @@ VOID CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD	dwUser, DWORD dw1, DWORD d
 /// @note 
 INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 {
+    TCHAR   str[256];
+
     //--------------------------------------------------------------------------
     // 設定ファイル存在チェック
     if (!(PathFileExists(pFileName)) || PathIsDirectory(pFileName)) { return RESULT_NG_INVALID; }
 
     //--------------------------------------------------------------------------
-    // 共通設定パラメータ
+    // カメラ設定
     CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_EXPOSURE,  L"10000", INITYPE_INT, &(pInf->exposureTime)); // 露光時間
     CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_WIDTH,     L"640",   INITYPE_INT, &(pInf->camWidth));     // カメラ撮影横幅
     CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_HEIGHT,    L"480",   INITYPE_INT, &(pInf->camHeight));    // カメラ撮影高さ
     CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_FRAMERATE, L"30",    INITYPE_INT, &(pInf->frameRate));    // フレームレート
 
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_EN,  L"1",   INITYPE_INT, &(pInf->mask1En));     // マスク1有効無効
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_MIN, L"0",   INITYPE_INT, &(pInf->mask1Min));    // マスク1最小
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_MAX, L"10",  INITYPE_INT, &(pInf->mask1Max));    // マスク1最大
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_EN,  L"1",   INITYPE_INT, &(pInf->mask2En));     // マスク2有効無効
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_MIN, L"170", INITYPE_INT, &(pInf->mask2Min));    // マスク2最小
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_MAX, L"180", INITYPE_INT, &(pInf->mask2Max));    // マスク2最大
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK3_EN,  L"1",   INITYPE_INT, &(pInf->mask3En));     // マスク3有効無効
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK3_MIN, L"80",  INITYPE_INT, &(pInf->mask3Min));    // マスク3最小
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK3_MAX, L"100", INITYPE_INT, &(pInf->mask3Max));    // マスク3最大
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_PROC_ALGO, L"100", INITYPE_INT, &(pInf->procAlgo));    // 画像処理アルゴリズム
+    //--------------------------------------------------------------------------
+    // 画像処理設定
+    // 画像1設定
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_VALID, L"0", INITYPE_INT, &(pInf->mask1Valid));  // 画像1マスク有効設定
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_LOW, L"0,0,0", INITYPE_CHAR, str);               // 画像1マスク下限(H,S,V)
+    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask1HLow, &pInf->mask1SLow, &pInf->mask1VLow))
+    {
+        pInf->mask1HLow = 0;
+        pInf->mask1SLow = 0;
+        pInf->mask1VLow = 0;
+    }
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_UPP, L"0,0,0", INITYPE_CHAR, str);               // 画像1マスク上限(H,S,V)
+    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask1HUpp, &pInf->mask1SUpp, &pInf->mask1VUpp))
+    {
+        pInf->mask1HUpp = 0;
+        pInf->mask1SUpp = 0;
+        pInf->mask1VUpp = 0;
+    }
+    // 画像2設定
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_VALID, L"0", INITYPE_INT, &(pInf->mask2Valid));  // 画像2マスク有効設定
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_LOW, L"0,0,0", INITYPE_CHAR, str);               // 画像2マスク下限(H,S,V)
+    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask2HLow, &pInf->mask2SLow, &pInf->mask2VLow))
+    {
+        pInf->mask2HLow = 0;
+        pInf->mask2SLow = 0;
+        pInf->mask2VLow = 0;
+    }
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_UPP, L"0,0,0", INITYPE_CHAR, str);               // 画像2マスク上限(H,S,V)
+    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask2HUpp, &pInf->mask2SUpp, &pInf->mask2VUpp))
+    {
+        pInf->mask2HUpp = 0;
+        pInf->mask2SUpp = 0;
+        pInf->mask2VUpp = 0;
+    }
+    // ノイズフィルタ
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_NOISEFILTER,  L"1,1", INITYPE_CHAR, str);  // ノイズフィルタ
+    if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->noiseFilter, &pInf->noiseFilterVal))
+    {
+        pInf->noiseFilter    = NOISEFILTER_NONE;
+        pInf->noiseFilterVal = 1;
+    }
+    // ターゲット検出アルゴリズム
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_ALGORITHM, L"1", INITYPE_INT, &(pInf->algorithm)); // ターゲット検出アルゴリズム
+    if ((pInf->algorithm < COG_ALGORITHM_ALL) || (pInf->algorithm >= COG_ALGORITHM)) {pInf->algorithm = COG_ALGORITHM_ALL;}
 
+    //--------------------------------------------------------------------------
+    // RIO設定
     CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_IPADDR,     L"192.168.0.1", INITYPE_CHAR, &(pInf->rioIpAddr));       // RIO IPアドレス
     CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TCPPORTNUM, L"502",         INITYPE_INT,  &(pInf->rioTcpPortNum));   // RIO TCPポート番号
     CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_SLAVEADDR,  L"1",           INITYPE_INT,  &(pInf->rioSlaveAddr));    // RIOスレーブアドレス
@@ -772,25 +810,38 @@ void CreateSharedData(void)
     ST_INI_INF ini;
     setIniParameter(&ini, dstpath);
 
-    //  cSharedData = new CSharedObject();
+//  cSharedData = new CSharedObject();
     g_pSharedObject->InitSharedObject();
 
+    //--------------------------------------------------------------------------
+    // カメラ設定
     g_pSharedObject->SetParam(PARAM_ID_CAM_EXPOSURE_TIME, (UINT32)ini.exposureTime);
     g_pSharedObject->SetParam(PARAM_ID_CAM_FRAMERATE,     (UINT32)ini.frameRate);
     g_pSharedObject->SetParam(PARAM_ID_CAM_WIDTH,         (UINT32)ini.camWidth);
     g_pSharedObject->SetParam(PARAM_ID_CAM_HEIGHT,        (UINT32)ini.camHeight);
 
-    g_pSharedObject->SetParam(PARAM_ID_PIC_HUE1_EN,  (UINT32)ini.mask1En);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_HUE1_MIN, (UINT32)ini.mask1Min);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_HUE1_MAX, (UINT32)ini.mask1Max);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_HUE2_EN,  (UINT32)ini.mask2En);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_HUE2_MIN, (UINT32)ini.mask2Min);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_HUE2_MAX, (UINT32)ini.mask2Max);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_HUE3_EN,  (UINT32)ini.mask3En);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_HUE3_MIN, (UINT32)ini.mask3Min);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_HUE3_MAX, (UINT32)ini.mask3Max);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_COG_ALGO, (UINT32)ini.procAlgo);
+    //--------------------------------------------------------------------------
+    // 画像処理設定
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VALID, (UINT32)ini.mask1Valid);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_HLOW,  (UINT32)ini.mask1HLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_HUPP,  (UINT32)ini.mask1HUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_SLOW,  (UINT32)ini.mask1SLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_SUPP,  (UINT32)ini.mask1SUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VLOW,  (UINT32)ini.mask1VLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VUPP,  (UINT32)ini.mask1VUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VALID, (UINT32)ini.mask2Valid);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_HLOW,  (UINT32)ini.mask2HLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_HUPP,  (UINT32)ini.mask2HUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_SLOW,  (UINT32)ini.mask2SLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_SUPP,  (UINT32)ini.mask2SUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VLOW,  (UINT32)ini.mask2VLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VUPP,  (UINT32)ini.mask2VUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_NOISEFILTER, (UINT32)ini.noiseFilter);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_NOISEFILTERVAL, (UINT32)ini.noiseFilterVal);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_ALGORITHM,   (UINT32)ini.algorithm);
 
+    //--------------------------------------------------------------------------
+    // RIO設定
     char* cstr = (char*)malloc(sizeof(ini.rioIpAddr));
     if (cstr != NULL)
     {
