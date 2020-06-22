@@ -223,7 +223,7 @@ void CAnalyst::InclinationProc(void)
             // 12.0mAˆÈã‚È‚ç‚ÎŠp“x‚Í+•ûŒü‚É“|‚ê‚Ä‚¢‚é(20mA‚Å30“x)
             port1AngleData = (port1AnaData - 12.0) / 8.0 * BEVEL_MAX_ANGLE;
         }
-        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANGLE, port1AngleData);
+        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_RAD, port1AngleData);
     }
 
     if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_2_MA, &port2AnaData) == RESULT_OK)
@@ -242,7 +242,7 @@ void CAnalyst::InclinationProc(void)
             // 12.0mAˆÈã‚È‚ç‚ÎŠp“x‚Í+•ûŒü‚É“|‚ê‚Ä‚¢‚é(20mA‚Å30“x)
             port2AngleData = (port2AnaData - 12.0) / 8.0 * BEVEL_MAX_ANGLE;
         }
-        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_ANGLE, port2AngleData);
+        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_RAD, port2AngleData);
     }
 }
 
