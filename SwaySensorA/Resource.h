@@ -112,9 +112,6 @@
 #define IDC_STATIC_VAL_NOISEFILTER      1048
 #define IDC_COMBO_NOISEFILTER           1049
 #define IDC_CHECK_CURSOR                1050
-#define IDC_STATIC_CURSOR               1051
-#define IDC_STATIC_GBX_CURSOR           1052
-#define IDC_COMBO_NOISEFILTER2          1053
 #define IDC_COMBO_IMG                   1053
 #define IDC_STATIC_GBX_CAMERA_EXPOSURE  1055
 #define IDC_SLIDER_CAMERA_EXPOSURE      1059

@@ -27,8 +27,7 @@ void CAnalyst::init_task(void* pobj)
 {
     m_iBufferImgMask1 = IMAGE_ID_MASK1_A;
     m_iBufferImgMask2 = IMAGE_ID_MASK2_A;
-    m_iBufferImgProc1 = IMAGE_ID_PROC1_A;
-    m_iBufferImgProc2 = IMAGE_ID_PROC2_A;
+    m_iBufferImgProc  = IMAGE_ID_PROC_A;
 }
 
 /// @brief 
@@ -52,39 +51,42 @@ void CAnalyst::routine_work(void* param)
 /// @note
 void CAnalyst::ImageProc(void)
 {
-    cv::Mat     imgSrc;
-    cv::Mat     imgHSV;
-    cv::Mat     imgBinHSV1, imgBinHSV2;
-    cv::Mat     imgMask1, imgMask2;
-    UINT32      width = 0, height = 0;
-    UINT32      maskValid1, maskValid2;
-    UINT        maskLow[3], maskUpp[3];
+    cv::Mat         imgSrc;
+    cv::Mat         imgHSV;
+    cv::Mat         imgHSVBin1, imgHSVBin2;
+    cv::Mat         imgMask1, imgMask2;
+    UINT32          width = 0, height = 0;
+    UINT32          maskValid1, maskValid2;
+    UINT            maskLow[3], maskUpp[3];
     std::vector<cv::Mat> planes;
-    UINT32      filter;
-    UINT32      filterval;
+    UINT32          filter;
+    UINT32          filterval;
     std::vector<std::vector<cv::Point>> contours;
-    STProcData  stProcData;
-    double      posX, posY;
-    UINT32      algo;
-    BOOL        ret = FALSE;
+    stMngProcData   stProcData;
+    double          posX, posY;
+    UINT32          algo;
+    BOOL            ret = FALSE;
 
+    //----------------------------------------------------------------------------
     // 処理時間計測(開始時間取得)
     LARGE_INTEGER    frequency;
     QueryPerformanceFrequency(&frequency);
     LARGE_INTEGER    start;
     QueryPerformanceCounter(&start);
 
-    if (g_pSharedObject->GetImage(IMAGE_ID_CAM_A, &imgSrc) != RESULT_OK)
+    //----------------------------------------------------------------------------
+    // 元画像読込み
+    if (g_pSharedObject->GetImage(IMAGE_ID_RAW_A, &imgSrc) != RESULT_OK)
     {
-        if (g_pSharedObject->GetImage(IMAGE_ID_CAM_B, &imgSrc) != RESULT_OK) {return;}  // 成功以外のため、終了
+        if (g_pSharedObject->GetImage(IMAGE_ID_RAW_B, &imgSrc) != RESULT_OK) {return;}  // 成功以外のため、終了
     }
 
     //----------------------------------------------------------------------------
-    // ①画像色をBGR→HSVに変換
+    // 画像色をBGR→HSVに変換
     cv::cvtColor(imgSrc, imgHSV, COLOR_BGR2HSV);
 
     //----------------------------------------------------------------------------
-    // ②各チャンネルごとに2値化(LUT変換)
+    // 各チャンネルごとに2値化(LUT変換)
     // 画像1
     // 3チャンネルのLUT作成
     g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VALID, &maskValid1);
@@ -114,11 +116,11 @@ void CAnalyst::ImageProc(void)
             }
         }
         // チャンネルごとのLUT変換(各チャンネルごとに2値化処理)
-        cv::LUT(imgHSV, lut, imgBinHSV1);
+        cv::LUT(imgHSV, lut, imgHSVBin1);
     }
     else
     {
-        imgBinHSV1 = cv::Mat::zeros(imgHSV.rows, imgHSV.cols, CV_8UC3);
+        imgHSVBin1 = cv::Mat::zeros(imgHSV.rows, imgHSV.cols, CV_8UC3);
     }
 
     // 画像2
@@ -150,22 +152,22 @@ void CAnalyst::ImageProc(void)
             }
         }
         // チャンネルごとのLUT変換(各チャンネルごとに2値化処理)
-        cv::LUT(imgHSV, lut, imgBinHSV2);
+        cv::LUT(imgHSV, lut, imgHSVBin2);
     }
     else
     {
-        imgBinHSV2 = cv::Mat::zeros(imgHSV.rows, imgHSV.cols, CV_8UC3);
+        imgHSVBin2 = cv::Mat::zeros(imgHSV.rows, imgHSV.cols, CV_8UC3);
     }
 
     //----------------------------------------------------------------------------
-    // ③3チャンネル全てのANDを取り、マスク画像を作成する
+    // 3チャンネル全てのANDを取り、マスク画像を作成する
     // 画像1
-    cv::split(imgBinHSV1, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
+    cv::split(imgHSVBin1, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
     cv::bitwise_and(planes[0], planes[1], imgMask1);
     cv::bitwise_and(imgMask1,  planes[2], imgMask1);
 
     // 画像2
-    cv::split(imgBinHSV2, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
+    cv::split(imgHSVBin2, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
     cv::bitwise_and(planes[0], planes[1], imgMask2);
     cv::bitwise_and(imgMask2,  planes[2], imgMask2);
 
@@ -182,7 +184,7 @@ void CAnalyst::ImageProc(void)
 #endif
 
     //----------------------------------------------------------------------------
-    // ④ノイズ除去
+    // ノイズ除去
     g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTER,    &filter);
     g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTERVAL, &filterval);
     switch (filter)
@@ -205,7 +207,72 @@ void CAnalyst::ImageProc(void)
         break;
     }
 
+    //----------------------------------------------------------------------------
+    // 画像処理
+    g_pSharedObject->GetParam(PARAM_ID_PIC_ALGORITHM, &algo);
     // 画像1
+    if (maskValid1)
+    {
+        //----------------------------------------------------------------------------
+        // 領域抽出(ROI)でターゲット認識
+        // 輪郭抽出
+        cv::findContours(imgMask1, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+
+        //----------------------------------------------------------------------------
+        // 候補ターゲットの信頼性評価
+
+        //----------------------------------------------------------------------------
+        // 重心位置計算
+        posX = 0;
+        posY = 0;
+        if (algo == COG_ALGORITHM_ALL) {ret = CalcCenterOfGravity1(contours, &posX, &posY);}
+        else                           {ret = CalcCenterOfGravity2(contours, &posX, &posY);}
+
+        stProcData.posx   = posX;
+        stProcData.posy   = posY;
+        stProcData.enable = ret;
+    }
+    else
+    {
+        stProcData.posx   = 0;
+        stProcData.posy   = 0;
+        stProcData.enable = FALSE;
+    }
+    g_pSharedObject->SetProcData(IMGPROC_ID_IMG_1, stProcData);
+
+    // 画像2
+    if (maskValid2)
+    {
+        //----------------------------------------------------------------------------
+        // 領域抽出(ROI)でターゲット認識
+        // 輪郭抽出
+        cv::findContours(imgMask2, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+
+        //----------------------------------------------------------------------------
+        // 候補ターゲットの信頼性評価
+
+        //----------------------------------------------------------------------------
+        // 重心位置計算
+        posX = 0;
+        posY = 0;
+        if (algo == COG_ALGORITHM_ALL) {ret = CalcCenterOfGravity1(contours, &posX, &posY);}
+        else                           {ret = CalcCenterOfGravity2(contours, &posX, &posY);}
+
+        stProcData.posx   = posX;
+        stProcData.posy   = posY;
+        stProcData.enable = ret;
+    }
+    else
+    {
+        stProcData.posx   = 0;
+        stProcData.posy   = 0;
+        stProcData.enable = FALSE;
+    }
+    g_pSharedObject->SetProcData(IMGPROC_ID_IMG_2, stProcData);
+
+    //----------------------------------------------------------------------------
+    // 画像保存
+    // マスク画像1
     if (m_iBufferImgMask1 == IMAGE_ID_MASK1_A)
     {
         g_pSharedObject->SetImage(IMAGE_ID_MASK1_A, imgMask1);
@@ -216,7 +283,8 @@ void CAnalyst::ImageProc(void)
         g_pSharedObject->SetImage(IMAGE_ID_MASK1_B, imgMask1);
         m_iBufferImgMask1 = IMAGE_ID_MASK1_A;
     }
-    // 画像2
+
+    // マスク画像2
     if (m_iBufferImgMask2 == IMAGE_ID_MASK2_A)
     {
         g_pSharedObject->SetImage(IMAGE_ID_MASK2_A, imgMask2);
@@ -228,96 +296,19 @@ void CAnalyst::ImageProc(void)
         m_iBufferImgMask2 = IMAGE_ID_MASK2_A;
     }
 
-    g_pSharedObject->GetParam(PARAM_ID_PIC_ALGORITHM, &algo);
-    //----------------------------------------------------------------------------
-    // 画像1
-    if (maskValid1)
+    // 処理画像
+    if (m_iBufferImgProc == IMAGE_ID_PROC_A)
     {
-        // ④領域抽出(ROI)でターゲット認識
-        // 輪郭抽出
-        cv::findContours(imgMask1, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-
-        // ⑤候補ターゲットの信頼性評価
-
-        // ⑥重心位置計算
-        posX = 0;
-        posY = 0;
-        if (algo == COG_ALGORITHM_ALL) {ret = CalcCenterOfGravity1(contours, &posX, &posY);}
-        else                           {ret = CalcCenterOfGravity2(contours, &posX, &posY);}
-
-        stProcData.image  = imgSrc;
-        stProcData.posx   = posX;
-        stProcData.posy   = posY;
-        stProcData.enable = ret;
+        g_pSharedObject->SetImage(IMAGE_ID_PROC_A, imgSrc);
+        m_iBufferImgProc = IMAGE_ID_PROC_B;
     }
     else
     {
-        stProcData.image  = imgSrc;
-        stProcData.posx   = 0;
-        stProcData.posy   = 0;
-        stProcData.enable = FALSE;
-    }
-    if (m_iBufferImgProc1 == IMAGE_ID_PROC1_A)
-    {
-        g_pSharedObject->SetProcImage(IMAGE_ID_PROC1_A, stProcData);
-        m_iBufferImgProc1 = IMAGE_ID_PROC1_B;
-    }
-    else
-    {
-        g_pSharedObject->SetProcImage(IMAGE_ID_PROC1_B, stProcData);
-        m_iBufferImgProc1 = IMAGE_ID_PROC1_A;
+        g_pSharedObject->SetImage(IMAGE_ID_PROC_B, imgSrc);
+        m_iBufferImgProc = IMAGE_ID_PROC_A;
     }
 
     //----------------------------------------------------------------------------
-    // 画像2
-    if (maskValid2)
-    {
-        // ④領域抽出(ROI)でターゲット認識
-        // 輪郭抽出
-        cv::findContours(imgMask2, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-
-        // ⑤候補ターゲットの信頼性評価
-
-        // ⑥重心位置計算
-        posX = 0;
-        posY = 0;
-        if (algo == COG_ALGORITHM_ALL) {ret = CalcCenterOfGravity1(contours, &posX, &posY);}
-        else                           {ret = CalcCenterOfGravity2(contours, &posX, &posY);}
-
-        stProcData.image  = imgSrc;
-        stProcData.posx   = posX;
-        stProcData.posy   = posY;
-        stProcData.enable = ret;
-
-        if (m_iBufferImgProc2 == IMAGE_ID_PROC2_A)
-        {
-            g_pSharedObject->SetProcImage(IMAGE_ID_PROC2_A, stProcData);
-            m_iBufferImgProc2 = IMAGE_ID_PROC2_B;
-        }
-        else
-        {
-            g_pSharedObject->SetProcImage(IMAGE_ID_PROC2_B, stProcData);
-            m_iBufferImgProc2 = IMAGE_ID_PROC2_A;
-        }
-    }
-    else
-    {
-        stProcData.image  = imgSrc;
-        stProcData.posx   = 0;
-        stProcData.posy   = 0;
-        stProcData.enable = FALSE;
-    }
-    if (m_iBufferImgProc2 == IMAGE_ID_PROC2_A)
-    {
-        g_pSharedObject->SetProcImage(IMAGE_ID_PROC2_A, stProcData);
-        m_iBufferImgProc2 = IMAGE_ID_PROC2_B;
-    }
-    else
-    {
-        g_pSharedObject->SetProcImage(IMAGE_ID_PROC2_B, stProcData);
-        m_iBufferImgProc2 = IMAGE_ID_PROC2_A;
-    }
-
     // 処理時間計測(終了時間取得)
     LARGE_INTEGER    end;
     QueryPerformanceCounter(&end);

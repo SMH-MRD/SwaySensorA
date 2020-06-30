@@ -7,7 +7,7 @@
 extern CSharedObject*   g_pSharedObject;    // タスク間共有データのポインタ
 
 HWND CPublicRelation::m_hCamDlg;
-Mat CPublicRelation::m_mtSaveImage;
+cv::Mat CPublicRelation::m_mtSaveImage;
 BOOL CPublicRelation::m_bCursor;
 POINT CPublicRelation::m_pntCursor;
 UINT CPublicRelation::m_iSelImg;
@@ -94,114 +94,126 @@ void CPublicRelation::routine_work(void *param)
 
     //----------------------------------------------------------------------------
     // 画像更新
-    HBITMAP     bmp;        // 画像(bitmapファイル)
-    STProcData  stProcData;
-    Mat         dispImage;  // 画像読み込み
+    HBITMAP         bmp;        // 画像(bitmapファイル)
+    stMngProcData   stProcData;
+    cv::Mat         imgProc;    // 処理画像
+    cv::Mat         imgDisp;    // 表示画像
 
     //----------------------------------------------------------------------------
-    if (m_iSelImg == 0)     // 画像1
+    // 処理画像読込み
+    if (g_pSharedObject->GetImage(IMAGE_ID_PROC_A, &imgProc) != RESULT_OK)
     {
-        if (g_pSharedObject->GetProcImage(IMAGE_ID_PROC1_A, &stProcData) != RESULT_OK)
-        {
-            if (g_pSharedObject->GetProcImage(IMAGE_ID_PROC1_B, &stProcData) != RESULT_OK) {return;}    // 成功以外のため、終了
-        }
-    }
-    else                    // 画像2
-    {
-        if (g_pSharedObject->GetProcImage(IMAGE_ID_PROC2_A, &stProcData) != RESULT_OK)
-        {
-            if (g_pSharedObject->GetProcImage(IMAGE_ID_PROC2_B, &stProcData) != RESULT_OK) {return;}    // 成功以外のため、終了
-        }
+        if (g_pSharedObject->GetImage(IMAGE_ID_PROC_B, &imgProc) != RESULT_OK) {return;}    // 成功以外のため、終了
     }
 
     //----------------------------------------------------------------------------
     // 保存用に最新画像を保持しておく
-    stProcData.image.copyTo(m_mtSaveImage);
+    imgProc.copyTo(m_mtSaveImage);
+
+    //----------------------------------------------------------------------------
+    // カーソル表示
+    if (m_bCursor)
+    {
+        cv::line(m_mtSaveImage, Point(0, m_pntCursor.y), Point((imgProc.cols - 1), m_pntCursor.y), Scalar(255, 255, 255), (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
+        cv::line(m_mtSaveImage, Point(m_pntCursor.x, 0), Point(m_pntCursor.x, (imgProc.rows - 1)), Scalar(255, 255, 255), (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
+    }
 
     //----------------------------------------------------------------------------
     // 検出位置表示
     INT x0, y0, x1, y1;
+    // 画像1処理
+    if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_1, &stProcData) != RESULT_OK)
+    {
+         stProcData.posx   = 0.0;
+         stProcData.posy   = 0.0;
+         stProcData.enable = FALSE;
+    }
     if (stProcData.enable)
     {
-        x0 = (INT)stProcData.posx - 10 * (INT)(stProcData.image.cols / DISP_IMG_WIDTH);  y0 = (INT)stProcData.posy;
-        x1 = (INT)stProcData.posx + 10 * (INT)(stProcData.image.cols / DISP_IMG_WIDTH);  y1 = (INT)stProcData.posy;
-        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(255, 0, 255), (INT)(stProcData.image.cols / DISP_IMG_WIDTH), 4);
+        x0 = (INT)stProcData.posx - 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y0 = (INT)stProcData.posy;
+        x1 = (INT)stProcData.posx + 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y1 = (INT)stProcData.posy;
+        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2*(INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
 
-        x0 = (INT)stProcData.posx;  y0 = (INT)stProcData.posy - 10 * (INT)(stProcData.image.rows / DISP_IMG_HEIGHT);
-        x1 = (INT)stProcData.posx;  y1 = (INT)stProcData.posy + 10 * (INT)(stProcData.image.rows / DISP_IMG_HEIGHT);
-        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(255, 0, 255), (INT)(stProcData.image.cols / DISP_IMG_WIDTH), 4);
+        x0 = (INT)stProcData.posx;  y0 = (INT)stProcData.posy - 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
+        x1 = (INT)stProcData.posx;  y1 = (INT)stProcData.posy + 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
+        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2*(INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
     }
-   
-    if (m_bCursor)
+    // 画像2処理
+    if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_2, &stProcData) != RESULT_OK)
     {
-        x0 = (INT)m_pntCursor.x - 10 * (INT)(stProcData.image.cols / DISP_IMG_WIDTH);  y0 = (INT)m_pntCursor.y;
-        x1 = (INT)m_pntCursor.x + 10 * (INT)(stProcData.image.cols / DISP_IMG_WIDTH);  y1 = (INT)m_pntCursor.y;
-        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(255, 255, 0), (INT)(stProcData.image.cols / DISP_IMG_WIDTH), 4);
-
-        x0 = (INT)m_pntCursor.x;  y0 = (INT)m_pntCursor.y - 10 * (INT)(stProcData.image.rows / DISP_IMG_HEIGHT);
-        x1 = (INT)m_pntCursor.x;  y1 = (INT)m_pntCursor.y + 10 * (INT)(stProcData.image.rows / DISP_IMG_HEIGHT);
-        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(255, 255, 0), (INT)(stProcData.image.cols / DISP_IMG_WIDTH), 4);
+         stProcData.posx   = 0.0;
+         stProcData.posy   = 0.0;
+         stProcData.enable = FALSE;
     }
+    if (stProcData.enable)
+    {
+        x0 = (INT)stProcData.posx - 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y0 = (INT)stProcData.posy;
+        x1 = (INT)stProcData.posx + 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y1 = (INT)stProcData.posy;
+        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2 * (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
 
-    resize(m_mtSaveImage, dispImage, cv::Size(), DISP_IMG_WIDTH / stProcData.image.cols, DISP_IMG_HEIGHT / stProcData.image.rows);
+        x0 = (INT)stProcData.posx;  y0 = (INT)stProcData.posy - 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
+        x1 = (INT)stProcData.posx;  y1 = (INT)stProcData.posy + 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
+        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2 * (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
+    }
+    resize(m_mtSaveImage, imgDisp, cv::Size(), DISP_IMG_WIDTH / imgProc.cols, DISP_IMG_HEIGHT / imgProc.rows);
 
     if (m_bCursor)
     {
         cv::Mat imgHSV;
-        cv::cvtColor(stProcData.image, imgHSV, COLOR_BGR2HSV);
+        cv::cvtColor(imgProc, imgHSV, COLOR_BGR2HSV);
         int H = imgHSV.data[m_pntCursor.y * imgHSV.step + m_pntCursor.x * imgHSV.elemSize() + 0];
         int S = imgHSV.data[m_pntCursor.y * imgHSV.step + m_pntCursor.x * imgHSV.elemSize() + 1];
         int V = imgHSV.data[m_pntCursor.y * imgHSV.step + m_pntCursor.x * imgHSV.elemSize() + 2];
-        cv::putText(dispImage, cv::format("(%d,%d)H:%03d S:%03d V:%03d", m_pntCursor.x, m_pntCursor.y, H, S, V), cv::Point(5, DISP_IMG_HEIGHT - 5), cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255, 255, 255), 1);
+        cv::putText(imgDisp, cv::format("(%d,%d)H:%03d S:%03d V:%03d", m_pntCursor.x, m_pntCursor.y, H, S, V), cv::Point(5, (int)DISP_IMG_HEIGHT - 5), cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255, 255, 255), 1);
     }
 
-    char* ColorBuf = (char*)calloc(dispImage.cols * dispImage.rows * 4, sizeof(RGBQUAD));
-    for (int y = 0; y < dispImage.rows; y++)
+    char* ColorBuf = (char*)calloc(imgDisp.cols * imgDisp.rows * 4, sizeof(RGBQUAD));
+    for (int y = 0; y < imgDisp.rows; y++)
     {
-        for (int x = 0; x < dispImage.cols; x++)
+        for (int x = 0; x < imgDisp.cols; x++)
         {
-            ColorBuf[y * dispImage.cols * 4 + x * 4 + 0] = dispImage.data[y * dispImage.step + x * 3 + 0];  // Blue
-            ColorBuf[y * dispImage.cols * 4 + x * 4 + 1] = dispImage.data[y * dispImage.step + x * 3 + 1];  // Green
-            ColorBuf[y * dispImage.cols * 4 + x * 4 + 2] = dispImage.data[y * dispImage.step + x * 3 + 2];  // Red
-            ColorBuf[y * dispImage.cols * 4 + x * 4 + 3] = 0;                                               // Reserved
+            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 0] = imgDisp.data[y * imgDisp.step + x * 3 + 0];  // Blue
+            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 1] = imgDisp.data[y * imgDisp.step + x * 3 + 1];  // Green
+            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 2] = imgDisp.data[y * imgDisp.step + x * 3 + 2];  // Red
+            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 3] = 0;                                           // Reserved
         }
     }
-    bmp = CreateBitmap(dispImage.cols, dispImage.rows, 1, 32, ColorBuf);
+    bmp = CreateBitmap(imgDisp.cols, imgDisp.rows, 1, 32, ColorBuf);
     free(ColorBuf);
 
     SendMessage(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_RAW), STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)bmp);
     DeleteObject(bmp);
 
     //----------------------------------------------------------------------------
-    Mat maskImage;
+    cv::Mat imgMask;
     if (m_iSelImg == 0)
     {
-        if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_A, &maskImage) != RESULT_OK)
+        if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_A, &imgMask) != RESULT_OK)
         {
-            if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_B, &maskImage) != RESULT_OK) {return;}  // 成功以外のため、終了
+            if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
         }
     }
     else
     {
-        if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_A, &maskImage) != RESULT_OK)
+        if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_A, &imgMask) != RESULT_OK)
         {
-            if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_B, &maskImage) != RESULT_OK) {return;}  // 成功以外のため、終了
+            if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
         }
     }
-    resize(maskImage, dispImage, cv::Size(), DISP_IMG_WIDTH / maskImage.cols, DISP_IMG_HEIGHT / maskImage.rows);
+    resize(imgMask, imgDisp, cv::Size(), DISP_IMG_WIDTH / imgMask.cols, DISP_IMG_HEIGHT / imgMask.rows);
 
-    ColorBuf = (char*)calloc(dispImage.cols * dispImage.rows * 4, sizeof(RGBQUAD));
-    for (int y = 0; y < dispImage.rows; y++)
+    ColorBuf = (char*)calloc(imgDisp.cols * imgDisp.rows * 4, sizeof(RGBQUAD));
+    for (int y = 0; y < imgDisp.rows; y++)
     {
-        for (int x = 0; x < dispImage.cols; x++)
+        for (int x = 0; x < imgDisp.cols; x++)
         {
-            ColorBuf[y * dispImage.cols * 4 + x * 4 + 0] = dispImage.data[y * dispImage.step + x];  // Blue
-            ColorBuf[y * dispImage.cols * 4 + x * 4 + 1] = dispImage.data[y * dispImage.step + x];  // Green
-            ColorBuf[y * dispImage.cols * 4 + x * 4 + 2] = dispImage.data[y * dispImage.step + x];  // Red
-            ColorBuf[y * dispImage.cols * 4 + x * 4 + 3] = 0;                                       // Reserved
+            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 0] = imgDisp.data[y * imgDisp.step + x];  // Blue
+            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 1] = imgDisp.data[y * imgDisp.step + x];  // Green
+            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 2] = imgDisp.data[y * imgDisp.step + x];  // Red
+            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 3] = 0;                                   // Reserved
         }
     }
-    bmp = CreateBitmap(dispImage.cols, dispImage.rows, 1, 32, ColorBuf);
+    bmp = CreateBitmap(imgDisp.cols, imgDisp.rows, 1, 32, ColorBuf);
     free(ColorBuf);
 
     SendMessage(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_MASK), STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)bmp);

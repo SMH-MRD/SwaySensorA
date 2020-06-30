@@ -1,26 +1,26 @@
 #pragma once
 #include "framework.h"
 
-// カメラ加工材料画像配列　INDEX
+// カメラ画像配列　INDEX
 enum
 {
-    IMAGE_ID_CAM_A = 0, // カメラ画像A
-    IMAGE_ID_CAM_B,     // カメラ画像B
+    IMAGE_ID_RAW_A = 0, // 元画像A
+    IMAGE_ID_RAW_B,     // 元画像B
     IMAGE_ID_MASK1_A,   // マスク画像1A
     IMAGE_ID_MASK1_B,   // マスク画像1B
     IMAGE_ID_MASK2_A,   // マスク画像2A
     IMAGE_ID_MASK2_B,   // マスク画像2B
-    IMAGE_ID_CAM_MAX
+    IMAGE_ID_PROC_A,    // 処理画像A
+    IMAGE_ID_PROC_B,    // 処理画像B
+    IMAGE_ID_MAX
 };
 
-//カメラ出力画像配列　INDEX
+//画像処理配列　INDEX
 enum
 {
-    IMAGE_ID_PROC1_A = 0,   // 加工後画像1A
-    IMAGE_ID_PROC1_B,       // 加工後画像1B
-    IMAGE_ID_PROC2_A,       // 加工後画像2A
-    IMAGE_ID_PROC2_B,       // 加工後画像2B
-    IMAGE_ID_PROC_MAX
+    IMGPROC_ID_IMG_1,   // 画像1処理データ
+    IMGPROC_ID_IMG_2,   // 画像2処理データ
+    IMGPROC_ID_MAX
 };
 
 //傾斜計入力データ　INDEX
@@ -99,30 +99,23 @@ enum
 };
 
 // 構造体定義
-typedef struct _stMngImageData
+typedef struct _stImageData
 {
-    Mat     image;
+    cv::Mat image;
     BOOL    update; // image setでtrue getでfalse
-} STMngImageData;
-
-typedef struct _stProcData
-{
-    Mat     image;
-    double  posx;
-    double  posy;
-    BOOL    enable;
-} STProcData;
+} stImageData;
 
 typedef struct _stMngProcData
 {
-    STProcData  data;
-    BOOL        update; // data setでtrue getでfalse
-} STMngProcData;
+    double  posx;
+    double  posy;
+    BOOL    enable;
+} stMngProcData;
 
 typedef struct _stMngInclinoData
 {
     DOUBLE data;
-} STMngInclinoData;
+} stMngInclinoData;
 
 ///
 class CSharedObject
@@ -136,8 +129,8 @@ public:
     INT SetImage(UINT8 id, Mat image);
     INT GetImage(UINT8 id, Mat* image);
 
-    INT SetProcImage(UINT8 id, STProcData data);
-    INT GetProcImage(UINT8 id, STProcData* data);
+    INT SetProcData(UINT8 id, stMngProcData data);
+    INT GetProcData(UINT8 id, stMngProcData* data);
 
     INT SetInclinoData(UINT8 id, DOUBLE data);
     INT GetInclinoData(UINT8 id, DOUBLE* data);
@@ -149,15 +142,15 @@ public:
     INT SetParam(UINT8 id, DOUBLE data);
     INT GetParam(UINT8 id, DOUBLE* data);
 
-    STMngImageData      m_stImage[IMAGE_ID_CAM_MAX];
-    STMngProcData       m_stProcImage[IMAGE_ID_PROC_MAX];
-    STMngInclinoData    m_stInclinoData[INCLINO_ID_MAX];
+    stImageData         m_stImage[IMAGE_ID_MAX];
+    stMngProcData       m_stProcData[IMGPROC_ID_MAX];
+    stMngInclinoData    m_stInclinoData[INCLINO_ID_MAX];
     UINT32              m_u32Param[PARAM_ID_MAX];
     string              m_strParam[PARAM_ID_STR_MAX];
     DOUBLE              m_dParam[PARAM_ID_DOUBLE_MAX];
 
-    CRITICAL_SECTION csImage[IMAGE_ID_CAM_MAX];
-    CRITICAL_SECTION csProcImage[IMAGE_ID_PROC_MAX];
+    CRITICAL_SECTION csImage[IMAGE_ID_MAX];
+    CRITICAL_SECTION csProcData[IMGPROC_ID_MAX];
     CRITICAL_SECTION csInclino[INCLINO_ID_MAX];
     CRITICAL_SECTION csParam[PARAM_ID_MAX];
     CRITICAL_SECTION csStrParam[PARAM_ID_STR_MAX];

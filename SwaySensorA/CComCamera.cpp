@@ -9,8 +9,6 @@ extern CSharedObject*   g_pSharedObject;    // タスク間共有データのポインタ
 /// @note
 CComCamera::CComCamera()
 {
-    m_pCamera        = NULL;
-    m_bSaveImageArea = FALSE;
 }
 
 /// @brief デストラクタ
@@ -34,6 +32,8 @@ CComCamera::~CComCamera()
 void CComCamera::init_task(void *pobj)
 {
     PylonInitialize();
+    m_pCamera = NULL;
+    m_iBufferImg = IMAGE_ID_RAW_A;
     return;
 };
 
@@ -57,17 +57,24 @@ void CComCamera::routine_work(void *param)
     UINT32 camProc, imageProc;
     if (g_pSharedObject->GetParam(PARAM_ID_CAM_PROC,      &camProc)   != RESULT_OK) {return;}
     if (g_pSharedObject->GetParam(PARAM_ID_PIC_PROC_FLAG, &imageProc) != RESULT_OK) {return;}
-
-    // Open camera.
-    if (!OpenCamera()) {return;}
-
     if (camProc)
     {
+        //----------------------------------------------------------------------------
+        // Open camera.
+        if (!OpenCamera()) {return;}
+
+        //----------------------------------------------------------------------------
+        // Start the grabbing
         StartGrabImage();
+
+        //----------------------------------------------------------------------------
+        // Image grabbed
         CaptureImage();
     }
     else if (imageProc)
     {
+        //----------------------------------------------------------------------------
+        // Image grabbed
         ImageProcStart();
     }
     else ;
@@ -81,6 +88,7 @@ BOOL CComCamera::OpenCamera(void)
 {
     try
     {
+        //----------------------------------------------------------------------------
         if (m_pCamera == NULL)
         {
             m_pCamera = new CBaslerUniversalInstantCamera(CTlFactory::GetInstance().CreateFirstDevice());
@@ -89,7 +97,9 @@ BOOL CComCamera::OpenCamera(void)
 
         if (m_pCamera->IsOpen()) {return TRUE;}
 
-        m_pCamera->Open();  // Open camera.
+        //----------------------------------------------------------------------------
+        // Open camera
+        m_pCamera->Open();
 
         UINT32 setWidth;
         g_pSharedObject->GetParam(PARAM_ID_CAM_WIDTH, &setWidth);
@@ -182,7 +192,7 @@ void CComCamera::CaptureImage(void)
         CGrabResultPtr          ptrGrabResult;      // This smart pointer will receive the grab result data.
         CImageFormatConverter   formatConverter;    // First the image format converter class must be created.
         CPylonImage             pylonImage;         // Create a PylonImage that will be used to reate OpenCV images later.
-        Mat                     openCvImage;        // Create an OpenCV image.
+        cv::Mat                 openCvImage;        // Create an OpenCV image.
 
         // Camera.StopGrabbing() is called automatically by the Retriveresult() method when c_countOfImagesToGrab images hav been retrived.
         while (m_pCamera->IsGrabbing())
@@ -206,15 +216,15 @@ void CComCamera::CaptureImage(void)
 
                 // Create an OpenCV image from a pylon image.
                 openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
-                if (m_bSaveImageArea == FALSE)
+                if (m_iBufferImg == IMAGE_ID_RAW_A)
                 {
-                    g_pSharedObject->SetImage(IMAGE_ID_CAM_A, openCvImage);
-                    m_bSaveImageArea = TRUE;
+                    g_pSharedObject->SetImage(IMAGE_ID_RAW_A, openCvImage);
+                    m_iBufferImg = IMAGE_ID_RAW_B;
                 }
                 else
                 {
-                    g_pSharedObject->SetImage(IMAGE_ID_CAM_B, openCvImage);
-                    m_bSaveImageArea = FALSE;
+                    g_pSharedObject->SetImage(IMAGE_ID_RAW_B, openCvImage);
+                    m_iBufferImg = IMAGE_ID_RAW_A;
                 }
                 // Set saveImages to '1' to save images
                 if (saveImages)
@@ -273,7 +283,7 @@ void CComCamera::CaptureImage(void)
 /// @note
 void CComCamera::ImageProcStart(void)
 {
-//    g_pSharedObject->SetParam(PARAM_ID_PIC_PROC_FLAG, (UINT32)FALSE);
+//  g_pSharedObject->SetParam(PARAM_ID_PIC_PROC_FLAG, (UINT32)FALSE);
 
     string  fileName;
     Mat     fileData;
@@ -281,14 +291,14 @@ void CComCamera::ImageProcStart(void)
 
     fileData = imread(fileName);
 
-    if (m_bSaveImageArea == FALSE)
+    if (m_iBufferImg == IMAGE_ID_RAW_A)
     {
-        g_pSharedObject->SetImage(IMAGE_ID_CAM_A, fileData);
-        m_bSaveImageArea = TRUE;
+        g_pSharedObject->SetImage(IMAGE_ID_RAW_A, fileData);
+        m_iBufferImg = IMAGE_ID_RAW_B;
     }
     else
     {
-        g_pSharedObject->SetImage(IMAGE_ID_CAM_B, fileData);
-        m_bSaveImageArea = FALSE;
+        g_pSharedObject->SetImage(IMAGE_ID_RAW_B, fileData);
+        m_iBufferImg = IMAGE_ID_RAW_A;
     }
 }

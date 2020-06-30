@@ -16,12 +16,9 @@ public:
     void init_task(void* pobj);
 
 private:
-//    BOOL m_bSaveImgMask;
-//    BOOL m_bSaveImgProc;
     UINT8 m_iBufferImgMask1;
-    UINT8 m_iBufferImgProc1;
     UINT8 m_iBufferImgMask2;
-    UINT8 m_iBufferImgProc2;
+    UINT8 m_iBufferImgProc;
 
     void ImageProc(void);
     void InclinationProc(void);

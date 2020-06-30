@@ -5,9 +5,9 @@ extern vector<void*>    VectpCTaskObj;  // タスクオブジェクトのポインタ
 extern ST_iTask         g_itask;
 
 #define DISP_IMG_RAW_X0     15      // 表示画像原点座標X
-#define DISP_IMG_RAW_Y0     25      // 表示画像原点座標Y
+#define DISP_IMG_RAW_Y0     50      // 表示画像原点座標Y
 #define DISP_IMG_MSK_X0     360     // 表示画像原点座標X
-#define DISP_IMG_MSK_Y0     25      // 表示画像原点座標Y
+#define DISP_IMG_MSK_Y0     50      // 表示画像原点座標Y
 #define DISP_IMG_WIDTH      320.0   // 表示画像サイズ横幅
 #define DISP_IMG_HEIGHT     240.0   // 表示画像サイズ高さ
 
@@ -31,7 +31,7 @@ private:
     static LRESULT CALLBACK CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);   // メンテナンスパネルWnd用コールバック関数
 
     static HWND     m_hCamDlg;
-    static Mat      m_mtSaveImage;
+    static cv::Mat  m_mtSaveImage;
     static BOOL     m_bCursor;
     static POINT    m_pntCursor;
     static UINT     m_iSelImg;

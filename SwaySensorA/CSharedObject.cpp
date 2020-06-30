@@ -23,16 +23,16 @@ CSharedObject::~CSharedObject()
 /// @note
 void CSharedObject::InitSharedObject(void)
 {
-    for (UINT ii = 0; ii < IMAGE_ID_CAM_MAX;    ii++) {m_stImage[ii].update = false;}
-    for (UINT ii = 0; ii < IMAGE_ID_PROC_MAX;   ii++) {m_stProcImage[ii].data.posx = 0.0; m_stProcImage[ii].data.posy = 0.0; m_stProcImage[ii].update = 0;}
+    for (UINT ii = 0; ii < IMAGE_ID_MAX;        ii++) {m_stImage[ii].update = FALSE;}
+    for (UINT ii = 0; ii < IMGPROC_ID_MAX;      ii++) {m_stProcData[ii].posx = 0.0; m_stProcData[ii].posy = 0.0; m_stProcData[ii].enable = FALSE;}
     for (UINT ii = 0; ii < INCLINO_ID_MAX;      ii++) {m_stInclinoData[ii].data = 0.0;}
     for (UINT ii = 0; ii < PARAM_ID_MAX;        ii++) {m_u32Param[ii] = 0;}
     for (UINT ii = 0; ii < PARAM_ID_STR_MAX;    ii++) {m_strParam[ii] = "";}
     for (UINT ii = 0; ii < PARAM_ID_DOUBLE_MAX; ii++) {m_dParam[ii] = 0.0;}
 
     // 共有データアクセス用クリティカルセクションの初期化
-    for (UINT ii = 0; ii < IMAGE_ID_CAM_MAX;    ii++) {InitializeCriticalSection(&csImage[ii]);}
-    for (UINT ii = 0; ii < IMAGE_ID_PROC_MAX;   ii++) {InitializeCriticalSection(&csProcImage[ii]);}
+    for (UINT ii = 0; ii < IMAGE_ID_MAX;        ii++) {InitializeCriticalSection(&csImage[ii]);}
+    for (UINT ii = 0; ii < IMGPROC_ID_MAX;      ii++) {InitializeCriticalSection(&csProcData[ii]);}
     for (UINT ii = 0; ii < INCLINO_ID_MAX;      ii++) {InitializeCriticalSection(&csInclino[ii]);}
     for (UINT ii = 0; ii < PARAM_ID_MAX;        ii++) {InitializeCriticalSection(&csParam[ii]);}
     for (UINT ii = 0; ii < PARAM_ID_STR_MAX;    ii++) {InitializeCriticalSection(&csStrParam[ii]);}
@@ -45,7 +45,7 @@ void CSharedObject::InitSharedObject(void)
 /// @note
 INT CSharedObject::SetImage(UINT8 id, Mat image)
 {
-    if (id >= IMAGE_ID_CAM_MAX) {return RESULT_NG_INVALID;}
+    if (id >= IMAGE_ID_MAX) {return RESULT_NG_INVALID;}
 
     EnterCriticalSection(&csImage[id]);
     image.copyTo(m_stImage[id].image);
@@ -61,8 +61,8 @@ INT CSharedObject::SetImage(UINT8 id, Mat image)
 /// @note
 INT CSharedObject::GetImage(UINT8 id, Mat* image)
 {
-    if (id >= IMAGE_ID_CAM_MAX) {return RESULT_NG_INVALID;}
-    if (image == NULL)          {return RESULT_NG_INVALID;}
+    if (id >= IMAGE_ID_MAX) {return RESULT_NG_INVALID;}
+    if (image == NULL)      {return RESULT_NG_INVALID;}
     // 更新有無の確認
     if (m_stImage[id].update == FALSE) {return RESULT_NG_SEQUENCE;}
 
@@ -74,43 +74,37 @@ INT CSharedObject::GetImage(UINT8 id, Mat* image)
     return RESULT_OK;
 }
 
-/// @brief 処理画像データ設定処理
+/// @brief 画像処理データ設定処理
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::SetProcImage(UINT8 id, STProcData data)
+INT CSharedObject::SetProcData(UINT8 id, stMngProcData data)
 {
-    if (id >= IMAGE_ID_PROC_MAX) {return RESULT_NG_INVALID;}
+    if (id >= IMGPROC_ID_MAX) {return RESULT_NG_INVALID;}
 
-    EnterCriticalSection(&csProcImage[id]);
-    data.image.copyTo(m_stProcImage[id].data.image);
-    m_stProcImage[id].data.posx   = data.posx;
-    m_stProcImage[id].data.posy   = data.posy;
-    m_stProcImage[id].data.enable = data.enable;
-    m_stProcImage[id].update      = TRUE;
-    LeaveCriticalSection(&csProcImage[id]);
+    EnterCriticalSection(&csProcData[id]);
+    m_stProcData[id].posx   = data.posx;
+    m_stProcData[id].posy   = data.posy;
+    m_stProcData[id].enable = data.enable;
+    LeaveCriticalSection(&csProcData[id]);
 
     return RESULT_OK;
 }
 
-/// @brief 処理画像データ取得処理
+/// @brief 画像処理データ取得処理
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::GetProcImage(UINT8 id, STProcData* data)
+INT CSharedObject::GetProcData(UINT8 id, stMngProcData* data)
 {
-    if (id >= IMAGE_ID_PROC_MAX) {return RESULT_NG_INVALID;}
-    if (data == NULL)            {return RESULT_NG_INVALID;}
-    // 更新有無の確認
-    if (m_stProcImage[id].update == FALSE) {return RESULT_NG_SEQUENCE;}
+    if (id >= IMGPROC_ID_MAX) {return RESULT_NG_INVALID;}
+    if (data == NULL)         {return RESULT_NG_INVALID;}
 
-    EnterCriticalSection(&csProcImage[id]);
-    m_stProcImage[id].data.image.copyTo(data->image);
-    data->posx   = m_stProcImage[id].data.posx;
-    data->posy   = m_stProcImage[id].data.posy;
-    data->enable = m_stProcImage[id].data.enable;
-    m_stProcImage[id].update = FALSE;
-    LeaveCriticalSection(&csProcImage[id]);
+    EnterCriticalSection(&csProcData[id]);
+    data->posx   = m_stProcData[id].posx;
+    data->posy   = m_stProcData[id].posy;
+    data->enable = m_stProcData[id].enable;
+    LeaveCriticalSection(&csProcData[id]);
 
     return RESULT_OK;
 }
