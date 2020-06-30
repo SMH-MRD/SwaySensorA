@@ -24,6 +24,7 @@ CComCamera::~CComCamera()
         if (m_pCamera->IsOpen()) {m_pCamera->Close();}
         m_pCamera = NULL;
     }
+    PylonTerminate();
 }
 
 /// @brief 
@@ -139,6 +140,11 @@ void CComCamera::StartGrabImage(void)
         if (!m_pCamera->IsOpen() || m_pCamera->IsGrabbing()) {return;}
         // Start the grabbing of c_countOfImagesToGrab images.
         // The camera device is parameterized with a default configuration which sets up free-running continuous acquisition.
+
+        UINT32 setExposure;
+        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME, &setExposure);
+        m_pCamera->ExposureTime.SetValue(setExposure);
+
         m_pCamera->StartGrabbing(c_countOfImagesToGrab, GrabStrategy_LatestImageOnly);
     }
     catch (Pylon::GenericException)
@@ -267,7 +273,7 @@ void CComCamera::CaptureImage(void)
 /// @note
 void CComCamera::ImageProcStart(void)
 {
-    g_pSharedObject->SetParam(PARAM_ID_PIC_PROC_FLAG, (UINT32)FALSE);
+//    g_pSharedObject->SetParam(PARAM_ID_PIC_PROC_FLAG, (UINT32)FALSE);
 
     string  fileName;
     Mat     fileData;

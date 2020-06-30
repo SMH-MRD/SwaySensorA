@@ -16,10 +16,15 @@ public:
     void init_task(void* pobj);
 
 private:
-    BOOL m_bSaveImageArea;
+//    BOOL m_bSaveImgMask;
+//    BOOL m_bSaveImgProc;
+    UINT8 m_iBufferImgMask1;
+    UINT8 m_iBufferImgProc1;
+    UINT8 m_iBufferImgMask2;
+    UINT8 m_iBufferImgProc2;
 
     void ImageProc(void);
     void InclinationProc(void);
-    void CalcCenterOfGravity1(InputOutputArray image, vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY);
-    void CalcCenterOfGravity2(InputOutputArray image, vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY);
+    BOOL CalcCenterOfGravity1(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY);
+    BOOL CalcCenterOfGravity2(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY);
 };

@@ -201,6 +201,14 @@
   <ItemGroup>
     <Image Include="..\bmp\alube.bmp" />
     <Image Include="..\bmp\analy2.bmp" />
+    <Image Include="..\bmp\BitmapBlue.bmp" />
+    <Image Include="..\bmp\BitmapGray.bmp" />
+    <Image Include="..\bmp\BitmapGreen.bmp" />
+    <Image Include="..\bmp\BitmapLightBlue.bmp" />
+    <Image Include="..\bmp\BitmapMagenta.bmp" />
+    <Image Include="..\bmp\BitmapRed.bmp" />
+    <Image Include="..\bmp\BitmapWhite.bmp" />
+    <Image Include="..\bmp\BitmapYellow.bmp" />
     <Image Include="..\bmp\clerk2.bmp" />
     <Image Include="..\bmp\comm1.bmp" />
     <Image Include="..\bmp\comm2.bmp" />

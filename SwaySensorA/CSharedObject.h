@@ -6,16 +6,20 @@ enum
 {
     IMAGE_ID_CAM_A = 0, // カメラ画像A
     IMAGE_ID_CAM_B,     // カメラ画像B
-    IMAGE_ID_MASK_A,    // マスク画像A
-    IMAGE_ID_MASK_B,    // マスク画像B
+    IMAGE_ID_MASK1_A,   // マスク画像1A
+    IMAGE_ID_MASK1_B,   // マスク画像1B
+    IMAGE_ID_MASK2_A,   // マスク画像2A
+    IMAGE_ID_MASK2_B,   // マスク画像2B
     IMAGE_ID_CAM_MAX
 };
 
 //カメラ出力画像配列　INDEX
 enum
 {
-    IMAGE_ID_PROC_A = 0,    // 加工後画像A
-    IMAGE_ID_PROC_B,        // 加工後画像B
+    IMAGE_ID_PROC1_A = 0,   // 加工後画像1A
+    IMAGE_ID_PROC1_B,       // 加工後画像1B
+    IMAGE_ID_PROC2_A,       // 加工後画像2A
+    IMAGE_ID_PROC2_B,       // 加工後画像2B
     IMAGE_ID_PROC_MAX
 };
 
@@ -106,6 +110,7 @@ typedef struct _stProcData
     Mat     image;
     double  posx;
     double  posy;
+    BOOL    enable;
 } STProcData;
 
 typedef struct _stMngProcData

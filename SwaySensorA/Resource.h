@@ -21,8 +21,16 @@
 #define IDB_PLAYER                      145
 #define IDB_PR                          146
 #define IDB_RIOCOM                      147
+#define IDB_BITMAP_BLUE                 148
+#define IDB_BITMAP_GRAY                 149
+#define IDB_BITMAP_GREEN                150
+#define IDB_BITMAP_LTBLUE               151
+#define IDB_BITMAP_MAGENTA              152
+#define IDB_BITMAP_RED                  153
+#define IDB_BITMAP_WHITE                154
+#define IDB_BITMAP_YELLOW               155
 #define IDC_BUTTON_RESET                1000
-#define IDC_STATIC_IMAGE_FRAME          1000
+#define IDC_STATIC_GBX_IMG_RAW          1000
 #define IDC_STATIC_VAL_FRAME            1001
 #define IDC_STATIC_TITLE_GRV_X_TITLE    1002
 #define IDC_CHECK_TASK_OPTION1          1003
@@ -44,6 +52,7 @@
 #define IDC_STATIC_TASK_FUNC            1011
 #define IDC_STATIC_TITLE_H1             1011
 #define IDC_STATIC_TASK_ITEM            1012
+#define IDC_STATIC_GBX_IMG_MASK         1012
 #define IDC_RADIO_TASK_ITEM1            1013
 #define IDC_SLIDER_H1_LOW               1013
 #define IDC_RADIO_TASK_ITEM2            1014
@@ -99,14 +108,25 @@
 #define IDC_STATIC_MASK1                1044
 #define IDC_STATIC_MASK2                1045
 #define IDC_STATIC_NOISEFILTER          1046
-#define IDC_SLIDER_H2_LOW2              1047
 #define IDC_SLIDER_NOISEFILTER          1047
 #define IDC_STATIC_VAL_NOISEFILTER      1048
 #define IDC_COMBO_NOISEFILTER           1049
+#define IDC_CHECK_CURSOR                1050
+#define IDC_STATIC_CURSOR               1051
+#define IDC_STATIC_GBX_CURSOR           1052
+#define IDC_COMBO_NOISEFILTER2          1053
+#define IDC_COMBO_IMG                   1053
+#define IDC_STATIC_GBX_CAMERA_EXPOSURE  1055
+#define IDC_SLIDER_CAMERA_EXPOSURE      1059
+#define IDC_STATIC_VAL_CAMERA_EXPOSURE  1060
 #define IDC_BUTTON_CAM_START            2002
-#define IDC_BUTTON_CAM_STOP             2028
+#define IDC_BUTTON_CURSOR_L             2028
 #define IDC_EDIT_GRV_X                  2029
 #define IDC_EDIT_GRV_Y                  2030
+#define IDC_BUTTON_CAM_STOP             2031
+#define IDC_BUTTON_CURSOR_R             2032
+#define IDC_BUTTON_CURSOR_U             2033
+#define IDC_BUTTON_CURSOR_D             2034
 #define IDC_EDIT_INC_X_DEG              2036
 #define IDC_EDIT_INC_Y_DEG              2037
 #define IDC_EDIT_FPS                    2039
@@ -125,9 +145,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        148
+#define _APS_NEXT_RESOURCE_VALUE        156
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1050
+#define _APS_NEXT_CONTROL_VALUE         1062
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

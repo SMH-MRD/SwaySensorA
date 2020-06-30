@@ -84,9 +84,10 @@ INT CSharedObject::SetProcImage(UINT8 id, STProcData data)
 
     EnterCriticalSection(&csProcImage[id]);
     data.image.copyTo(m_stProcImage[id].data.image);
-    m_stProcImage[id].data.posx = data.posx;
-    m_stProcImage[id].data.posy = data.posy;
-    m_stProcImage[id].update    = TRUE;
+    m_stProcImage[id].data.posx   = data.posx;
+    m_stProcImage[id].data.posy   = data.posy;
+    m_stProcImage[id].data.enable = data.enable;
+    m_stProcImage[id].update      = TRUE;
     LeaveCriticalSection(&csProcImage[id]);
 
     return RESULT_OK;
@@ -105,8 +106,9 @@ INT CSharedObject::GetProcImage(UINT8 id, STProcData* data)
 
     EnterCriticalSection(&csProcImage[id]);
     m_stProcImage[id].data.image.copyTo(data->image);
-    data->posx = m_stProcImage[id].data.posx;
-    data->posy = m_stProcImage[id].data.posy;
+    data->posx   = m_stProcImage[id].data.posx;
+    data->posy   = m_stProcImage[id].data.posy;
+    data->enable = m_stProcImage[id].data.enable;
     m_stProcImage[id].update = FALSE;
     LeaveCriticalSection(&csProcImage[id]);
 

@@ -141,5 +141,29 @@
     <Image Include="..\bmp\analy2.bmp">
       <Filter>リソース ファイル</Filter>
     </Image>
+    <Image Include="..\bmp\BitmapBlue.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\BitmapGray.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\BitmapGreen.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\BitmapLightBlue.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\BitmapMagenta.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\BitmapRed.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\BitmapWhite.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\BitmapYellow.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
 </Project>
