@@ -99,14 +99,14 @@ void CPublicRelation::routine_work(void *param)
     Mat         dispImage;  // ‰æ‘œ“Ç‚Ýž‚Ý
 
     //----------------------------------------------------------------------------
-    if (m_iSelImg == 0)
+    if (m_iSelImg == 0)     // ‰æ‘œ1
     {
         if (g_pSharedObject->GetProcImage(IMAGE_ID_PROC1_A, &stProcData) != RESULT_OK)
         {
             if (g_pSharedObject->GetProcImage(IMAGE_ID_PROC1_B, &stProcData) != RESULT_OK) {return;}    // ¬Œ÷ˆÈŠO‚Ì‚½‚ßAI—¹
         }
     }
-    else
+    else                    // ‰æ‘œ2
     {
         if (g_pSharedObject->GetProcImage(IMAGE_ID_PROC2_A, &stProcData) != RESULT_OK)
         {

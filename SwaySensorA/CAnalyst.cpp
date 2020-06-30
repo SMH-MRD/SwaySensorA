@@ -163,12 +163,14 @@ void CAnalyst::ImageProc(void)
     cv::split(imgBinHSV1, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
     cv::bitwise_and(planes[0], planes[1], imgMask1);
     cv::bitwise_and(imgMask1,  planes[2], imgMask1);
+
     // 画像2
     cv::split(imgBinHSV2, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
     cv::bitwise_and(planes[0], planes[1], imgMask2);
     cv::bitwise_and(imgMask2,  planes[2], imgMask2);
 
 #if 0   // 各マスク画像は個別に処理
+    //----------------------------------------------------------------------------
     // マスクされた画像の合成
     cv::Mat imgMask;
 //  imgMask = imgMask1 + imgMask2;
@@ -179,7 +181,8 @@ void CAnalyst::ImageProc(void)
     //  imgSrc.copyTo(imgMasked, imgMask);
 #endif
 
-    // ノイズ除去
+    //----------------------------------------------------------------------------
+    // ④ノイズ除去
     g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTER,    &filter);
     g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTERVAL, &filterval);
     switch (filter)
@@ -267,7 +270,7 @@ void CAnalyst::ImageProc(void)
 
     //----------------------------------------------------------------------------
     // 画像2
-    if (maskValid1)
+    if (maskValid2)
     {
         // ④領域抽出(ROI)でターゲット認識
         // 輪郭抽出
