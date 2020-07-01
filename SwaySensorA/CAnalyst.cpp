@@ -39,8 +39,27 @@ void CAnalyst::routine_work(void* param)
     ws << L"Act: " << std::setw(2) << *(inf.psys_counter) % 100;
     tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
+    //----------------------------------------------------------------------------
+    // 処理時間計測(開始時間取得)
+    LARGE_INTEGER   frequency;
+    LARGE_INTEGER   start;
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&start);
+
+    //----------------------------------------------------------------------------
     ImageProc();
+
+    //----------------------------------------------------------------------------
     InclinationProc();
+
+    //----------------------------------------------------------------------------
+    // 処理時間計測(終了時間取得)
+    LARGE_INTEGER   end;
+    LONGLONG        span, usec;
+    QueryPerformanceCounter(&end);
+    span = end.QuadPart - start.QuadPart;
+    usec = (span * 1000000L) / frequency.QuadPart;
+    g_pSharedObject->SetParam(PARAM_ID_DOUBLE_PROC_TIME, (DOUBLE)usec / 1000.0);
 
     return;
 }
@@ -55,8 +74,9 @@ void CAnalyst::ImageProc(void)
     cv::Mat         imgHSV;
     cv::Mat         imgHSVBin1, imgHSVBin2;
     cv::Mat         imgMask1, imgMask2;
+    cv::Mat         lut;
+    BOOL            bImgEnable = FALSE;
     UINT32          width = 0, height = 0;
-    UINT32          maskValid1, maskValid2;
     UINT            maskLow[3], maskUpp[3];
     std::vector<cv::Mat> planes;
     UINT32          filter;
@@ -68,37 +88,36 @@ void CAnalyst::ImageProc(void)
     BOOL            ret = FALSE;
 
     //----------------------------------------------------------------------------
-    // 処理時間計測(開始時間取得)
-    LARGE_INTEGER    frequency;
-    QueryPerformanceFrequency(&frequency);
-    LARGE_INTEGER    start;
-    QueryPerformanceCounter(&start);
-
-    //----------------------------------------------------------------------------
     // 元画像読込み
-    if (g_pSharedObject->GetImage(IMAGE_ID_RAW_A, &imgSrc) != RESULT_OK)
+    if (g_pSharedObject->GetImage(IMAGE_ID_RAW_A, &imgSrc) == RESULT_OK)
     {
-        if (g_pSharedObject->GetImage(IMAGE_ID_RAW_B, &imgSrc) != RESULT_OK) {return;}  // 成功以外のため、終了
+        bImgEnable = TRUE;
+    }
+    else
+    {
+        if (g_pSharedObject->GetImage(IMAGE_ID_RAW_B, &imgSrc) == RESULT_OK)
+        {
+            bImgEnable = TRUE;
+        }
     }
 
-    //----------------------------------------------------------------------------
-    // 画像色をBGR→HSVに変換
-    cv::cvtColor(imgSrc, imgHSV, COLOR_BGR2HSV);
-
-    //----------------------------------------------------------------------------
-    // 各チャンネルごとに2値化(LUT変換)
-    // 画像1
-    // 3チャンネルのLUT作成
-    g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VALID, &maskValid1);
-    if (maskValid1)
+    if (bImgEnable)
     {
+        //----------------------------------------------------------------------------
+        // 画像色をBGR→HSVに変換
+        cv::cvtColor(imgSrc, imgHSV, COLOR_BGR2HSV);
+
+        //----------------------------------------------------------------------------
+        // 各チャンネルごとに2値化(LUT変換)
+        lut = cv::Mat(256, 1, CV_8UC3);
+        // 画像1
+        // 3チャンネルのLUT作成
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_HLOW, &maskLow[0]);
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_HUPP, &maskUpp[0]);
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_SLOW, &maskLow[1]);
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_SUPP, &maskUpp[1]);
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VLOW, &maskLow[2]);
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VUPP, &maskUpp[2]);
-        cv::Mat lut = cv::Mat(256, 1, CV_8UC3);
         for (int i = 0; i < 256; i++)
         {
             for (int k = 0; k < 3; k++)
@@ -117,24 +136,15 @@ void CAnalyst::ImageProc(void)
         }
         // チャンネルごとのLUT変換(各チャンネルごとに2値化処理)
         cv::LUT(imgHSV, lut, imgHSVBin1);
-    }
-    else
-    {
-        imgHSVBin1 = cv::Mat::zeros(imgHSV.rows, imgHSV.cols, CV_8UC3);
-    }
 
-    // 画像2
-    // 3チャンネルのLUT作成
-    g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VALID, &maskValid2);
-    if (maskValid2)
-    {
+        // 画像2
+        // 3チャンネルのLUT作成
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_HLOW, &maskLow[0]);
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_HUPP, &maskUpp[0]);
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_SLOW, &maskLow[1]);
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_SUPP, &maskUpp[1]);
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VLOW, &maskLow[2]);
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VUPP, &maskUpp[2]);
-        cv::Mat lut = cv::Mat(256, 1, CV_8UC3);
         for (int i = 0; i < 256; i++)
         {
             for (int k = 0; k < 3; k++)
@@ -153,66 +163,59 @@ void CAnalyst::ImageProc(void)
         }
         // チャンネルごとのLUT変換(各チャンネルごとに2値化処理)
         cv::LUT(imgHSV, lut, imgHSVBin2);
-    }
-    else
-    {
-        imgHSVBin2 = cv::Mat::zeros(imgHSV.rows, imgHSV.cols, CV_8UC3);
-    }
 
-    //----------------------------------------------------------------------------
-    // 3チャンネル全てのANDを取り、マスク画像を作成する
-    // 画像1
-    cv::split(imgHSVBin1, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
-    cv::bitwise_and(planes[0], planes[1], imgMask1);
-    cv::bitwise_and(imgMask1,  planes[2], imgMask1);
+        //----------------------------------------------------------------------------
+        // 3チャンネル全てのANDを取り、マスク画像を作成する
+        // 画像1
+        cv::split(imgHSVBin1, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
+        cv::bitwise_and(planes[0], planes[1], imgMask1);
+        cv::bitwise_and(imgMask1,  planes[2], imgMask1);
 
-    // 画像2
-    cv::split(imgHSVBin2, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
-    cv::bitwise_and(planes[0], planes[1], imgMask2);
-    cv::bitwise_and(imgMask2,  planes[2], imgMask2);
+        // 画像2
+        cv::split(imgHSVBin2, planes);  // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
+        cv::bitwise_and(planes[0], planes[1], imgMask2);
+        cv::bitwise_and(imgMask2,  planes[2], imgMask2);
 
 #if 0   // 各マスク画像は個別に処理
-    //----------------------------------------------------------------------------
-    // マスクされた画像の合成
-    cv::Mat imgMask;
-//  imgMask = imgMask1 + imgMask2;
-    cv::add(imgMask1, imgMask2, imgMask);
+        //----------------------------------------------------------------------------
+        // マスクされた画像の合成
+        cv::Mat imgMask;
+//      imgMask = imgMask1 + imgMask2;
+        cv::add(imgMask1, imgMask2, imgMask);
 
-    //  // 出力
-    //  cv::Mat imgMasked;
-    //  imgSrc.copyTo(imgMasked, imgMask);
+//      // 出力
+//      cv::Mat imgMasked;
+//      imgSrc.copyTo(imgMasked, imgMask);
 #endif
 
-    //----------------------------------------------------------------------------
-    // ノイズ除去
-    g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTER,    &filter);
-    g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTERVAL, &filterval);
-    switch (filter)
-    {
-    case NOISEFILTER_MEDIAN:    // 中央値フィルタ
-        // 画像1
-        cv::medianBlur(imgMask1, imgMask1, filterval);
-        // 画像2
-        cv::medianBlur(imgMask2, imgMask2, filterval);
-        break;
-    case NOISEFILTER_OPENNING:  // オープニング処理
-        // 画像1
-        cv::erode(imgMask1, imgMask1, cv::Mat(), cv::Point(-1, -1), filterval);     // 収縮
-        cv::dilate(imgMask1, imgMask1, cv::Mat(), cv::Point(-1, -1), filterval);    // 膨張
-        // 画像2
-        cv::erode(imgMask2, imgMask2, cv::Mat(), cv::Point(-1, -1), filterval);     // 収縮
-        cv::dilate(imgMask2, imgMask2, cv::Mat(), cv::Point(-1, -1), filterval);    // 膨張
-        break;
-    default:
-        break;
-    }
+        //----------------------------------------------------------------------------
+        // ノイズ除去
+        g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTER,    &filter);
+        g_pSharedObject->GetParam(PARAM_ID_PIC_NOISEFILTERVAL, &filterval);
+        switch (filter)
+        {
+        case NOISEFILTER_MEDIAN:    // 中央値フィルタ
+            // 画像1
+            cv::medianBlur(imgMask1, imgMask1, filterval);
+            // 画像2
+            cv::medianBlur(imgMask2, imgMask2, filterval);
+            break;
+        case NOISEFILTER_OPENNING:  // オープニング処理
+            // 画像1
+            cv::erode(imgMask1, imgMask1, cv::Mat(), cv::Point(-1, -1), filterval);     // 収縮
+            cv::dilate(imgMask1, imgMask1, cv::Mat(), cv::Point(-1, -1), filterval);    // 膨張
+            // 画像2
+            cv::erode(imgMask2, imgMask2, cv::Mat(), cv::Point(-1, -1), filterval);     // 収縮
+            cv::dilate(imgMask2, imgMask2, cv::Mat(), cv::Point(-1, -1), filterval);    // 膨張
+            break;
+        default:
+            break;
+        }
 
-    //----------------------------------------------------------------------------
-    // 画像処理
-    g_pSharedObject->GetParam(PARAM_ID_PIC_ALGORITHM, &algo);
-    // 画像1
-    if (maskValid1)
-    {
+        //----------------------------------------------------------------------------
+        // 画像処理
+        g_pSharedObject->GetParam(PARAM_ID_PIC_ALGORITHM, &algo);
+        // 画像1
         //----------------------------------------------------------------------------
         // 領域抽出(ROI)でターゲット認識
         // 輪郭抽出
@@ -223,26 +226,17 @@ void CAnalyst::ImageProc(void)
 
         //----------------------------------------------------------------------------
         // 重心位置計算
-        posX = 0;
-        posY = 0;
+        posX = 0.0;
+        posY = 0.0;
         if (algo == COG_ALGORITHM_ALL) {ret = CalcCenterOfGravity1(contours, &posX, &posY);}
         else                           {ret = CalcCenterOfGravity2(contours, &posX, &posY);}
 
         stProcData.posx   = posX;
         stProcData.posy   = posY;
         stProcData.enable = ret;
-    }
-    else
-    {
-        stProcData.posx   = 0;
-        stProcData.posy   = 0;
-        stProcData.enable = FALSE;
-    }
-    g_pSharedObject->SetProcData(IMGPROC_ID_IMG_1, stProcData);
+        g_pSharedObject->SetProcData(IMGPROC_ID_IMG_1, stProcData);
 
-    // 画像2
-    if (maskValid2)
-    {
+        // 画像2
         //----------------------------------------------------------------------------
         // 領域抽出(ROI)でターゲット認識
         // 輪郭抽出
@@ -253,69 +247,62 @@ void CAnalyst::ImageProc(void)
 
         //----------------------------------------------------------------------------
         // 重心位置計算
-        posX = 0;
-        posY = 0;
+        posX = 0.0;
+        posY = 0.0;
         if (algo == COG_ALGORITHM_ALL) {ret = CalcCenterOfGravity1(contours, &posX, &posY);}
         else                           {ret = CalcCenterOfGravity2(contours, &posX, &posY);}
-
         stProcData.posx   = posX;
         stProcData.posy   = posY;
         stProcData.enable = ret;
-    }
+
+        g_pSharedObject->SetProcData(IMGPROC_ID_IMG_2, stProcData);
+
+        //----------------------------------------------------------------------------
+        // 画像保存
+        // マスク画像1
+        if (m_iBufferImgMask1 == IMAGE_ID_MASK1_A)
+        {
+            g_pSharedObject->SetImage(IMAGE_ID_MASK1_A, imgMask1);
+            m_iBufferImgMask1 = IMAGE_ID_MASK1_B;
+        }
+        else
+        {
+            g_pSharedObject->SetImage(IMAGE_ID_MASK1_B, imgMask1);
+            m_iBufferImgMask1 = IMAGE_ID_MASK1_A;
+        }
+
+        // マスク画像2
+        if (m_iBufferImgMask2 == IMAGE_ID_MASK2_A)
+        {
+            g_pSharedObject->SetImage(IMAGE_ID_MASK2_A, imgMask2);
+            m_iBufferImgMask2 = IMAGE_ID_MASK2_B;
+        }
+        else
+        {
+            g_pSharedObject->SetImage(IMAGE_ID_MASK2_B, imgMask2);
+            m_iBufferImgMask2 = IMAGE_ID_MASK2_A;
+        }
+
+        // 処理画像
+        if (m_iBufferImgProc == IMAGE_ID_PROC_A)
+        {
+            g_pSharedObject->SetImage(IMAGE_ID_PROC_A, imgSrc);
+            m_iBufferImgProc = IMAGE_ID_PROC_B;
+        }
+        else
+        {
+            g_pSharedObject->SetImage(IMAGE_ID_PROC_B, imgSrc);
+            m_iBufferImgProc = IMAGE_ID_PROC_A;
+        }
+    }   // if (bImgEnable)
     else
     {
-        stProcData.posx   = 0;
-        stProcData.posy   = 0;
+        stProcData.posx   = 0.0;
+        stProcData.posy   = 0.0;
         stProcData.enable = FALSE;
+        g_pSharedObject->SetProcData(IMGPROC_ID_IMG_1, stProcData);
+        g_pSharedObject->SetProcData(IMGPROC_ID_IMG_2, stProcData);
     }
-    g_pSharedObject->SetProcData(IMGPROC_ID_IMG_2, stProcData);
-
-    //----------------------------------------------------------------------------
-    // 画像保存
-    // マスク画像1
-    if (m_iBufferImgMask1 == IMAGE_ID_MASK1_A)
-    {
-        g_pSharedObject->SetImage(IMAGE_ID_MASK1_A, imgMask1);
-        m_iBufferImgMask1 = IMAGE_ID_MASK1_B;
-    }
-    else
-    {
-        g_pSharedObject->SetImage(IMAGE_ID_MASK1_B, imgMask1);
-        m_iBufferImgMask1 = IMAGE_ID_MASK1_A;
-    }
-
-    // マスク画像2
-    if (m_iBufferImgMask2 == IMAGE_ID_MASK2_A)
-    {
-        g_pSharedObject->SetImage(IMAGE_ID_MASK2_A, imgMask2);
-        m_iBufferImgMask2 = IMAGE_ID_MASK2_B;
-    }
-    else
-    {
-        g_pSharedObject->SetImage(IMAGE_ID_MASK2_B, imgMask2);
-        m_iBufferImgMask2 = IMAGE_ID_MASK2_A;
-    }
-
-    // 処理画像
-    if (m_iBufferImgProc == IMAGE_ID_PROC_A)
-    {
-        g_pSharedObject->SetImage(IMAGE_ID_PROC_A, imgSrc);
-        m_iBufferImgProc = IMAGE_ID_PROC_B;
-    }
-    else
-    {
-        g_pSharedObject->SetImage(IMAGE_ID_PROC_B, imgSrc);
-        m_iBufferImgProc = IMAGE_ID_PROC_A;
-    }
-
-    //----------------------------------------------------------------------------
-    // 処理時間計測(終了時間取得)
-    LARGE_INTEGER    end;
-    QueryPerformanceCounter(&end);
-    LONGLONG span = end.QuadPart - start.QuadPart;
-    LONGLONG usec = (span * 1000000L) / frequency.QuadPart;
-
-    g_pSharedObject->SetParam(PARAM_ID_DOUBLE_PROC_TIME, (DOUBLE)usec / 1000.0);
 }
 
 /// @brief 傾斜計データ処理

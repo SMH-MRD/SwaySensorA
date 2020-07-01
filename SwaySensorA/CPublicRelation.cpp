@@ -57,188 +57,224 @@ void CPublicRelation::routine_work(void *param)
     ws << L"Act: " << std::setw(2) << *(inf.psys_counter) % 100;
     tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
-    DOUBLE  port1Ma, port2Ma, port1Angle, port2Angle;
-    TCHAR   msg[10];
+    HBITMAP         bmp;                        // 画像(bitmapファイル)
+    stMngProcData   stProcData[IMGPROC_ID_MAX]; // 画像処理データ
+    cv::Mat         imgProc;                    // 処理画像
+    cv::Mat         imgMask;                    // マスク画像
+    cv::Mat         imgDisp;                    // 表示画像
+    BOOL            bImgEnable = FALSE;
+    INT             x0, y0, x1, y1;
+    DOUBLE          dVal;
+    UINT32          iVal;
+    TCHAR           msg[16];
 
     //----------------------------------------------------------------------------
-    // 傾斜計データ更新
-    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_ANALOG, &port1Ma) == RESULT_OK)
+    // 画像処理データ
+    // 画像1
+    if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_1, &stProcData[IMGPROC_ID_IMG_1]) != RESULT_OK)
     {
-        if (!isnan(port1Ma))    {_stprintf_s(msg, TEXT("%.3f"), port1Ma);       SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_X), msg);}
-        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_X), msg);}
+        stProcData[IMGPROC_ID_IMG_1].posx   = 0.0;
+        stProcData[IMGPROC_ID_IMG_1].posy   = 0.0;
+        stProcData[IMGPROC_ID_IMG_1].enable = FALSE;
     }
-    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_2_ANALOG, &port2Ma) == RESULT_OK)
+    // 画像2
+    if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_2, &stProcData[IMGPROC_ID_IMG_2]) != RESULT_OK)
     {
-        if (!isnan(port2Ma))    {_stprintf_s(msg, TEXT("%.3f"), port2Ma);       SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_Y), msg);}
-        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_Y), msg);}
-    }
-    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_RAD, &port1Angle) == RESULT_OK)
-    {
-        if (!isnan(port1Angle)) {_stprintf_s(msg, TEXT("%.3f"), port1Angle);    SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_X_DEG), msg);}
-        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_X_DEG), msg);}
-    }
-    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_RAD, &port2Angle) == RESULT_OK)
-    {
-        if (!isnan(port2Angle)) {_stprintf_s(msg, TEXT("%.3f"), port2Angle);    SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_Y_DEG), msg);}
-        else                    {_stprintf_s(msg, TEXT("-"));                   SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_INC_Y_DEG), msg);}
-    }
-
-    //----------------------------------------------------------------------------
-    // フレームレート更新
-    UINT32 frameRate;
-    if (g_pSharedObject->GetParam(PARAM_ID_CAM_READ_FRAMERATE, &frameRate) == RESULT_OK)
-    {
-        _stprintf_s(msg, TEXT("%d"), frameRate);
-        SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_FPS), msg);
+        stProcData[IMGPROC_ID_IMG_2].posx   = 0.0;
+        stProcData[IMGPROC_ID_IMG_2].posy   = 0.0;
+        stProcData[IMGPROC_ID_IMG_2].enable = FALSE;
     }
 
     //----------------------------------------------------------------------------
-    // 画像更新
-    HBITMAP         bmp;        // 画像(bitmapファイル)
-    stMngProcData   stProcData;
-    cv::Mat         imgProc;    // 処理画像
-    cv::Mat         imgDisp;    // 表示画像
+    // 計測値表示
+    // 重心位置
+    if (stProcData[IMGPROC_ID_IMG_1].enable)
+    {
+        _stprintf_s(msg, TEXT("%.1f"), stProcData[IMGPROC_ID_IMG_1].posx);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X1), msg);
+        _stprintf_s(msg, TEXT("%.1f"), stProcData[IMGPROC_ID_IMG_1].posy);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y1), msg);
+    }
+    else
+    {
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X1), msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y1), msg);
+    }
+    if (stProcData[IMGPROC_ID_IMG_2].enable)
+    {
+        _stprintf_s(msg, TEXT("%.1f"), stProcData[IMGPROC_ID_IMG_2].posx);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X2), msg);
+        _stprintf_s(msg, TEXT("%.1f"), stProcData[IMGPROC_ID_IMG_2].posy);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y2), msg);
+    }
+    else
+    {
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X2), msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y2), msg);
+    }
+
+    // 傾斜計データ
+    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_ANALOG, &dVal) == RESULT_OK)
+    {
+        if (!isnan(dVal))    {_stprintf_s(msg, TEXT("%.1f"), dVal); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_X), msg);}
+        else                 {_stprintf_s(msg, TEXT("-"));          SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_X), msg);}
+    }
+    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_2_ANALOG, &dVal) == RESULT_OK)
+    {
+        if (!isnan(dVal))    {_stprintf_s(msg, TEXT("%.1f"), dVal); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_Y), msg);}
+        else                 {_stprintf_s(msg, TEXT("-"));          SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_Y), msg);}
+    }
+    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_RAD, &dVal) == RESULT_OK)
+    {
+        if (!isnan(dVal))   {_stprintf_s(msg, TEXT("%.3f"), dVal);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_X_DEG), msg);}
+        else                {_stprintf_s(msg, TEXT("-"));           SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_X_DEG), msg);}
+    }
+    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_RAD, &dVal) == RESULT_OK)
+    {
+        if (!isnan(dVal))   {_stprintf_s(msg, TEXT("%.3f"), dVal);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_Y_DEG), msg);}
+        else                {_stprintf_s(msg, TEXT("-"));           SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_Y_DEG), msg);}
+    }
+
+    // フレームレート
+    if (g_pSharedObject->GetParam(PARAM_ID_CAM_READ_FRAMERATE, &iVal) == RESULT_OK)
+    {
+        _stprintf_s(msg, TEXT("%d"), iVal);
+        SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_FPS), msg);
+    }
+
+    // 画像取込時間
+    g_pSharedObject->GetParam(PARAM_ID_DOUBLE_IMG_GRAB_TIME, &dVal);
+    if (!isnan(dVal))
+    {
+        _stprintf_s(msg, TEXT("%d"), (int)dVal);
+        SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_IMG_GRAB_TIME), msg);
+    }
+
+    // 処理時間
+    g_pSharedObject->GetParam(PARAM_ID_DOUBLE_PROC_TIME, &dVal);
+    if (!isnan(dVal))
+    {
+        _stprintf_s(msg, TEXT("%d"), (int)dVal);
+        SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_PROC_TIME), msg);
+    }
 
     //----------------------------------------------------------------------------
     // 処理画像読込み
-    if (g_pSharedObject->GetImage(IMAGE_ID_PROC_A, &imgProc) != RESULT_OK)
+    if (g_pSharedObject->GetImage(IMAGE_ID_PROC_A, &imgProc) == RESULT_OK)
     {
-        if (g_pSharedObject->GetImage(IMAGE_ID_PROC_B, &imgProc) != RESULT_OK) {return;}    // 成功以外のため、終了
-    }
-
-    //----------------------------------------------------------------------------
-    // 保存用に最新画像を保持しておく
-    imgProc.copyTo(m_mtSaveImage);
-
-    //----------------------------------------------------------------------------
-    // カーソル表示
-    if (m_bCursor)
-    {
-        cv::line(m_mtSaveImage, Point(0, m_pntCursor.y), Point((imgProc.cols - 1), m_pntCursor.y), Scalar(255, 255, 255), (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
-        cv::line(m_mtSaveImage, Point(m_pntCursor.x, 0), Point(m_pntCursor.x, (imgProc.rows - 1)), Scalar(255, 255, 255), (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
-    }
-
-    //----------------------------------------------------------------------------
-    // 検出位置表示
-    INT x0, y0, x1, y1;
-    // 画像1処理
-    if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_1, &stProcData) != RESULT_OK)
-    {
-         stProcData.posx   = 0.0;
-         stProcData.posy   = 0.0;
-         stProcData.enable = FALSE;
-    }
-    if (stProcData.enable)
-    {
-        x0 = (INT)stProcData.posx - 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y0 = (INT)stProcData.posy;
-        x1 = (INT)stProcData.posx + 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y1 = (INT)stProcData.posy;
-        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2*(INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
-
-        x0 = (INT)stProcData.posx;  y0 = (INT)stProcData.posy - 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
-        x1 = (INT)stProcData.posx;  y1 = (INT)stProcData.posy + 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
-        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2*(INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
-    }
-    // 画像2処理
-    if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_2, &stProcData) != RESULT_OK)
-    {
-         stProcData.posx   = 0.0;
-         stProcData.posy   = 0.0;
-         stProcData.enable = FALSE;
-    }
-    if (stProcData.enable)
-    {
-        x0 = (INT)stProcData.posx - 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y0 = (INT)stProcData.posy;
-        x1 = (INT)stProcData.posx + 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y1 = (INT)stProcData.posy;
-        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2 * (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
-
-        x0 = (INT)stProcData.posx;  y0 = (INT)stProcData.posy - 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
-        x1 = (INT)stProcData.posx;  y1 = (INT)stProcData.posy + 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
-        cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2 * (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
-    }
-    resize(m_mtSaveImage, imgDisp, cv::Size(), DISP_IMG_WIDTH / imgProc.cols, DISP_IMG_HEIGHT / imgProc.rows);
-
-    if (m_bCursor)
-    {
-        cv::Mat imgHSV;
-        cv::cvtColor(imgProc, imgHSV, COLOR_BGR2HSV);
-        int H = imgHSV.data[m_pntCursor.y * imgHSV.step + m_pntCursor.x * imgHSV.elemSize() + 0];
-        int S = imgHSV.data[m_pntCursor.y * imgHSV.step + m_pntCursor.x * imgHSV.elemSize() + 1];
-        int V = imgHSV.data[m_pntCursor.y * imgHSV.step + m_pntCursor.x * imgHSV.elemSize() + 2];
-        cv::putText(imgDisp, cv::format("(%d,%d)H:%03d S:%03d V:%03d", m_pntCursor.x, m_pntCursor.y, H, S, V), cv::Point(5, (int)DISP_IMG_HEIGHT - 5), cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255, 255, 255), 1);
-    }
-
-    char* ColorBuf = (char*)calloc(imgDisp.cols * imgDisp.rows * 4, sizeof(RGBQUAD));
-    for (int y = 0; y < imgDisp.rows; y++)
-    {
-        for (int x = 0; x < imgDisp.cols; x++)
-        {
-            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 0] = imgDisp.data[y * imgDisp.step + x * 3 + 0];  // Blue
-            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 1] = imgDisp.data[y * imgDisp.step + x * 3 + 1];  // Green
-            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 2] = imgDisp.data[y * imgDisp.step + x * 3 + 2];  // Red
-            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 3] = 0;                                           // Reserved
-        }
-    }
-    bmp = CreateBitmap(imgDisp.cols, imgDisp.rows, 1, 32, ColorBuf);
-    free(ColorBuf);
-
-    SendMessage(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_RAW), STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)bmp);
-    DeleteObject(bmp);
-
-    //----------------------------------------------------------------------------
-    cv::Mat imgMask;
-    if (m_iSelImg == 0)
-    {
-        if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_A, &imgMask) != RESULT_OK)
-        {
-            if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
-        }
+        bImgEnable = TRUE;
     }
     else
     {
-        if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_A, &imgMask) != RESULT_OK)
+        if (g_pSharedObject->GetImage(IMAGE_ID_PROC_B, &imgProc) == RESULT_OK)
         {
-            if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
+            bImgEnable = TRUE;
         }
-    }
-    resize(imgMask, imgDisp, cv::Size(), DISP_IMG_WIDTH / imgMask.cols, DISP_IMG_HEIGHT / imgMask.rows);
-
-    ColorBuf = (char*)calloc(imgDisp.cols * imgDisp.rows * 4, sizeof(RGBQUAD));
-    for (int y = 0; y < imgDisp.rows; y++)
-    {
-        for (int x = 0; x < imgDisp.cols; x++)
-        {
-            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 0] = imgDisp.data[y * imgDisp.step + x];  // Blue
-            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 1] = imgDisp.data[y * imgDisp.step + x];  // Green
-            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 2] = imgDisp.data[y * imgDisp.step + x];  // Red
-            ColorBuf[y * imgDisp.cols * 4 + x * 4 + 3] = 0;                                   // Reserved
-        }
-    }
-    bmp = CreateBitmap(imgDisp.cols, imgDisp.rows, 1, 32, ColorBuf);
-    free(ColorBuf);
-
-    SendMessage(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_MASK), STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)bmp);
-    DeleteObject(bmp);
-
-    //----------------------------------------------------------------------------
-    if (stProcData.enable)
-    {
-        _stprintf_s(msg, TEXT("%.3f"), stProcData.posx);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_X), msg);
-        _stprintf_s(msg, TEXT("%.3f"), stProcData.posy);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_Y), msg);
-    }
-    else
-    {
-        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_X), msg);
-        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_Y), msg);
     }
 
     //----------------------------------------------------------------------------
-    DOUBLE procTime;
-    g_pSharedObject->GetParam(PARAM_ID_DOUBLE_PROC_TIME, &procTime);
-    if (!isnan(procTime))
+    if (bImgEnable)
     {
-        _stprintf_s(msg, TEXT("%.3f"), procTime);
-        SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_PROC_TIME), msg);
-    }
+        //----------------------------------------------------------------------------
+        // 保存用に最新画像を保持しておく
+        imgProc.copyTo(m_mtSaveImage);
+
+        //----------------------------------------------------------------------------
+        // カーソル表示
+        if (m_bCursor)
+        {
+            cv::line(m_mtSaveImage, Point(0, m_pntCursor.y), Point((imgProc.cols - 1), m_pntCursor.y), Scalar(255, 255, 255), (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
+            cv::line(m_mtSaveImage, Point(m_pntCursor.x, 0), Point(m_pntCursor.x, (imgProc.rows - 1)), Scalar(255, 255, 255), (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
+        }
+
+        //----------------------------------------------------------------------------
+        // 検出位置表示
+        // 画像1
+        if (stProcData[IMGPROC_ID_IMG_1].enable)
+        {
+            x0 = (INT)stProcData[IMGPROC_ID_IMG_1].posx - 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y0 = (INT)stProcData[IMGPROC_ID_IMG_1].posy;
+            x1 = (INT)stProcData[IMGPROC_ID_IMG_1].posx + 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y1 = (INT)stProcData[IMGPROC_ID_IMG_1].posy;
+            cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2*(INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
+
+            x0 = (INT)stProcData[IMGPROC_ID_IMG_1].posx;  y0 = (INT)stProcData[IMGPROC_ID_IMG_1].posy - 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
+            x1 = (INT)stProcData[IMGPROC_ID_IMG_1].posx;  y1 = (INT)stProcData[IMGPROC_ID_IMG_1].posy + 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
+            cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2*(INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
+        }
+        // 画像2
+        if (stProcData[IMGPROC_ID_IMG_2].enable)
+        {
+            x0 = (INT)stProcData[IMGPROC_ID_IMG_2].posx - 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y0 = (INT)stProcData[IMGPROC_ID_IMG_2].posy;
+            x1 = (INT)stProcData[IMGPROC_ID_IMG_2].posx + 10 * (INT)(imgProc.cols / DISP_IMG_WIDTH);  y1 = (INT)stProcData[IMGPROC_ID_IMG_2].posy;
+            cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2 * (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
+
+            x0 = (INT)stProcData[IMGPROC_ID_IMG_2].posx;  y0 = (INT)stProcData[IMGPROC_ID_IMG_2].posy - 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
+            x1 = (INT)stProcData[IMGPROC_ID_IMG_2].posx;  y1 = (INT)stProcData[IMGPROC_ID_IMG_2].posy + 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
+            cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2 * (INT)(imgProc.cols / DISP_IMG_WIDTH), 4);
+        }
+        resize(m_mtSaveImage, imgDisp, cv::Size(), DISP_IMG_WIDTH / imgProc.cols, DISP_IMG_HEIGHT / imgProc.rows);
+
+        //----------------------------------------------------------------------------
+        // H,S,V表示
+        if (m_bCursor)
+        {
+            cv::Mat imgHSV;
+            cv::cvtColor(imgProc, imgHSV, COLOR_BGR2HSV);
+            int H = imgHSV.data[m_pntCursor.y * imgHSV.step + m_pntCursor.x * imgHSV.elemSize() + 0];
+            int S = imgHSV.data[m_pntCursor.y * imgHSV.step + m_pntCursor.x * imgHSV.elemSize() + 1];
+            int V = imgHSV.data[m_pntCursor.y * imgHSV.step + m_pntCursor.x * imgHSV.elemSize() + 2];
+            cv::putText(imgDisp, cv::format("(%d,%d)H:%03d S:%03d V:%03d", m_pntCursor.x, m_pntCursor.y, H, S, V), cv::Point(5, (int)DISP_IMG_HEIGHT - 5), cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255, 255, 255), 1);
+        }
+
+        //----------------------------------------------------------------------------
+        // 元画像表示
+        char* ColorBuf = (char*)calloc(imgDisp.cols * imgDisp.rows * 4, sizeof(RGBQUAD));
+        for (int y = 0; y < imgDisp.rows; y++)
+        {
+            for (int x = 0; x < imgDisp.cols; x++)
+            {
+                ColorBuf[y * imgDisp.cols * 4 + x * 4 + 0] = imgDisp.data[y * imgDisp.step + x * 3 + 0];  // Blue
+                ColorBuf[y * imgDisp.cols * 4 + x * 4 + 1] = imgDisp.data[y * imgDisp.step + x * 3 + 1];  // Green
+                ColorBuf[y * imgDisp.cols * 4 + x * 4 + 2] = imgDisp.data[y * imgDisp.step + x * 3 + 2];  // Red
+                ColorBuf[y * imgDisp.cols * 4 + x * 4 + 3] = 0;                                           // Reserved
+            }
+        }
+        bmp = CreateBitmap(imgDisp.cols, imgDisp.rows, 1, 32, ColorBuf);
+        free(ColorBuf);
+
+        SendMessage(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_RAW), STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)bmp);
+        DeleteObject(bmp);
+
+        //----------------------------------------------------------------------------
+        // マスク画像表示
+        if (m_iSelImg == 0)
+        {
+            if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_A, &imgMask) != RESULT_OK)
+            {
+                if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
+            }
+        }
+        else
+        {
+            if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_A, &imgMask) != RESULT_OK)
+            {
+                if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
+            }
+        }
+        resize(imgMask, imgDisp, cv::Size(), DISP_IMG_WIDTH / imgMask.cols, DISP_IMG_HEIGHT / imgMask.rows);
+
+        ColorBuf = (char*)calloc(imgDisp.cols * imgDisp.rows * 4, sizeof(RGBQUAD));
+        for (int y = 0; y < imgDisp.rows; y++)
+        {
+            for (int x = 0; x < imgDisp.cols; x++)
+            {
+                ColorBuf[y * imgDisp.cols * 4 + x * 4 + 0] = imgDisp.data[y * imgDisp.step + x];  // Blue
+                ColorBuf[y * imgDisp.cols * 4 + x * 4 + 1] = imgDisp.data[y * imgDisp.step + x];  // Green
+                ColorBuf[y * imgDisp.cols * 4 + x * 4 + 2] = imgDisp.data[y * imgDisp.step + x];  // Red
+                ColorBuf[y * imgDisp.cols * 4 + x * 4 + 3] = 0;                                   // Reserved
+            }
+        }
+        bmp = CreateBitmap(imgDisp.cols, imgDisp.rows, 1, 32, ColorBuf);
+        free(ColorBuf);
+
+        SendMessage(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_MASK), STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)bmp);
+        DeleteObject(bmp);
+    }   // if (bImgEnable)
 
     return;
 }
@@ -562,6 +598,8 @@ void CPublicRelation::set_PNLparam_value(float p1, float p2, float p3, float p4,
 /// @note
 HWND CPublicRelation::OpenCameraPanel()
 {
+    TCHAR msg[10];
+
     if (m_hCamDlg == NULL)
     {
         m_hCamDlg = CreateDialog(inf.hInstance, MAKEINTRESOURCE(IDD_DIALOG_CAMMAIN), nullptr, (DLGPROC)CameraWndProc);
@@ -569,18 +607,10 @@ HWND CPublicRelation::OpenCameraPanel()
         MoveWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_MASK), DISP_IMG_MSK_X0, DISP_IMG_MSK_Y0, (int)DISP_IMG_WIDTH, (int)DISP_IMG_HEIGHT, false);
         ShowWindow(m_hCamDlg, SW_SHOW);
 
-        TCHAR msg[10];
-        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_X), msg);
-        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_EDIT_GRV_Y), msg);
-
         HWND    wndhdl;
         UINT32  val;
         //----------------------------------------------------------------------------
         // 画像1
-        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_VALID, &val);
-        wndhdl = GetDlgItem(m_hCamDlg, IDC_CHECK_MASK1);
-        if(val) {SendMessage(wndhdl, BM_SETCHECK, BST_CHECKED,   0);}
-        else    {SendMessage(wndhdl, BM_SETCHECK, BST_UNCHECKED, 0);}
         // 色相H(Low)
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK1_HLOW, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_H1_LOW);
@@ -638,10 +668,6 @@ HWND CPublicRelation::OpenCameraPanel()
 
         //----------------------------------------------------------------------------
         // 画像2
-        g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_VALID, &val);
-        wndhdl = GetDlgItem(m_hCamDlg, IDC_CHECK_MASK2);
-        if (val) {SendMessage(wndhdl, BM_SETCHECK, BST_CHECKED,   0);}
-        else     {SendMessage(wndhdl, BM_SETCHECK, BST_UNCHECKED, 0);}
         // 色相H(Low)
         g_pSharedObject->GetParam(PARAM_ID_PIC_MASK2_HLOW, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_H2_LOW);
@@ -745,6 +771,19 @@ HWND CPublicRelation::OpenCameraPanel()
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0, 1);             // クリック時の移動量
         wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_CAMERA_EXPOSURE);
         _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+
+        //----------------------------------------------------------------------------
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X1),        msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X2),        msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y1),        msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y1),        msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_X),         msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_Y),         msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_X_DEG),     msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_Y_DEG),     msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_FPS),           msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_IMG_GRAB_TIME), msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_PROC_TIME),     msg);
     }
     return m_hCamDlg;
 }
@@ -886,11 +925,11 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
         switch (wmId)
         {
         case IDC_BUTTON_CAM_START:
-            g_pSharedObject->SetParam(PARAM_ID_CAM_PROC, (UINT32)TRUE);
+            g_pSharedObject->SetParam(PARAM_ID_IMG_GRAB_CAMERA, (UINT32)TRUE);
             EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_IMG_PROC), FALSE);
             break;
         case IDC_BUTTON_CAM_STOP:
-            g_pSharedObject->SetParam(PARAM_ID_CAM_PROC, (UINT32)FALSE);
+            g_pSharedObject->SetParam(PARAM_ID_IMG_GRAB_CAMERA, (UINT32)FALSE);
             EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_IMG_PROC), TRUE);
             break;
         case IDC_BUTTON_SAVE:
@@ -925,7 +964,7 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
                     if (ret == 0)
                     {
                         g_pSharedObject->SetParam(PARAM_ID_STR_PROC_FILENAME, str);
-                        g_pSharedObject->SetParam(PARAM_ID_PIC_PROC_FLAG,     (UINT32)TRUE);
+                        g_pSharedObject->SetParam(PARAM_ID_IMG_GRAB_FILE,     (UINT32)TRUE);
                     }
                     free(cstr);
                 }
@@ -992,26 +1031,6 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
             else                                            {pos += 1;}
             if (pos >= height) {pos = 0;}
             m_pntCursor.y = pos;
-            }
-            break;
-        case IDC_CHECK_MASK1:
-            if (BST_CHECKED == SendMessage(GetDlgItem(m_hCamDlg, IDC_CHECK_MASK1), BM_GETCHECK, 0, 0))
-            {
-                g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VALID, (UINT32)TRUE);
-            }
-            else
-            {
-                g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VALID, (UINT32)FALSE);
-            }
-            break;
-        case IDC_CHECK_MASK2:
-            if (BST_CHECKED == SendMessage(GetDlgItem(m_hCamDlg, IDC_CHECK_MASK2), BM_GETCHECK, 0, 0))
-            {
-                g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VALID, (UINT32)TRUE);
-            }
-            else
-            {
-                g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VALID, (UINT32)FALSE);
             }
             break;
         case IDC_COMBO_IMG:

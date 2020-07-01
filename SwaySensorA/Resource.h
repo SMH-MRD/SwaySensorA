@@ -38,11 +38,9 @@
 #define IDC_CHECK_TASK_OPTION2          1004
 #define IDC_STATIC_TITLE_INC_X          1004
 #define IDC_RADIO_TASK_FUNC1            1005
-#define IDC_STATIC_TITLE_INC_Y          1005
 #define IDC_RADIO_TASK_FUNC2            1006
 #define IDC_STATIC_TITLE_INC_X_DEG      1006
 #define IDC_RADIO_TASK_FUNC3            1007
-#define IDC_STATIC_TITLE_INC_Y_DEG      1007
 #define IDC_RADIO_TASK_FUNC4            1008
 #define IDC_STATIC_TITLE_FPS            1008
 #define IDC_RADIO_TASK_FUNC5            1009
@@ -56,7 +54,7 @@
 #define IDC_RADIO_TASK_ITEM1            1013
 #define IDC_SLIDER_H1_LOW               1013
 #define IDC_RADIO_TASK_ITEM2            1014
-#define IDC_CHECK_MASK1                 1014
+#define IDC_STATIC_TITLE_IMG_GRAB_TIME  1014
 #define IDC_RADIO_TASK_ITEM3            1015
 #define IDC_STATIC_VAL_H1_LOW           1015
 #define IDC_RADIO_TASK_ITEM4            1016
@@ -89,7 +87,6 @@
 #define IDC_STATIC_TASK_VAL3            1030
 #define IDC_STATIC_VAL_H2_LOW           1030
 #define IDC_STATIC_TASK_VAL4            1031
-#define IDC_CHECK_MASK2                 1031
 #define IDC_STATIC_TASK_VAL5            1032
 #define IDC_SLIDER_H2_UPP               1032
 #define IDC_STATIC_TASK_VAL6            1033
@@ -116,25 +113,29 @@
 #define IDC_STATIC_GBX_CAMERA_EXPOSURE  1055
 #define IDC_SLIDER_CAMERA_EXPOSURE      1059
 #define IDC_STATIC_VAL_CAMERA_EXPOSURE  1060
+#define IDC_STATIC_GRV_X1               1062
+#define IDC_STATIC_GRV_X2               1063
+#define IDC_STATIC_GRV_Y1               1064
+#define IDC_STATIC_GRV_Y2               1065
+#define IDC_STATIC_INC_X                1066
+#define IDC_STATIC_INC_Y                1067
+#define IDC_STATIC_INC_X_DEG            1068
+#define IDC_STATIC_INC_Y_DEG            1069
+#define IDC_STATIC_FPS                  1070
+#define IDC_STATIC_PROC_TIME            1071
+#define IDC_STATIC_IMG_GRAB             1072
+#define IDC_STATIC_IMG_GRAB_TIME        1072
 #define IDC_BUTTON_CAM_START            2002
 #define IDC_BUTTON_CURSOR_L             2028
-#define IDC_EDIT_GRV_X                  2029
-#define IDC_EDIT_GRV_Y                  2030
 #define IDC_BUTTON_CAM_STOP             2031
 #define IDC_BUTTON_CURSOR_R             2032
 #define IDC_BUTTON_CURSOR_U             2033
 #define IDC_BUTTON_CURSOR_D             2034
-#define IDC_EDIT_INC_X_DEG              2036
-#define IDC_EDIT_INC_Y_DEG              2037
-#define IDC_EDIT_FPS                    2039
 #define IDC_STATIC_IMAGE_MASK           2040
 #define IDC_BUTTON_SAVE                 2041
-#define IDC_EDIT_INC_X                  2042
-#define IDC_EDIT_INC_Y                  2043
 #define IDC_STATIC_IMAGE_RAW            2045
 #define IDC_BUTTON_SET                  2053
 #define IDC_BUTTON_IMG_PROC             2057
-#define IDC_EDIT_PROC_TIME              2059
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -144,7 +145,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        156
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1062
+#define _APS_NEXT_CONTROL_VALUE         1063
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

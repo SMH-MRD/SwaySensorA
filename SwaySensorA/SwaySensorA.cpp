@@ -594,8 +594,8 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
         pobj->inf.psys_counter = &knl_manage_set.sys_counter;   // システムカウンタ(基本周期でカウント）参照アドレスセット
         pobj->inf.act_count = 0;                                // 起動チェック用カウンタリセット
 
-        if (pobj->inf.cycle_ms >= SYSTEM_TICK_ms) { pobj->inf.cycle_count = pobj->inf.cycle_ms / SYSTEM_TICK_ms; }   // タスクスレッド起動を掛けるカウント値設定
-        else                                      { pobj->inf.cycle_count = 1; }
+        if (pobj->inf.cycle_ms >= SYSTEM_TICK_ms) {pobj->inf.cycle_count = pobj->inf.cycle_ms / SYSTEM_TICK_ms;}   // タスクスレッド起動を掛けるカウント値設定
+        else                                      {pobj->inf.cycle_count = 1;}
 
         pobj->init_task(pobj);  // 最後にタスク固有初期化関数呼び出し
     }
@@ -736,7 +736,6 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
     //--------------------------------------------------------------------------
     // 画像処理設定
     // 画像1設定
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_VALID, L"0", INITYPE_INT, &(pInf->mask1Valid));  // 画像1マスク有効設定
     CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_LOW, L"0,0,0", INITYPE_CHAR, str);               // 画像1マスク下限(H,S,V)
     if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask1HLow, &pInf->mask1SLow, &pInf->mask1VLow))
     {
@@ -752,7 +751,6 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
         pInf->mask1VUpp = 0;
     }
     // 画像2設定
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_VALID, L"0", INITYPE_INT, &(pInf->mask2Valid));  // 画像2マスク有効設定
     CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_LOW, L"0,0,0", INITYPE_CHAR, str);               // 画像2マスク下限(H,S,V)
     if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask2HLow, &pInf->mask2SLow, &pInf->mask2VLow))
     {
@@ -822,23 +820,21 @@ void CreateSharedData(void)
 
     //--------------------------------------------------------------------------
     // 画像処理設定
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VALID, (UINT32)ini.mask1Valid);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_HLOW,  (UINT32)ini.mask1HLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_HUPP,  (UINT32)ini.mask1HUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_SLOW,  (UINT32)ini.mask1SLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_SUPP,  (UINT32)ini.mask1SUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VLOW,  (UINT32)ini.mask1VLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VUPP,  (UINT32)ini.mask1VUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VALID, (UINT32)ini.mask2Valid);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_HLOW,  (UINT32)ini.mask2HLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_HUPP,  (UINT32)ini.mask2HUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_SLOW,  (UINT32)ini.mask2SLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_SUPP,  (UINT32)ini.mask2SUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VLOW,  (UINT32)ini.mask2VLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VUPP,  (UINT32)ini.mask2VUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_NOISEFILTER, (UINT32)ini.noiseFilter);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_HLOW,     (UINT32)ini.mask1HLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_HUPP,     (UINT32)ini.mask1HUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_SLOW,     (UINT32)ini.mask1SLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_SUPP,     (UINT32)ini.mask1SUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VLOW,     (UINT32)ini.mask1VLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VUPP,     (UINT32)ini.mask1VUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_HLOW,     (UINT32)ini.mask2HLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_HUPP,     (UINT32)ini.mask2HUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_SLOW,     (UINT32)ini.mask2SLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_SUPP,     (UINT32)ini.mask2SUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VLOW,     (UINT32)ini.mask2VLow);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VUPP,     (UINT32)ini.mask2VUpp);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_NOISEFILTER,    (UINT32)ini.noiseFilter);
     g_pSharedObject->SetParam(PARAM_ID_PIC_NOISEFILTERVAL, (UINT32)ini.noiseFilterVal);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_ALGORITHM,   (UINT32)ini.algorithm);
+    g_pSharedObject->SetParam(PARAM_ID_PIC_ALGORITHM,      (UINT32)ini.algorithm);
 
     //--------------------------------------------------------------------------
     // RIO設定

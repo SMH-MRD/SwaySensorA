@@ -38,21 +38,19 @@ enum
 //傾斜計/カメラ制御用パラメータ　INDEX
 enum
 {
-    PARAM_ID_CAM_PROC = 0,          // カメラ制御
+    PARAM_ID_IMG_GRAB_CAMERA = 0,   // 画像取込み(カメラ)
+    PARAM_ID_IMG_GRAB_FILE,         // 画像取込み(ファイル)
     PARAM_ID_CAM_EXPOSURE_TIME,     // カメラ設定(露光時間)
     PARAM_ID_CAM_FRAMERATE,         // カメラ設定(フレームレート)
     PARAM_ID_CAM_WIDTH,             // カメラ設定(キャプチャサイズ横幅)
     PARAM_ID_CAM_HEIGHT,            // カメラ設定(キャプチャサイズ高さ)
     PARAM_ID_CAM_READ_FRAMERATE,    // カメラ読出し(フレームレート)
-    PARAM_ID_PIC_PROC_FLAG,         // 画像解析実行フラグ
-    PARAM_ID_PIC_MASK1_VALID,       // 画像処理設定(画像マスク1有効無効)
     PARAM_ID_PIC_MASK1_HLOW,        // 画像処理設定(画像マスク1(H)下限)
     PARAM_ID_PIC_MASK1_HUPP,        // 画像処理設定(画像マスク1(H)上限)
     PARAM_ID_PIC_MASK1_SLOW,        // 画像処理設定(画像マスク1(S)下限)
     PARAM_ID_PIC_MASK1_SUPP,        // 画像処理設定(画像マスク1(S)上限)
     PARAM_ID_PIC_MASK1_VLOW,        // 画像処理設定(画像マスク1(V)下限)
     PARAM_ID_PIC_MASK1_VUPP,        // 画像処理設定(画像マスク1(V)上限)
-    PARAM_ID_PIC_MASK2_VALID,       // 画像処理設定(画像マスク2有効無効)
     PARAM_ID_PIC_MASK2_HLOW,        // 画像処理設定(画像マスク2(H)下限)
     PARAM_ID_PIC_MASK2_HUPP,        // 画像処理設定(画像マスク2(H)上限)
     PARAM_ID_PIC_MASK2_SLOW,        // 画像処理設定(画像マスク2(S)下限)
@@ -79,7 +77,8 @@ enum
 
 enum
 {
-    PARAM_ID_DOUBLE_PROC_TIME = 0,  // 画処理時間
+    PARAM_ID_DOUBLE_IMG_GRAB_TIME = 0,  // 画像取込み時間
+    PARAM_ID_DOUBLE_PROC_TIME,          // 画処理時間
     PARAM_ID_DOUBLE_MAX
 };
 

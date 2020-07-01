@@ -55,8 +55,16 @@ void CComCamera::routine_work(void *param)
     else                                {inf.cycle_count = 1;}
 
     UINT32 camProc, imageProc;
-    if (g_pSharedObject->GetParam(PARAM_ID_CAM_PROC,      &camProc)   != RESULT_OK) {return;}
-    if (g_pSharedObject->GetParam(PARAM_ID_PIC_PROC_FLAG, &imageProc) != RESULT_OK) {return;}
+    if (g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_CAMERA, &camProc)   != RESULT_OK) {return;}
+    if (g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_FILE,   &imageProc) != RESULT_OK) {return;}
+
+    //----------------------------------------------------------------------------
+    // 処理時間計測(開始時間取得)
+    LARGE_INTEGER   frequency;
+    LARGE_INTEGER   start;
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&start);
+
     if (camProc)
     {
         //----------------------------------------------------------------------------
@@ -78,6 +86,17 @@ void CComCamera::routine_work(void *param)
         ImageProcStart();
     }
     else ;
+
+    //----------------------------------------------------------------------------
+    // 処理時間計測(終了時間取得)
+    LARGE_INTEGER   end;
+    LONGLONG        span, usec;
+    QueryPerformanceCounter(&end);
+    span = end.QuadPart - start.QuadPart;
+    usec = (span * 1000000L) / frequency.QuadPart;
+    g_pSharedObject->SetParam(PARAM_ID_DOUBLE_IMG_GRAB_TIME, (DOUBLE)usec / 1000.0);
+
+    return;
 }
 
 /// @brief カメラ撮影処理
@@ -173,14 +192,6 @@ void CComCamera::CaptureImage(void)
 
     wstring out_string;	wstring wstr; string str;
 
-    // 処理時間計測(開始時間取得)
-    LARGE_INTEGER   frequency;
-    LARGE_INTEGER   start, end;
-    LONGLONG        span, usec;
-
-    QueryPerformanceFrequency(&frequency);
-    QueryPerformanceCounter(&start);
-
     // Declare an integer variable to count the number of grabbed images and create image file names with ascending number.
     static int grabbedImages = 0;
     try
@@ -260,11 +271,6 @@ void CComCamera::CaptureImage(void)
             }
             else ;
         }
-
-        // 処理時間計測(終了時間取得)
-        QueryPerformanceCounter(&end);
-        span = end.QuadPart - start.QuadPart;
-        usec = (span * 1000000L) / frequency.QuadPart;
     }
     catch (GenICam::GenericException & e)   // エラーハンドリング
     {
@@ -283,7 +289,7 @@ void CComCamera::CaptureImage(void)
 /// @note
 void CComCamera::ImageProcStart(void)
 {
-//  g_pSharedObject->SetParam(PARAM_ID_PIC_PROC_FLAG, (UINT32)FALSE);
+//  g_pSharedObject->SetParam(PARAM_ID_IMG_GRAB_FILE, (UINT32)FALSE);
 
     string  fileName;
     Mat     fileData;
