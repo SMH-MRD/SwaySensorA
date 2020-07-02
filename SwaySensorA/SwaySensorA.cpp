@@ -735,15 +735,17 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 
     //--------------------------------------------------------------------------
     // 画像処理設定
+    // ROI有効
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ROI_ENABLE, L"1", INITYPE_INT, &(pInf->roiEnable));    // ROI有効
     // 画像1設定
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_LOW, L"0,0,0", INITYPE_CHAR, str);               // 画像1マスク下限(H,S,V)
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK1_LOW, L"0,0,0", INITYPE_CHAR, str);               // 画像1マスク下限(H,S,V)
     if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask1HLow, &pInf->mask1SLow, &pInf->mask1VLow))
     {
         pInf->mask1HLow = 0;
         pInf->mask1SLow = 0;
         pInf->mask1VLow = 0;
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK1_UPP, L"0,0,0", INITYPE_CHAR, str);               // 画像1マスク上限(H,S,V)
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK1_UPP, L"0,0,0", INITYPE_CHAR, str);               // 画像1マスク上限(H,S,V)
     if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask1HUpp, &pInf->mask1SUpp, &pInf->mask1VUpp))
     {
         pInf->mask1HUpp = 0;
@@ -751,14 +753,14 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
         pInf->mask1VUpp = 0;
     }
     // 画像2設定
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_LOW, L"0,0,0", INITYPE_CHAR, str);               // 画像2マスク下限(H,S,V)
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK2_LOW, L"0,0,0", INITYPE_CHAR, str);               // 画像2マスク下限(H,S,V)
     if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask2HLow, &pInf->mask2SLow, &pInf->mask2VLow))
     {
         pInf->mask2HLow = 0;
         pInf->mask2SLow = 0;
         pInf->mask2VLow = 0;
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_MASK2_UPP, L"0,0,0", INITYPE_CHAR, str);               // 画像2マスク上限(H,S,V)
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK2_UPP, L"0,0,0", INITYPE_CHAR, str);               // 画像2マスク上限(H,S,V)
     if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask2HUpp, &pInf->mask2SUpp, &pInf->mask2VUpp))
     {
         pInf->mask2HUpp = 0;
@@ -766,14 +768,14 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
         pInf->mask2VUpp = 0;
     }
     // ノイズフィルタ
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_NOISEFILTER,  L"1,1", INITYPE_CHAR, str);  // ノイズフィルタ
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_NOISEFILTER,  L"1,1", INITYPE_CHAR, str);  // ノイズフィルタ
     if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->noiseFilter, &pInf->noiseFilterVal))
     {
         pInf->noiseFilter    = NOISEFILTER_NONE;
         pInf->noiseFilterVal = 1;
     }
     // ターゲット検出アルゴリズム
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_OPENCV_ALGORITHM, L"1", INITYPE_INT, &(pInf->algorithm)); // ターゲット検出アルゴリズム
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ALGORITHM, L"1", INITYPE_INT, &(pInf->algorithm)); // ターゲット検出アルゴリズム
     if ((pInf->algorithm < COG_ALGORITHM_ALL) || (pInf->algorithm >= COG_ALGORITHM)) {pInf->algorithm = COG_ALGORITHM_ALL;}
 
     //--------------------------------------------------------------------------
@@ -802,7 +804,7 @@ void CreateSharedData(void)
     _wsplitpath_s(dstpath, szDrive, sizeof(szDrive) / 2, szPath, sizeof(szPath) / 2, szFName, sizeof(szFName) / 2, szExt, sizeof(szExt) / 2);
     // ini file path構成
     wstrPathExe = szDrive; wstrPathExe += szPath;
-    _wmakepath_s(dstpath, sizeof(dstpath) / 2, szDrive, szPath, NAME_OF_INIFILE, EXT_OF_INIFILE);
+    _wmakepath_s(dstpath, sizeof(dstpath) / 2, szDrive, szPath, NAME_OF_INIFAILE_APP, EXT_OF_INIFILE);
     pszInifile = dstpath;
 
     ST_INI_INF ini;
@@ -820,21 +822,22 @@ void CreateSharedData(void)
 
     //--------------------------------------------------------------------------
     // 画像処理設定
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_HLOW,     (UINT32)ini.mask1HLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_HUPP,     (UINT32)ini.mask1HUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_SLOW,     (UINT32)ini.mask1SLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_SUPP,     (UINT32)ini.mask1SUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VLOW,     (UINT32)ini.mask1VLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK1_VUPP,     (UINT32)ini.mask1VUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_HLOW,     (UINT32)ini.mask2HLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_HUPP,     (UINT32)ini.mask2HUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_SLOW,     (UINT32)ini.mask2SLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_SUPP,     (UINT32)ini.mask2SUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VLOW,     (UINT32)ini.mask2VLow);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_MASK2_VUPP,     (UINT32)ini.mask2VUpp);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_NOISEFILTER,    (UINT32)ini.noiseFilter);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_NOISEFILTERVAL, (UINT32)ini.noiseFilterVal);
-    g_pSharedObject->SetParam(PARAM_ID_PIC_ALGORITHM,      (UINT32)ini.algorithm);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_ROI_ENABLE,     (UINT32)ini.roiEnable);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_HLOW,     (UINT32)ini.mask1HLow);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_HUPP,     (UINT32)ini.mask1HUpp);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_SLOW,     (UINT32)ini.mask1SLow);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_SUPP,     (UINT32)ini.mask1SUpp);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_VLOW,     (UINT32)ini.mask1VLow);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_VUPP,     (UINT32)ini.mask1VUpp);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_HLOW,     (UINT32)ini.mask2HLow);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_HUPP,     (UINT32)ini.mask2HUpp);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_SLOW,     (UINT32)ini.mask2SLow);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_SUPP,     (UINT32)ini.mask2SUpp);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_VLOW,     (UINT32)ini.mask2VLow);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_VUPP,     (UINT32)ini.mask2VUpp);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTER,    (UINT32)ini.noiseFilter);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTERVAL, (UINT32)ini.noiseFilterVal);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_ALGORITHM,      (UINT32)ini.algorithm);
 
     //--------------------------------------------------------------------------
     // RIO設定

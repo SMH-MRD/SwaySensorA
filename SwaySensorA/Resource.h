@@ -109,6 +109,7 @@
 #define IDC_STATIC_VAL_NOISEFILTER      1048
 #define IDC_COMBO_NOISEFILTER           1049
 #define IDC_CHECK_CURSOR                1050
+#define IDC_CHECK_ROI                   1051
 #define IDC_COMBO_IMG                   1053
 #define IDC_STATIC_GBX_CAMERA_EXPOSURE  1055
 #define IDC_SLIDER_CAMERA_EXPOSURE      1059
@@ -125,6 +126,7 @@
 #define IDC_STATIC_PROC_TIME            1071
 #define IDC_STATIC_IMG_GRAB             1072
 #define IDC_STATIC_IMG_GRAB_TIME        1072
+#define IDC_STATIC_VAL_ROI              1073
 #define IDC_BUTTON_CAM_START            2002
 #define IDC_BUTTON_CURSOR_L             2028
 #define IDC_BUTTON_CAM_STOP             2031

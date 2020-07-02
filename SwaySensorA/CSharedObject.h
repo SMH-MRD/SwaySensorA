@@ -45,21 +45,22 @@ enum
     PARAM_ID_CAM_WIDTH,             // カメラ設定(キャプチャサイズ横幅)
     PARAM_ID_CAM_HEIGHT,            // カメラ設定(キャプチャサイズ高さ)
     PARAM_ID_CAM_READ_FRAMERATE,    // カメラ読出し(フレームレート)
-    PARAM_ID_PIC_MASK1_HLOW,        // 画像処理設定(画像マスク1(H)下限)
-    PARAM_ID_PIC_MASK1_HUPP,        // 画像処理設定(画像マスク1(H)上限)
-    PARAM_ID_PIC_MASK1_SLOW,        // 画像処理設定(画像マスク1(S)下限)
-    PARAM_ID_PIC_MASK1_SUPP,        // 画像処理設定(画像マスク1(S)上限)
-    PARAM_ID_PIC_MASK1_VLOW,        // 画像処理設定(画像マスク1(V)下限)
-    PARAM_ID_PIC_MASK1_VUPP,        // 画像処理設定(画像マスク1(V)上限)
-    PARAM_ID_PIC_MASK2_HLOW,        // 画像処理設定(画像マスク2(H)下限)
-    PARAM_ID_PIC_MASK2_HUPP,        // 画像処理設定(画像マスク2(H)上限)
-    PARAM_ID_PIC_MASK2_SLOW,        // 画像処理設定(画像マスク2(S)下限)
-    PARAM_ID_PIC_MASK2_SUPP,        // 画像処理設定(画像マスク2(S)上限)
-    PARAM_ID_PIC_MASK2_VLOW,        // 画像処理設定(画像マスク2(V)下限)
-    PARAM_ID_PIC_MASK2_VUPP,        // 画像処理設定(画像マスク2(V)上限)
-    PARAM_ID_PIC_NOISEFILTER,       // 画像処理設定(ノイズフィルタ)
-    PARAM_ID_PIC_NOISEFILTERVAL,    // 画像処理設定(ノイズフィルタ)
-    PARAM_ID_PIC_ALGORITHM,         // 画像処理設定(重心位置算出アルゴリズム)
+    PARAM_ID_IMG_ROI_ENABLE,        // 画像処理設定(ROI有効)
+    PARAM_ID_IMG_MASK1_HLOW,        // 画像処理設定(画像マスク1(H)下限)
+    PARAM_ID_IMG_MASK1_HUPP,        // 画像処理設定(画像マスク1(H)上限)
+    PARAM_ID_IMG_MASK1_SLOW,        // 画像処理設定(画像マスク1(S)下限)
+    PARAM_ID_IMG_MASK1_SUPP,        // 画像処理設定(画像マスク1(S)上限)
+    PARAM_ID_IMG_MASK1_VLOW,        // 画像処理設定(画像マスク1(V)下限)
+    PARAM_ID_IMG_MASK1_VUPP,        // 画像処理設定(画像マスク1(V)上限)
+    PARAM_ID_IMG_MASK2_HLOW,        // 画像処理設定(画像マスク2(H)下限)
+    PARAM_ID_IMG_MASK2_HUPP,        // 画像処理設定(画像マスク2(H)上限)
+    PARAM_ID_IMG_MASK2_SLOW,        // 画像処理設定(画像マスク2(S)下限)
+    PARAM_ID_IMG_MASK2_SUPP,        // 画像処理設定(画像マスク2(S)上限)
+    PARAM_ID_IMG_MASK2_VLOW,        // 画像処理設定(画像マスク2(V)下限)
+    PARAM_ID_IMG_MASK2_VUPP,        // 画像処理設定(画像マスク2(V)上限)
+    PARAM_ID_IMG_NOISEFILTER,       // 画像処理設定(ノイズフィルタ)
+    PARAM_ID_IMG_NOISEFILTERVAL,    // 画像処理設定(ノイズフィルタ値)
+    PARAM_ID_IMG_ALGORITHM,         // 画像処理設定(重心位置算出アルゴリズム)
     PARAM_ID_RIO_TCPPORT,           // RIO TCPポート番号
     PARAM_ID_RIO_SLAVEADDR,         // RIOスレーブアドレス
     PARAM_ID_RIO_TIMEOUT,           // RIOタイムアウト
@@ -104,17 +105,19 @@ typedef struct _stImageData
     BOOL    update; // image setでtrue getでfalse
 } stImageData;
 
-typedef struct _stMngProcData
+typedef struct _stImageProcData
 {
-    double  posx;
-    double  posy;
-    BOOL    enable;
-} stMngProcData;
+    double      posx;
+    double      posy;
+    cv::Rect    roi;
+    int         roisize;
+    BOOL        enable;
+} stImageProcData;
 
-typedef struct _stMngInclinoData
+typedef struct _stInclinationData
 {
     DOUBLE data;
-} stMngInclinoData;
+} stInclinationData;
 
 ///
 class CSharedObject
@@ -128,8 +131,8 @@ public:
     INT SetImage(UINT8 id, Mat image);
     INT GetImage(UINT8 id, Mat* image);
 
-    INT SetProcData(UINT8 id, stMngProcData data);
-    INT GetProcData(UINT8 id, stMngProcData* data);
+    INT SetProcData(UINT8 id, stImageProcData data);
+    INT GetProcData(UINT8 id, stImageProcData* data);
 
     INT SetInclinoData(UINT8 id, DOUBLE data);
     INT GetInclinoData(UINT8 id, DOUBLE* data);
@@ -141,9 +144,9 @@ public:
     INT SetParam(UINT8 id, DOUBLE data);
     INT GetParam(UINT8 id, DOUBLE* data);
 
-    stImageData         m_stImage[IMAGE_ID_MAX];
-    stMngProcData       m_stProcData[IMGPROC_ID_MAX];
-    stMngInclinoData    m_stInclinoData[INCLINO_ID_MAX];
+    stImageData         m_stImgData[IMAGE_ID_MAX];
+    stImageProcData     m_stImgProcData[IMGPROC_ID_MAX];
+    stInclinationData   m_stIncData[INCLINO_ID_MAX];
     UINT32              m_u32Param[PARAM_ID_MAX];
     string              m_strParam[PARAM_ID_STR_MAX];
     DOUBLE              m_dParam[PARAM_ID_DOUBLE_MAX];

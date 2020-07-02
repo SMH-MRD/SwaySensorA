@@ -151,7 +151,7 @@ BOOL CComCamera::OpenCamera(void)
 
         return TRUE;
     }
-    catch (GenICam::GenericException & e)   // エラーハンドリング
+    catch (GenICam::GenericException)   // エラーハンドリング
     {
         return FALSE;
     }

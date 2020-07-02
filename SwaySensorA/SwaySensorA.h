@@ -25,11 +25,11 @@ typedef struct knl_manage_set_tag
     unsigned int    stackSize = INITIAL_TASK_STACK_SIZE;    // タスクの初期スタックサイズ
 } ST_KNL_MANAGE_SET, *P_ST_MANAGE_SET;
 
-#define TASK_NUM        8           // 登録タスク数
-#define NAME_OF_INIFILE L"app"      // iniファイルファイル名
-#define EXT_OF_INIFILE  L"ini"      // iniファイル拡張子
-#define PATH_OF_INIFILE pszInifile  // オプショナルパス
-#define PATH_OF_EXEFILE wstrPathExe // EXEのPATH
+#define TASK_NUM                8           // 登録タスク数
+#define NAME_OF_INIFAILE_APP    L"app"      // iniファイルファイル名
+#define EXT_OF_INIFILE          L"ini"      // iniファイル拡張子
+#define PATH_OF_INIFILE         pszInifile  // オプショナルパス
+#define PATH_OF_EXEFILE         wstrPathExe // EXEのPATH
 
 // -Main Windowの初期サイズ、位置設定
 #define MAIN_WND_INIT_POS_X 20

@@ -4,7 +4,8 @@
 extern vector<void*>    VectpCTaskObj;  // タスクオブジェクトのポインタ
 extern ST_iTask         g_itask;
 
-#define BEVEL_MAX_ANGLE 30.0
+#define IMAGE_ROI_SIZE      400
+#define INCLINATION_MAX     30.0
 
 class CAnalyst : public CTaskObj
 {

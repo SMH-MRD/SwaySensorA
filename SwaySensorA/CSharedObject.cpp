@@ -23,20 +23,63 @@ CSharedObject::~CSharedObject()
 /// @note
 void CSharedObject::InitSharedObject(void)
 {
-    for (UINT ii = 0; ii < IMAGE_ID_MAX;        ii++) {m_stImage[ii].update = FALSE;}
-    for (UINT ii = 0; ii < IMGPROC_ID_MAX;      ii++) {m_stProcData[ii].posx = 0.0; m_stProcData[ii].posy = 0.0; m_stProcData[ii].enable = FALSE;}
-    for (UINT ii = 0; ii < INCLINO_ID_MAX;      ii++) {m_stInclinoData[ii].data = 0.0;}
-    for (UINT ii = 0; ii < PARAM_ID_MAX;        ii++) {m_u32Param[ii] = 0;}
-    for (UINT ii = 0; ii < PARAM_ID_STR_MAX;    ii++) {m_strParam[ii] = "";}
-    for (UINT ii = 0; ii < PARAM_ID_DOUBLE_MAX; ii++) {m_dParam[ii] = 0.0;}
+    for (UINT ii = 0; ii < IMAGE_ID_MAX; ii++)
+    {
+        m_stImgData[ii].update = FALSE;
+    }
+    for (UINT ii = 0; ii < IMGPROC_ID_MAX; ii++)
+    {
+        m_stImgProcData[ii].posx       = 0.0;
+        m_stImgProcData[ii].posy       = 0.0;
+        m_stImgProcData[ii].roi.x      = 0;
+        m_stImgProcData[ii].roi.y      = 0;
+        m_stImgProcData[ii].roi.width  = 0;
+        m_stImgProcData[ii].roi.height = 0;
+        m_stImgProcData[ii].roisize    = 0;
+        m_stImgProcData[ii].enable     = FALSE;
+    }
+    for (UINT ii = 0; ii < INCLINO_ID_MAX; ii++)
+    {
+        m_stIncData[ii].data = 0.0;
+    }
+    for (UINT ii = 0; ii < PARAM_ID_MAX; ii++)
+    {
+        m_u32Param[ii] = 0;
+    }
+    for (UINT ii = 0; ii < PARAM_ID_STR_MAX; ii++)
+    {
+        m_strParam[ii] = "";
+    }
+    for (UINT ii = 0; ii < PARAM_ID_DOUBLE_MAX; ii++)
+    {
+        m_dParam[ii] = 0.0;
+    }
 
     // 共有データアクセス用クリティカルセクションの初期化
-    for (UINT ii = 0; ii < IMAGE_ID_MAX;        ii++) {InitializeCriticalSection(&csImage[ii]);}
-    for (UINT ii = 0; ii < IMGPROC_ID_MAX;      ii++) {InitializeCriticalSection(&csProcData[ii]);}
-    for (UINT ii = 0; ii < INCLINO_ID_MAX;      ii++) {InitializeCriticalSection(&csInclino[ii]);}
-    for (UINT ii = 0; ii < PARAM_ID_MAX;        ii++) {InitializeCriticalSection(&csParam[ii]);}
-    for (UINT ii = 0; ii < PARAM_ID_STR_MAX;    ii++) {InitializeCriticalSection(&csStrParam[ii]);}
-    for (UINT ii = 0; ii < PARAM_ID_DOUBLE_MAX; ii++) {InitializeCriticalSection(&csDoubleParam[ii]);}
+    for (UINT ii = 0; ii < IMAGE_ID_MAX; ii++)
+    {
+        InitializeCriticalSection(&csImage[ii]);
+    }
+    for (UINT ii = 0; ii < IMGPROC_ID_MAX; ii++)
+    {
+        InitializeCriticalSection(&csProcData[ii]);
+    }
+    for (UINT ii = 0; ii < INCLINO_ID_MAX; ii++)
+    {
+        InitializeCriticalSection(&csInclino[ii]);
+    }
+    for (UINT ii = 0; ii < PARAM_ID_MAX; ii++)
+    {
+        InitializeCriticalSection(&csParam[ii]);
+    }
+    for (UINT ii = 0; ii < PARAM_ID_STR_MAX; ii++)
+    {
+        InitializeCriticalSection(&csStrParam[ii]);
+    }
+    for (UINT ii = 0; ii < PARAM_ID_DOUBLE_MAX; ii++)
+    {
+        InitializeCriticalSection(&csDoubleParam[ii]);
+    }
 }
 
 /// @brief 画像データ設定処理
@@ -48,8 +91,8 @@ INT CSharedObject::SetImage(UINT8 id, Mat image)
     if (id >= IMAGE_ID_MAX) {return RESULT_NG_INVALID;}
 
     EnterCriticalSection(&csImage[id]);
-    image.copyTo(m_stImage[id].image);
-    m_stImage[id].update = TRUE;
+    image.copyTo(m_stImgData[id].image);
+    m_stImgData[id].update = TRUE;
     LeaveCriticalSection(&csImage[id]);
 
     return RESULT_OK;
@@ -64,11 +107,11 @@ INT CSharedObject::GetImage(UINT8 id, Mat* image)
     if (id >= IMAGE_ID_MAX) {return RESULT_NG_INVALID;}
     if (image == NULL)      {return RESULT_NG_INVALID;}
     // 更新有無の確認
-    if (m_stImage[id].update == FALSE) {return RESULT_NG_SEQUENCE;}
+    if (m_stImgData[id].update == FALSE) {return RESULT_NG_SEQUENCE;}
 
     EnterCriticalSection(&csImage[id]);
-    m_stImage[id].image.copyTo(*image);
-    m_stImage[id].update = FALSE;
+    m_stImgData[id].image.copyTo(*image);
+    m_stImgData[id].update = FALSE;
     LeaveCriticalSection(&csImage[id]);
 
     return RESULT_OK;
@@ -78,14 +121,19 @@ INT CSharedObject::GetImage(UINT8 id, Mat* image)
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::SetProcData(UINT8 id, stMngProcData data)
+INT CSharedObject::SetProcData(UINT8 id, stImageProcData data)
 {
     if (id >= IMGPROC_ID_MAX) {return RESULT_NG_INVALID;}
 
     EnterCriticalSection(&csProcData[id]);
-    m_stProcData[id].posx   = data.posx;
-    m_stProcData[id].posy   = data.posy;
-    m_stProcData[id].enable = data.enable;
+    m_stImgProcData[id].posx       = data.posx;
+    m_stImgProcData[id].posy       = data.posy;
+    m_stImgProcData[id].roi.x      = data.roi.x;
+    m_stImgProcData[id].roi.y      = data.roi.y;
+    m_stImgProcData[id].roi.width  = data.roi.width;
+    m_stImgProcData[id].roi.height = data.roi.height;
+    m_stImgProcData[id].roisize    = data.roisize;
+    m_stImgProcData[id].enable     = data.enable;
     LeaveCriticalSection(&csProcData[id]);
 
     return RESULT_OK;
@@ -95,15 +143,20 @@ INT CSharedObject::SetProcData(UINT8 id, stMngProcData data)
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::GetProcData(UINT8 id, stMngProcData* data)
+INT CSharedObject::GetProcData(UINT8 id, stImageProcData* data)
 {
     if (id >= IMGPROC_ID_MAX) {return RESULT_NG_INVALID;}
     if (data == NULL)         {return RESULT_NG_INVALID;}
 
     EnterCriticalSection(&csProcData[id]);
-    data->posx   = m_stProcData[id].posx;
-    data->posy   = m_stProcData[id].posy;
-    data->enable = m_stProcData[id].enable;
+    data->posx       = m_stImgProcData[id].posx;
+    data->posy       = m_stImgProcData[id].posy;
+    data->roi.x      = m_stImgProcData[id].roi.x;
+    data->roi.y      = m_stImgProcData[id].roi.y;
+    data->roi.width  = m_stImgProcData[id].roi.width;
+    data->roi.height = m_stImgProcData[id].roi.height;
+    data->roisize    = m_stImgProcData[id].roisize;
+    data->enable     = m_stImgProcData[id].enable;
     LeaveCriticalSection(&csProcData[id]);
 
     return RESULT_OK;
@@ -118,7 +171,7 @@ INT CSharedObject::SetInclinoData(UINT8 id, DOUBLE data)
     if (id >= INCLINO_ID_MAX) {return RESULT_NG_INVALID;}
 
     EnterCriticalSection(&csInclino[id]);
-    m_stInclinoData[id].data = data;
+    m_stIncData[id].data = data;
     LeaveCriticalSection(&csInclino[id]);
 
     return RESULT_OK;
@@ -134,7 +187,7 @@ INT CSharedObject::GetInclinoData(UINT8 id, DOUBLE* data)
     if (data == NULL)         {return RESULT_NG_INVALID;}
 
     EnterCriticalSection(&csInclino[id]);
-    *data = m_stInclinoData[id].data;
+    *data = m_stIncData[id].data;
     LeaveCriticalSection(&csInclino[id]);
 
     return RESULT_OK;
