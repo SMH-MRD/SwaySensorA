@@ -58,8 +58,10 @@ enum
     PARAM_ID_IMG_MASK2_SUPP,        // 画像処理設定(画像マスク2(S)上限)
     PARAM_ID_IMG_MASK2_VLOW,        // 画像処理設定(画像マスク2(V)下限)
     PARAM_ID_IMG_MASK2_VUPP,        // 画像処理設定(画像マスク2(V)上限)
-    PARAM_ID_IMG_NOISEFILTER,       // 画像処理設定(ノイズフィルタ)
-    PARAM_ID_IMG_NOISEFILTERVAL,    // 画像処理設定(ノイズフィルタ値)
+    PARAM_ID_IMG_NOISEFILTER1,      // 画像処理設定(ゴマ塩ノイズフィルタ)
+    PARAM_ID_IMG_NOISEFILTERVAL1,   // 画像処理設定(ゴマ塩ノイズフィルタ値)
+    PARAM_ID_IMG_NOISEFILTER2,      // 画像処理設定(穴埋めノイズフィルタ)
+    PARAM_ID_IMG_NOISEFILTERVAL2,   // 画像処理設定(穴埋めノイズフィルタ値)
     PARAM_ID_IMG_ALGORITHM,         // 画像処理設定(重心位置算出アルゴリズム)
     PARAM_ID_RIO_TCPPORT,           // RIO TCPポート番号
     PARAM_ID_RIO_SLAVEADDR,         // RIOスレーブアドレス
@@ -85,17 +87,25 @@ enum
 
 enum
 {
-    NOISEFILTER_NONE = 0,           // ノイズフィルタ:なし
-    NOISEFILTER_MEDIAN,             // ノイズフィルタ:中央値フィルタ
-    NOISEFILTER_OPENNING,           // ノイズフィルタ:オープニング処理
-    NOIZEFILTER
+    NOISEFILTER1_NONE = 0,           // ノイズフィルタ:なし
+    NOISEFILTER1_MEDIAN,             // ノイズフィルタ:中央値フィルタ
+    NOISEFILTER1_OPENNING,           // ノイズフィルタ:オープニング処理
+    NOIZEFILTER1_MAX
+};
+
+enum
+{
+    NOISEFILTER2_NONE = 0,           // ノイズフィルタ:なし
+    NOISEFILTER2_CLOSING,            // ノイズフィルタ:クロージング処理
+    NOIZEFILTER2_MAX
 };
 
 enum
 {
     COG_ALGORITHM_ALL = 1,          // 重心位置算出アルゴリズム(全輪郭点)
+    COG_ALGORITHM_AREA,             // 重心位置算出アルゴリズム(最大輪郭面積)
     COG_ALGORITHM_LEN,              // 重心位置算出アルゴリズム(最大輪郭長)
-    COG_ALGORITHM
+    COG_ALGORITHM_MAX
 };
 
 // 構造体定義

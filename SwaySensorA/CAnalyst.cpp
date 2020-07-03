@@ -125,42 +125,28 @@ void CAnalyst::ImageProc(void)
 #pragma region CreateMaskImage
         lut = cv::Mat(256, 1, CV_8UC3); // LUT
         // 画像1
+#pragma region Image1
+        if (roiEnable > 0)
         {
-            if (roiEnable > 0)
+            // ROIの範囲(長方形)を設定する
+            // * (x, y, width, height)で指定
+            if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_1, &stImgProcData[IMGPROC_ID_IMG_1]) != RESULT_OK)
             {
-                // ROIの範囲(長方形)を設定する
-                // * (x, y, width, height)で指定
-                if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_1, &stImgProcData[IMGPROC_ID_IMG_1]) != RESULT_OK)
-                {
-                    stImgProcData[IMGPROC_ID_IMG_1].posx = 0.0;
-                    stImgProcData[IMGPROC_ID_IMG_1].posy = 0.0;
-                    stImgProcData[IMGPROC_ID_IMG_1].enable = FALSE;
-                } 
-                if (stImgProcData[IMGPROC_ID_IMG_1].enable)
-                {
+                stImgProcData[IMGPROC_ID_IMG_1].posx = 0.0;
+                stImgProcData[IMGPROC_ID_IMG_1].posy = 0.0;
+                stImgProcData[IMGPROC_ID_IMG_1].enable = FALSE;
+            } 
+            if (stImgProcData[IMGPROC_ID_IMG_1].enable)
+            {
 //@@@roisizeは自動計算するようにする必要あり
-                    if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posx - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = 0;}
-                    else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posx + (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_1].roisize;}
-                    else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_1].posx - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2);}
-                    if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posy - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = 0;}
-                    else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posy + (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_1].roisize;}
-                    else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_1].posy - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2);}
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.width  = stImgProcData[IMGPROC_ID_IMG_1].roisize;
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.height = stImgProcData[IMGPROC_ID_IMG_1].roisize;
-                }
-                else
-                {
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.x      = 0;
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.y      = 0;
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.height = imgSrc.rows;
-                }
-                // 部分画像を生成
-                // * 部分画像とその元画像は共通の画像データを参照するため、
-                //   部分画像に変更を加えると、元画像も変更される。
-                imgROI = imgSrc(stImgProcData[IMGPROC_ID_IMG_1].roi);
-                // 画像色をBGR→HSVに変換
-                cv::cvtColor(imgROI, imgHSV, COLOR_BGR2HSV);
+                if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posx - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = 0;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posx + (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_1].roisize;}
+                else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_1].posx - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2);}
+                if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posy - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = 0;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posy + (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_1].roisize;}
+                else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_1].posy - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2);}
+                stImgProcData[IMGPROC_ID_IMG_1].roi.width  = stImgProcData[IMGPROC_ID_IMG_1].roisize;
+                stImgProcData[IMGPROC_ID_IMG_1].roi.height = stImgProcData[IMGPROC_ID_IMG_1].roisize;
             }
             else
             {
@@ -168,77 +154,76 @@ void CAnalyst::ImageProc(void)
                 stImgProcData[IMGPROC_ID_IMG_1].roi.y      = 0;
                 stImgProcData[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
                 stImgProcData[IMGPROC_ID_IMG_1].roi.height = imgSrc.rows;
-                stImgProcData[IMGPROC_ID_IMG_1].roisize    = IMAGE_ROI_SIZE;
             }
-            // 3チャンネルのLUT作成
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_HLOW, &maskLow[0]);
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_HUPP, &maskUpp[0]);
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_SLOW, &maskLow[1]);
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_SUPP, &maskUpp[1]);
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_VLOW, &maskLow[2]);
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_VUPP, &maskUpp[2]);
-            for (int i = 0; i < 256; i++)
-            {
-                for (int k = 0; k < 3; k++)
-                {
-                    if ((int)maskLow[k] <= (int)maskUpp[k])
-                    {
-                        if (((int)maskLow[k] <= i) && (i <= (int)maskUpp[k])) { lut.data[i*lut.step + k] = 255; }
-                        else { lut.data[i*lut.step + k] = 0; }
-                    }
-                    else
-                    {
-                        if ((i <= (int)maskUpp[k]) || ((int)maskLow[k] <= i)) { lut.data[i*lut.step + k] = 255; }
-                        else { lut.data[i*lut.step + k] = 0; }
-                    }
-                }
-            }
-            // チャンネルごとのLUT変換(各チャンネルごとに2値化処理)
-            cv::LUT(imgHSV, lut, imgHSVBin);
-            // マスク画像の作成
-            cv::split(imgHSVBin, planes);   // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
-            cv::bitwise_and(planes[0], planes[1], imgMask1);
-            cv::bitwise_and(imgMask1,  planes[2], imgMask1);
+            // 部分画像を生成
+            // * 部分画像とその元画像は共通の画像データを参照するため、
+            //   部分画像に変更を加えると、元画像も変更される。
+            imgROI = imgSrc(stImgProcData[IMGPROC_ID_IMG_1].roi);
+            // 画像色をBGR→HSVに変換
+            cv::cvtColor(imgROI, imgHSV, COLOR_BGR2HSV);
         }
-
-        // 画像2
+        else
         {
-            if (roiEnable > 0)
+            stImgProcData[IMGPROC_ID_IMG_1].roi.x      = 0;
+            stImgProcData[IMGPROC_ID_IMG_1].roi.y      = 0;
+            stImgProcData[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
+            stImgProcData[IMGPROC_ID_IMG_1].roi.height = imgSrc.rows;
+            stImgProcData[IMGPROC_ID_IMG_1].roisize    = IMAGE_ROI_SIZE;
+        }
+        // 3チャンネルのLUT作成
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_HLOW, &maskLow[0]);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_HUPP, &maskUpp[0]);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_SLOW, &maskLow[1]);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_SUPP, &maskUpp[1]);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_VLOW, &maskLow[2]);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_VUPP, &maskUpp[2]);
+        for (int i = 0; i < 256; i++)
+        {
+            for (int k = 0; k < 3; k++)
             {
-                // ROIの範囲（長方形）を設定する
-                // * (x, y, width, height)で指定
-                if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_2, &stImgProcData[IMGPROC_ID_IMG_2]) != RESULT_OK)
+                if ((int)maskLow[k] <= (int)maskUpp[k])
                 {
-                    stImgProcData[IMGPROC_ID_IMG_2].posx   = 0.0;
-                    stImgProcData[IMGPROC_ID_IMG_2].posy   = 0.0;
-                    stImgProcData[IMGPROC_ID_IMG_2].enable = FALSE;
-                }
-                if (stImgProcData[IMGPROC_ID_IMG_2].enable)
-                {
-//@@@roisizeは自動計算するようにする必要あり
-                    if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posx - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = 0;}
-                    else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posx + (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_2].roisize;}
-                    else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_2].posx - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2);}
-                    if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posy - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = 0;}
-                    else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posy + (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_2].roisize;}
-                    else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_2].posy - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2);}
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.width  = stImgProcData[IMGPROC_ID_IMG_2].roisize;
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.height = stImgProcData[IMGPROC_ID_IMG_2].roisize;
+                    if (((int)maskLow[k] <= i) && (i <= (int)maskUpp[k])) { lut.data[i*lut.step + k] = 255; }
+                    else { lut.data[i*lut.step + k] = 0; }
                 }
                 else
                 {
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.x      = 0;
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.y      = 0;
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.height = imgSrc.rows;
-                    stImgProcData[IMGPROC_ID_IMG_2].roisize    = IMAGE_ROI_SIZE;
+                    if ((i <= (int)maskUpp[k]) || ((int)maskLow[k] <= i)) { lut.data[i*lut.step + k] = 255; }
+                    else { lut.data[i*lut.step + k] = 0; }
                 }
-                // 部分画像を生成
-                // * 部分画像とその元画像は共通の画像データを参照するため、
-                //   部分画像に変更を加えると、元画像も変更される。
-                imgROI = imgSrc(stImgProcData[IMGPROC_ID_IMG_2].roi);
-                // 画像色をBGR→HSVに変換
-                cv::cvtColor(imgROI, imgHSV, COLOR_BGR2HSV);
+            }
+        }
+        // チャンネルごとのLUT変換(各チャンネルごとに2値化処理)
+        cv::LUT(imgHSV, lut, imgHSVBin);
+        // マスク画像の作成
+        cv::split(imgHSVBin, planes);   // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
+        cv::bitwise_and(planes[0], planes[1], imgMask1);
+        cv::bitwise_and(imgMask1,  planes[2], imgMask1);
+#pragma endregion Image1
+
+        // 画像2
+#pragma region Image2
+        if (roiEnable > 0)
+        {
+            // ROIの範囲（長方形）を設定する
+            // * (x, y, width, height)で指定
+            if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_2, &stImgProcData[IMGPROC_ID_IMG_2]) != RESULT_OK)
+            {
+                stImgProcData[IMGPROC_ID_IMG_2].posx   = 0.0;
+                stImgProcData[IMGPROC_ID_IMG_2].posy   = 0.0;
+                stImgProcData[IMGPROC_ID_IMG_2].enable = FALSE;
+            }
+            if (stImgProcData[IMGPROC_ID_IMG_2].enable)
+            {
+//@@@roisizeは自動計算するようにする必要あり
+                if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posx - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = 0;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posx + (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_2].roisize;}
+                else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_2].posx - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2);}
+                if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posy - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = 0;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posy + (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_2].roisize;}
+                else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_2].posy - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2);}
+                stImgProcData[IMGPROC_ID_IMG_2].roi.width  = stImgProcData[IMGPROC_ID_IMG_2].roisize;
+                stImgProcData[IMGPROC_ID_IMG_2].roi.height = stImgProcData[IMGPROC_ID_IMG_2].roisize;
             }
             else
             {
@@ -248,36 +233,51 @@ void CAnalyst::ImageProc(void)
                 stImgProcData[IMGPROC_ID_IMG_2].roi.height = imgSrc.rows;
                 stImgProcData[IMGPROC_ID_IMG_2].roisize    = IMAGE_ROI_SIZE;
             }
-            // 3チャンネルのLUT作成
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_HLOW, &maskLow[0]);
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_HUPP, &maskUpp[0]);
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_SLOW, &maskLow[1]);
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_SUPP, &maskUpp[1]);
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_VLOW, &maskLow[2]);
-            g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_VUPP, &maskUpp[2]);
-            for (int i = 0; i < 256; i++)
+            // 部分画像を生成
+            // * 部分画像とその元画像は共通の画像データを参照するため、
+            //   部分画像に変更を加えると、元画像も変更される。
+            imgROI = imgSrc(stImgProcData[IMGPROC_ID_IMG_2].roi);
+            // 画像色をBGR→HSVに変換
+            cv::cvtColor(imgROI, imgHSV, COLOR_BGR2HSV);
+        }
+        else
+        {
+            stImgProcData[IMGPROC_ID_IMG_2].roi.x      = 0;
+            stImgProcData[IMGPROC_ID_IMG_2].roi.y      = 0;
+            stImgProcData[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
+            stImgProcData[IMGPROC_ID_IMG_2].roi.height = imgSrc.rows;
+            stImgProcData[IMGPROC_ID_IMG_2].roisize    = IMAGE_ROI_SIZE;
+        }
+        // 3チャンネルのLUT作成
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_HLOW, &maskLow[0]);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_HUPP, &maskUpp[0]);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_SLOW, &maskLow[1]);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_SUPP, &maskUpp[1]);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_VLOW, &maskLow[2]);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_VUPP, &maskUpp[2]);
+        for (int i = 0; i < 256; i++)
+        {
+            for (int k = 0; k < 3; k++)
             {
-                for (int k = 0; k < 3; k++)
+                if ((int)maskLow[k] <= (int)maskUpp[k])
                 {
-                    if ((int)maskLow[k] <= (int)maskUpp[k])
-                    {
-                        if (((int)maskLow[k] <= i) && (i <= (int)maskUpp[k])) {lut.data[i*lut.step + k] = 255;}
-                        else                                                  {lut.data[i*lut.step + k] = 0;}
-                    }
-                    else
-                    {
-                        if ((i <= (int)maskUpp[k]) || ((int)maskLow[k] <= i)) {lut.data[i*lut.step + k] = 255;}
-                        else                                                  {lut.data[i*lut.step + k] = 0;}
-                    }
+                    if (((int)maskLow[k] <= i) && (i <= (int)maskUpp[k])) {lut.data[i*lut.step + k] = 255;}
+                    else                                                  {lut.data[i*lut.step + k] = 0;}
+                }
+                else
+                {
+                    if ((i <= (int)maskUpp[k]) || ((int)maskLow[k] <= i)) {lut.data[i*lut.step + k] = 255;}
+                    else                                                  {lut.data[i*lut.step + k] = 0;}
                 }
             }
-            // チャンネルごとのLUT変換(各チャンネルごとに2値化処理)
-            cv::LUT(imgHSV, lut, imgHSVBin);
-            // マスク画像の作成
-            cv::split(imgHSVBin, planes);   // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
-            cv::bitwise_and(planes[0], planes[1], imgMask2);
-            cv::bitwise_and(imgMask2,  planes[2], imgMask2);
         }
+        // チャンネルごとのLUT変換(各チャンネルごとに2値化処理)
+        cv::LUT(imgHSV, lut, imgHSVBin);
+        // マスク画像の作成
+        cv::split(imgHSVBin, planes);   // チャンネルごとに2値化された画像をそれぞれのチャンネルに分解する
+        cv::bitwise_and(planes[0], planes[1], imgMask2);
+        cv::bitwise_and(imgMask2,  planes[2], imgMask2);
+#pragma endregion Image2
 #pragma endregion CreateMaskImage
 
         //----------------------------------------------------------------------------
@@ -297,70 +297,87 @@ void CAnalyst::ImageProc(void)
 
         //----------------------------------------------------------------------------
         // ノイズ除去
-#pragma region NoiseCut
-        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER,    &filter);
-        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTERVAL, &filterval);
+        // ゴマ塩
+#pragma region NoiseCut1
+        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER1,    &filter);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTERVAL1, &filterval);
         switch (filter)
         {
-        case NOISEFILTER_MEDIAN:    // 中央値フィルタ
+        case NOISEFILTER1_MEDIAN:    // 中央値フィルタ
             // 画像1
             cv::medianBlur(imgMask1, imgMask1, filterval);
             // 画像2
             cv::medianBlur(imgMask2, imgMask2, filterval);
             break;
-        case NOISEFILTER_OPENNING:  // オープニング処理(縮小→拡大)
+        case NOISEFILTER1_OPENNING:  // オープニング処理(縮小→拡大)
             // 画像1
+//          cv::morphologyEx(imgMask1, imgMask1, MORPH_OPEN, cv::Mat(), cv::Point(-1,-1), filterval);
             cv::erode(imgMask1, imgMask1, cv::Mat(), cv::Point(-1, -1), filterval);     // 収縮
             cv::dilate(imgMask1, imgMask1, cv::Mat(), cv::Point(-1, -1), filterval);    // 膨張
             // 画像2
+//          cv::morphologyEx(imgMask2, imgMask2, MORPH_OPEN, cv::Mat(), cv::Point(-1,-1), filterval);
             cv::erode(imgMask2, imgMask2, cv::Mat(), cv::Point(-1, -1), filterval);     // 収縮
             cv::dilate(imgMask2, imgMask2, cv::Mat(), cv::Point(-1, -1), filterval);    // 膨張
             break;
         default:
             break;
         }
-#pragma endregion NoiseCut
+#pragma endregion NoiseCut1
+
+        // 穴埋め
+#pragma region NoiseCut2
+        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER2,    &filter);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTERVAL2, &filterval);
+        // 画像1
+        switch (filter)
+        {
+        case NOISEFILTER2_CLOSING:  // クロージング処理(拡大→縮小)
+//          cv::morphologyEx(imgMask1, imgMask1, MORPH_CLOSE, cv::Mat(), cv::Point(-1,-1), filterval);
+            cv::dilate(imgMask1, imgMask1, cv::Mat(), cv::Point(-1, -1), filterval);    // 膨張
+            cv::erode(imgMask1, imgMask1, cv::Mat(), cv::Point(-1, -1), filterval);     // 収縮
+            // 画像2
+//          cv::morphologyEx(imgMask2, imgMask2, MORPH_CLOSE, cv::Mat(), cv::Point(-1,-1), filterval);
+            cv::dilate(imgMask2, imgMask2, cv::Mat(), cv::Point(-1, -1), filterval);    // 膨張
+            cv::erode(imgMask2, imgMask2, cv::Mat(), cv::Point(-1, -1), filterval);     // 収縮
+            break;
+        default:
+            break;
+        }
+#pragma endregion NoiseCut2
 
         //----------------------------------------------------------------------------
         // 画像処理
 #pragma region ImageProc
         g_pSharedObject->GetParam(PARAM_ID_IMG_ALGORITHM, &algo);
-
         // 画像1
-        {
-            // 輪郭抽出
-            cv::findContours(imgMask1, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+#pragma region Image1
+        // 輪郭抽出(一番外側の白の輪郭のみを取得)
+        cv::findContours(imgMask1, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
-            // 候補ターゲットの信頼性評価
-
-            // 重心位置計算
-            posX = 0.0;
-            posY = 0.0;
-            if (algo == COG_ALGORITHM_ALL) {ret = CalcCenterOfGravity1(contours, &posX, &posY);}
-            else                           {ret = CalcCenterOfGravity2(contours, &posX, &posY);}
-            stImgProcData[IMGPROC_ID_IMG_1].posx   = posX + stImgProcData[IMGPROC_ID_IMG_1].roi.x;
-            stImgProcData[IMGPROC_ID_IMG_1].posy   = posY + stImgProcData[IMGPROC_ID_IMG_1].roi.y;
-            stImgProcData[IMGPROC_ID_IMG_1].enable = ret;
-            g_pSharedObject->SetProcData(IMGPROC_ID_IMG_1, stImgProcData[IMGPROC_ID_IMG_1]);
-        }
+        // 重心検出
+        posX = 0.0;
+        posY = 0.0;
+        ret  = CalcCenterOfGravity(contours, &posX, &posY, algo);
+        stImgProcData[IMGPROC_ID_IMG_1].posx   = posX + stImgProcData[IMGPROC_ID_IMG_1].roi.x;
+        stImgProcData[IMGPROC_ID_IMG_1].posy   = posY + stImgProcData[IMGPROC_ID_IMG_1].roi.y;
+        stImgProcData[IMGPROC_ID_IMG_1].enable = ret;
+        g_pSharedObject->SetProcData(IMGPROC_ID_IMG_1, stImgProcData[IMGPROC_ID_IMG_1]);
+#pragma endregion Image1
 
         // 画像2
-        {
-            // 輪郭抽出
-            cv::findContours(imgMask2, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+#pragma region Image2
+        // 輪郭抽出
+        cv::findContours(imgMask2, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
-            // 候補ターゲットの信頼性評価
-
-            // 重心位置計算
-            posX = 0.0;
-            posY = 0.0;
-            if (algo == COG_ALGORITHM_ALL) {ret = CalcCenterOfGravity1(contours, &posX, &posY);}
-            else                           {ret = CalcCenterOfGravity2(contours, &posX, &posY);}
-            stImgProcData[IMGPROC_ID_IMG_2].posx   = posX + stImgProcData[IMGPROC_ID_IMG_2].roi.x;
-            stImgProcData[IMGPROC_ID_IMG_2].posy   = posY + stImgProcData[IMGPROC_ID_IMG_2].roi.y;
-            stImgProcData[IMGPROC_ID_IMG_2].enable = ret;
-            g_pSharedObject->SetProcData(IMGPROC_ID_IMG_2, stImgProcData[IMGPROC_ID_IMG_2]);
-        }
+        // 重心検出
+        posX = 0.0;
+        posY = 0.0;
+        ret  = CalcCenterOfGravity(contours, &posX, &posY, algo);
+        stImgProcData[IMGPROC_ID_IMG_2].posx   = posX + stImgProcData[IMGPROC_ID_IMG_2].roi.x;
+        stImgProcData[IMGPROC_ID_IMG_2].posy   = posY + stImgProcData[IMGPROC_ID_IMG_2].roi.y;
+        stImgProcData[IMGPROC_ID_IMG_2].enable = ret;
+        g_pSharedObject->SetProcData(IMGPROC_ID_IMG_2, stImgProcData[IMGPROC_ID_IMG_2]);
+#pragma endregion Image2
 #pragma endregion ImageProc
 
         //----------------------------------------------------------------------------
@@ -466,89 +483,115 @@ void CAnalyst::InclinationProc(void)
     }
 }
 
-/// @brief 重心位置算出アルゴリズム1
+/// @brief 重心検出
 /// @param
 /// @return 
-/// @note
-BOOL CAnalyst::CalcCenterOfGravity1(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY)
+/// @note 
+BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY, UINT32 sel)
 {
-    BOOL    ret   = FALSE;
-    double  posX  = 0.0;
-    double  posY  = 0.0;
-    UINT32  count = 0;
-
-    // 輪郭全点から重心位置を算出
-    for (UINT ii = 0; ii < contours.size(); ii++)
-    {
-        UINT tempCount = contours.at(ii).size();
-        count += tempCount;
-        for (UINT jj = 0; jj < tempCount; jj++)
-        {
-            posX += contours.at(ii).at(jj).x;
-            posY += contours.at(ii).at(jj).y;
-        }
-    }
+    BOOL    ret  = FALSE;
+    double  posX = 0.0;
+    double  posY = 0.0;
     
-    if (count > 0)
+    switch (sel)
     {
-        posX /= count;
-        posY /= count;
-        ret = TRUE;
-    }
+#pragma region COG_ALGORITHM1
+    case COG_ALGORITHM_ALL:     // 重心位置算出アルゴリズム(全輪郭点)
+        {
+        UINT32  count = 0;
 
+        for (UINT ii = 0; ii < contours.size(); ii++)
+        {
+            UINT tempCount = contours.at(ii).size();
+            count += tempCount;
+            for (UINT jj = 0; jj < tempCount; jj++)
+            {
+                posX += contours.at(ii).at(jj).x;
+                posY += contours.at(ii).at(jj).y;
+            }
+        }
+        if (count > 0)
+        {
+            posX /= count;
+            posY /= count;
+            ret = TRUE;
+        }
+
+        *outPosX = posX;
+        *outPosY = posY;
+        }
+        break;
+#pragma endregion COG_ALGORITHM1
+
+#pragma region COG_ALGORITHM2
+    case COG_ALGORITHM_AREA:    // 重心位置算出アルゴリズム(最大輪郭面積)
+        {
+        UINT32  count            = 0;
+        double  max_area         = 0;
+        int     max_area_contour = -1;
+
+        for(UINT ii = 0; ii < contours.size(); ii++)
+        {
+            double area = contourArea(contours.at(ii));
+            if(max_area < area)
+            {
+                max_area = area;
+                max_area_contour = ii;
+            }
+        }
+
+        if (max_area_contour >= 0)
+        {
+            count = contours.at(max_area_contour).size();
+            for(UINT ii = 0; ii < count; ii++)
+            {
+                posX += contours.at(max_area_contour).at(ii).x;
+                posY += contours.at(max_area_contour).at(ii).y;
+            }
+            if (count > 0)
+            {
+                posX /= count;
+                posY /= count;
+                ret = TRUE;
+            }
+        }
+        }
+        break;
+#pragma endregion COG_ALGORITHM2
+
+#pragma region COG_ALGORITHM3
+    case COG_ALGORITHM_LEN:     // 重心位置算出アルゴリズム(最大輪郭長)
+        {
+	    double  max_size = 0;
+	    int     max_id   = -1;
+
+	    if (contours.size() > 0)
+        {
+	        for (UINT ii = 0; ii < contours.size(); ii++)
+            {
+		        if (contours[ii].size() > max_size)
+                {
+			        max_size = contours[ii].size();
+			        max_id   = ii;
+		        }
+	        }
+            if (max_id >= 0)
+            {
+	            Moments mu = moments(contours[max_id]);
+	            posX = mu.m10 / mu.m00;
+	            posY = mu.m01 / mu.m00;
+                ret = TRUE;
+            }
+        }
+        }
+        break;
+#pragma endregion COG_ALGORITHM3
+
+    default:
+        break;
+    }   // switch (sel)
     *outPosX = posX;
     *outPosY = posY;
+
     return ret;
-}
-
-/// @brief 重心位置算出アルゴリズム2
-/// @param
-/// @return 
-/// @note
-BOOL CAnalyst::CalcCenterOfGravity2(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY)
-{
-    double  max_size  = 0;
-    double  max2_size = 0;
-    int     max_id    = -1;
-    int     max2_id   = -1;
-
-    if (contours.size() == 0)
-    {
-        // 対象輪郭が存在しない場合
-        *outPosX = log(-1.0);
-        *outPosY = log(-1.0);
-        return FALSE;
-    }
-
-    // 輪郭長から上位2つの輪郭を持つ対象を抽出する
-    for (size_t ii = 0; ii < contours.size(); ii++)
-    {
-        if (contours[ii].size() > max_size)
-        {
-            max_size = contours[ii].size();
-            max_id   = ii;
-        }
-        else if (contours[ii].size() > max2_size)
-        {
-            max2_size = contours[ii].size();
-            max2_id   = ii;
-        }
-        else ;
-    }
-    if ((max_id <= 0) || (max2_id <= 0))
-    {
-        // 対象輪郭が存在しない場合
-        *outPosX = log(-1.0);
-        *outPosY = log(-1.0);
-        return FALSE;
-    }
-
-    Moments mu1 = moments(contours[max_id]);
-    Point2f mc1 = Point2f((float)mu1.m10 / (float)mu1.m00, (float)mu1.m01 / (float)mu1.m00);
-    Moments mu2 = moments(contours[max2_id]);
-    Point2f mc2 = Point2f((float)mu2.m10 / (float)mu2.m00, (float)mu2.m01 / (float)mu2.m00);
-
-    *outPosX = ((DOUBLE)mc1.x + mc2.x) / 2.0;
-    *outPosY = ((DOUBLE)mc1.y + mc2.y) / 2.0;
-    return TRUE;
 }

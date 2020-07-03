@@ -735,33 +735,65 @@ HWND CPublicRelation::OpenCameraPanel()
 
         //----------------------------------------------------------------------------
         // ノイズフィルタ
-        // 種類
-        UINT32  pgsize = 1;
-        LPCTSTR strFilterItem[] = {TEXT("なし"), TEXT("中央値フィルタ"), TEXT("オープニング処理")};
-        wndhdl = GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER);
-        for (int i = 0; i < NOIZEFILTER; i++) {SendMessage(wndhdl, CB_ADDSTRING, 0, (LPARAM)strFilterItem[i]);}
-        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER, &val);
-        SendMessage(wndhdl, CB_SETCURSEL, val, 0);
-        if ((val == NOISEFILTER_MEDIAN) || (val == NOISEFILTER_OPENNING))
+        // ゴマ塩
         {
-            ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER),     SW_SHOW);
-            ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), SW_SHOW);
-            if (val == NOISEFILTER_MEDIAN) {pgsize = 2;}
+            // 種類
+            UINT32  pgsize = 1;
+            LPCTSTR strFilterItem[] = {TEXT("なし"), TEXT("中央値フィルタ"), TEXT("オープニング処理")};
+            wndhdl = GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER1);
+            for (int i = 0; i < NOIZEFILTER1_MAX; i++) {SendMessage(wndhdl, CB_ADDSTRING, 0, (LPARAM)strFilterItem[i]);}
+            g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER1, &val);
+            SendMessage(wndhdl, CB_SETCURSEL, val, 0);
+            if ((val == NOISEFILTER1_MEDIAN) || (val == NOISEFILTER1_OPENNING))
+            {
+                ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1),     SW_SHOW);
+                ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1), SW_SHOW);
+                if (val == NOISEFILTER1_MEDIAN) {pgsize = 2;}
+            }
+            else
+            {
+                ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1),     SW_HIDE);
+                ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1), SW_HIDE);
+            }
+            // フィルタ値
+            g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTERVAL1, &val);
+            wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1);
+            SendMessage(wndhdl, TBM_SETRANGE, TRUE, MAKELPARAM(1, 30)); // レンジを指定
+            SendMessage(wndhdl, TBM_SETTICFREQ, 5, 0);                  // 目盛りの増分
+            SendMessage(wndhdl, TBM_SETPOS, TRUE, val);                 // 位置の設定
+            SendMessage(wndhdl, TBM_SETPAGESIZE, 0, pgsize);            // クリック時の移動量
+            wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1);
+            _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
         }
-        else
+        // 穴埋め
         {
-            ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER),     SW_HIDE);
-            ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), SW_HIDE);
+            // 種類
+            UINT32  pgsize = 1;
+            LPCTSTR strFilterItem[] = {TEXT("なし"), TEXT("クロージング処理")};
+            wndhdl = GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER2);
+            for (int i = 0; i < NOIZEFILTER2_MAX; i++) {SendMessage(wndhdl, CB_ADDSTRING, 0, (LPARAM)strFilterItem[i]);}
+            g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER2, &val);
+            SendMessage(wndhdl, CB_SETCURSEL, val, 0);
+            if (val == NOISEFILTER2_CLOSING)
+            {
+                ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2),     SW_SHOW);
+                ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2), SW_SHOW);
+            }
+            else
+            {
+                ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2),     SW_HIDE);
+                ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2), SW_HIDE);
+            }
+            // フィルタ値
+            g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTERVAL2, &val);
+            wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2);
+            SendMessage(wndhdl, TBM_SETRANGE, TRUE, MAKELPARAM(1, 30)); // レンジを指定
+            SendMessage(wndhdl, TBM_SETTICFREQ, 5, 0);                  // 目盛りの増分
+            SendMessage(wndhdl, TBM_SETPOS, TRUE, val);                 // 位置の設定
+            SendMessage(wndhdl, TBM_SETPAGESIZE, 0, pgsize);            // クリック時の移動量
+            wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2);
+            _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
         }
-        // フィルタ値
-        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTERVAL, &val);
-        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER);
-        SendMessage(wndhdl, TBM_SETRANGE, TRUE, MAKELPARAM(1, 30)); // レンジを指定
-        SendMessage(wndhdl, TBM_SETTICFREQ, 5, 0);                  // 目盛りの増分
-        SendMessage(wndhdl, TBM_SETPOS, TRUE, val);                 // 位置の設定
-        SendMessage(wndhdl, TBM_SETPAGESIZE, 0, pgsize);            // クリック時の移動量
-        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER);
-        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
 
         //----------------------------------------------------------------------------
         // カメラ露光時間
@@ -899,18 +931,28 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
 
         //----------------------------------------------------------------------------
         // ノイズフィルタ
-        if (GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER) == (HWND)lp)
+        // ゴマ塩
+        if (GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1) == (HWND)lp)
         {
             UINT32  val;
-            g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER, &val);
-            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER), TBM_GETPOS, 0, 0);
-            if (val == NOISEFILTER_MEDIAN)
+            g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER1, &val);
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1), TBM_GETPOS, 0, 0);
+            if (val == NOISEFILTER1_MEDIAN)
             {
                 if ((pos % 2) == 0) {pos = pos + 1;}
-                SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER), TBM_SETPOS, TRUE, pos);  // 位置の設定
+                SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1), TBM_SETPOS, TRUE, pos);  // 位置の設定
             }
-            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), (LPCTSTR)str);
-            g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTERVAL, (UINT32)pos);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTERVAL1, (UINT32)pos);
+        }
+        // 穴埋め
+        if (GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2) == (HWND)lp)
+        {
+            UINT32  val;
+            g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER2, &val);
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTERVAL2, (UINT32)pos);
         }
 
         //----------------------------------------------------------------------------
@@ -1040,37 +1082,56 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
                 m_iSelImg = (UINT)SendMessage(GetDlgItem(m_hCamDlg, IDC_COMBO_IMG), CB_GETCURSEL, 0, 0);
             }
             break;
-        case IDC_COMBO_NOISEFILTER:
+        case IDC_COMBO_NOISEFILTER1:
             if (HIWORD(wp) == CBN_SELCHANGE)
             {
                 UINT    sel;
                 TCHAR   str[10];
                 int     pos;
-                sel = (UINT)SendMessage(GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER), CB_GETCURSEL, 0, 0);
-                if ((sel == NOISEFILTER_MEDIAN) || (sel == NOISEFILTER_OPENNING))
+                sel = (UINT)SendMessage(GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER1), CB_GETCURSEL, 0, 0);
+                if ((sel == NOISEFILTER1_MEDIAN) || (sel == NOISEFILTER1_OPENNING))
                 {
-                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER),     SW_SHOW);
-                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), SW_SHOW);
-                    if (sel == NOISEFILTER_MEDIAN)
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1),     SW_SHOW);
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1), SW_SHOW);
+                    if (sel == NOISEFILTER1_MEDIAN)
                     {
-                        SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER), TBM_SETPAGESIZE, 0, 2);  // クリック時の移動量
-                        pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER), TBM_GETPOS, 0, 0);
+                        SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1), TBM_SETPAGESIZE, 0, 2);  // クリック時の移動量
+                        pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1), TBM_GETPOS, 0, 0);
                         if ((pos % 2) == 0) {pos = pos + 1;}
-                        SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER), TBM_SETPOS, TRUE, pos);  // 位置の設定
-                        _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), (LPCTSTR)str);
-                        g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTERVAL, (UINT32)pos);
+                        SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1), TBM_SETPOS, TRUE, pos);  // 位置の設定
+                        _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1), (LPCTSTR)str);
+                        g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTERVAL1, (UINT32)pos);
                     }
                     else
                     {
-                        SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER), TBM_SETPAGESIZE, 0, 1);  // クリック時の移動量
+                        SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1), TBM_SETPAGESIZE, 0, 1);  // クリック時の移動量
                     }
                 }
                 else
                 {
-                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER),     SW_HIDE);
-                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER), SW_HIDE);
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1),     SW_HIDE);
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1), SW_HIDE);
                 }
-                g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTER, (UINT32)sel);
+                g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTER1, (UINT32)sel);
+            }
+            break;
+        case IDC_COMBO_NOISEFILTER2:
+            if (HIWORD(wp) == CBN_SELCHANGE)
+            {
+                UINT    sel;
+                sel = (UINT)SendMessage(GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER2), CB_GETCURSEL, 0, 0);
+                if (sel == NOISEFILTER2_CLOSING)
+                {
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2),     SW_SHOW);
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2), SW_SHOW);
+                    SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2), TBM_SETPAGESIZE, 0, 1);  // クリック時の移動量
+                }
+                else
+                {
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2),     SW_HIDE);
+                    ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2), SW_HIDE);
+                }
+                g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTER2, (UINT32)sel);
             }
             break;
         case IDCANCEL:
