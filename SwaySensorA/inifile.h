@@ -30,7 +30,7 @@
 #define	INI_KEY_CAM_FRAMERATE   L"FrameRate"    // キー名：フレームレート
 
 // ------------------ 画像処理設定セクションのキー名 ---------------------------
-#define	INI_KEY_IMG_ROI_ENABLE      L"RoiEnable"    // キー名：ROI有効
+#define	INI_KEY_IMG_ROI             L"Roi"          // キー名：ROI
 #define	INI_KEY_IMG_MASK1_LOW       L"Mask1Low"     // キー名：画像1マスク下限(H,S,V)
 #define	INI_KEY_IMG_MASK1_UPP       L"Mask1Upp"     // キー名：画像1マスク上限(H,S,V)
 #define	INI_KEY_IMG_MASK2_LOW       L"Mask2Low"     // キー名：画像2マスク下限(H,S,V)
@@ -56,6 +56,7 @@ typedef struct _stIniInf    //***** Iniファイル情報 *****
     INT     frameRate;          // フレームレート
 
     INT     roiEnable;          // ROI有効
+    INT     roiSize;            // ROIサイズ
     INT     mask1HLow;          // 画像マスク1(H)下限
     INT     mask1HUpp;          // 画像マスク1(H)上限
     INT     mask1SLow;          // 画像マスク1(S)下限

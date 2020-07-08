@@ -46,6 +46,7 @@ enum
     PARAM_ID_CAM_HEIGHT,            // カメラ設定(キャプチャサイズ高さ)
     PARAM_ID_CAM_READ_FRAMERATE,    // カメラ読出し(フレームレート)
     PARAM_ID_IMG_ROI_ENABLE,        // 画像処理設定(ROI有効)
+    PARAM_ID_IMG_ROI_SIZE,          // 画像処理設定(ROIサイズ)
     PARAM_ID_IMG_MASK1_HLOW,        // 画像処理設定(画像マスク1(H)下限)
     PARAM_ID_IMG_MASK1_HUPP,        // 画像処理設定(画像マスク1(H)上限)
     PARAM_ID_IMG_MASK1_SLOW,        // 画像処理設定(画像マスク1(S)下限)

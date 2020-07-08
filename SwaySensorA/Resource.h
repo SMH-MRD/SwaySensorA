@@ -114,9 +114,13 @@
 #define IDC_COMBO_IMG                   1053
 #define IDC_SLIDER_NOISEFILTER2         1054
 #define IDC_STATIC_GBX_CAMERA_EXPOSURE  1055
+#define IDC_STATIC_CAMERA_EXPOSURE      1055
 #define IDC_STATIC_VAL_NOISEFILTER2     1056
+#define IDC_STATIC_ROI                  1057
 #define IDC_SLIDER_CAMERA_EXPOSURE      1059
 #define IDC_STATIC_VAL_CAMERA_EXPOSURE  1060
+#define IDC_SLIDER_CAMERA_EXPOSURE2     1061
+#define IDC_SLIDER_ROI                  1061
 #define IDC_STATIC_GRV_X1               1062
 #define IDC_STATIC_GRV_X2               1063
 #define IDC_STATIC_GRV_Y1               1064
@@ -128,6 +132,7 @@
 #define IDC_STATIC_FPS                  1070
 #define IDC_STATIC_PROC_TIME            1071
 #define IDC_STATIC_IMG_GRAB_TIME        1072
+#define IDC_STATIC_VAL_ROI              1073
 #define IDC_BUTTON_CAM_START            2002
 #define IDC_BUTTON_CURSOR_L             2028
 #define IDC_BUTTON_CAM_STOP             2031

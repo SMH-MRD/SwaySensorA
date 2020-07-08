@@ -736,8 +736,13 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
     //--------------------------------------------------------------------------
     // 画像処理設定
     // ROI有効
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ROI_ENABLE, L"1", INITYPE_INT, &(pInf->roiEnable));    // ROI有効
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ROI, L"1, 100", INITYPE_CHAR, str);                   // ROI設定
     // 画像1設定
+    if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->roiEnable, &pInf->roiSize))
+    {
+        pInf->roiEnable = 0;
+        pInf->roiSize   = 10;
+    }
     CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK1_LOW, L"0,0,0", INITYPE_CHAR, str);               // 画像1マスク下限(H,S,V)
     if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask1HLow, &pInf->mask1SLow, &pInf->mask1VLow))
     {
@@ -830,6 +835,7 @@ void CreateSharedData(void)
     //--------------------------------------------------------------------------
     // 画像処理設定
     g_pSharedObject->SetParam(PARAM_ID_IMG_ROI_ENABLE,      (UINT32)ini.roiEnable);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_ROI_SIZE,        (UINT32)ini.roiSize);
     g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_HLOW,      (UINT32)ini.mask1HLow);
     g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_HUPP,      (UINT32)ini.mask1HUpp);
     g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_SLOW,      (UINT32)ini.mask1SLow);

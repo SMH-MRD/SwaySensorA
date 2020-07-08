@@ -203,7 +203,7 @@ void CPublicRelation::routine_work(void *param)
             x1 = (INT)stImgProcData[IMGPROC_ID_IMG_2].posx;  y1 = (INT)stImgProcData[IMGPROC_ID_IMG_2].posy + 10 * (INT)(imgProc.rows / DISP_IMG_HEIGHT);
             cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2 * (INT)(imgProc.cols / DISP_IMG_WIDTH), cv::LINE_4);   // 縦線
         }
-        resize(m_mtSaveImage, imgDisp, cv::Size(), DISP_IMG_WIDTH / imgProc.cols, DISP_IMG_HEIGHT / imgProc.rows);
+        cv::resize(m_mtSaveImage, imgDisp, cv::Size(), DISP_IMG_WIDTH / imgProc.cols, DISP_IMG_HEIGHT / imgProc.rows);
 
         //----------------------------------------------------------------------------
         // H,S,V表示
@@ -252,7 +252,7 @@ void CPublicRelation::routine_work(void *param)
                 if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
             }
         }
-        resize(imgMask, imgDisp, cv::Size(), DISP_IMG_WIDTH / imgMask.cols, DISP_IMG_HEIGHT / imgMask.rows);
+        cv::resize(imgMask, imgDisp, cv::Size(), DISP_IMG_WIDTH / imgMask.cols, DISP_IMG_HEIGHT / imgMask.rows);
 
         ColorBuf = (char*)calloc(imgDisp.cols * imgDisp.rows * 4, sizeof(RGBQUAD));
         for (int y = 0; y < imgDisp.rows; y++)
@@ -383,28 +383,28 @@ LRESULT CALLBACK CPublicRelation::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPAR
             }
             break;
         case IDC_BUTTON_SET:
-        {
+            {
             wstring wstr, wstr_tmp;
 
             // サンプルとしていろいろな型で読み込んで表示している
             wstr += L"Param 1(d):";
             int n = GetDlgItemText(hDlg, IDC_EDIT_TASK_VAL1, (LPTSTR)wstr_tmp.c_str(), 128);
-            if (n) { wstr_tmp = to_wstring(stod(wstr_tmp)); }
+            if (n) {wstr_tmp = to_wstring(stod(wstr_tmp));}
             wstr = wstr + wstr_tmp.c_str();
 
             wstr += L",  Param 2(i):";
             n = GetDlgItemText(hDlg, IDC_EDIT_TASK_VAL2, (LPTSTR)wstr_tmp.c_str(), 128);
-            if (n) { wstr_tmp = to_wstring(stoi(wstr_tmp)); }
+            if (n) {wstr_tmp = to_wstring(stoi(wstr_tmp));}
             wstr = wstr + wstr_tmp.c_str();
 
             wstr += L",  Param 3(f):";
             n = GetDlgItemText(hDlg, IDC_EDIT_TASK_VAL3, (LPTSTR)wstr_tmp.c_str(), 128);
-            if (n) { wstr_tmp = to_wstring(stof(wstr_tmp)); }
+            if (n) {wstr_tmp = to_wstring(stof(wstr_tmp));}
             wstr = wstr + wstr_tmp.c_str();
 
             wstr += L",  Param 4(l):";
             n = GetDlgItemText(hDlg, IDC_EDIT_TASK_VAL4, (LPTSTR)wstr_tmp.c_str(), 128);
-            if (n) { wstr_tmp = to_wstring(stol(wstr_tmp)); }
+            if (n) {wstr_tmp = to_wstring(stol(wstr_tmp));}
             wstr = wstr + wstr_tmp.c_str();
 
             wstr += L",  Param 5(c):";
@@ -416,22 +416,22 @@ LRESULT CALLBACK CPublicRelation::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPAR
             wstr += wstr_tmp.c_str();
 
             txout2msg_listbox(wstr);
-        }
-        break;
+            }
+            break;
         case IDC_BUTTON_RESET:
-        {
+            {
             set_PNLparam_value(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        }
-        break;
+            }
+            break;
         case IDC_CHECK_TASK_OPTION1:
             SendMessage(GetDlgItem(hDlg, IDC_CHECK_TASK_OPTION2), BM_SETCHECK, BST_UNCHECKED, 0L);
-            if (IsDlgButtonChecked(hDlg, IDC_CHECK_TASK_OPTION1) == BST_CHECKED) { inf.work_select = THREAD_WORK_OPTION1; }
-            else { inf.work_select = THREAD_WORK_ROUTINE; }
+            if (IsDlgButtonChecked(hDlg, IDC_CHECK_TASK_OPTION1) == BST_CHECKED) {inf.work_select = THREAD_WORK_OPTION1;}
+            else                                                                 {inf.work_select = THREAD_WORK_ROUTINE;}
             break;
         case IDC_CHECK_TASK_OPTION2:
             SendMessage(GetDlgItem(hDlg, IDC_CHECK_TASK_OPTION1), BM_SETCHECK, BST_UNCHECKED, 0L);
-            if (IsDlgButtonChecked(hDlg, IDC_CHECK_TASK_OPTION2) == BST_CHECKED) { inf.work_select = THREAD_WORK_OPTION2; }
-            else { inf.work_select = THREAD_WORK_ROUTINE; }
+            if (IsDlgButtonChecked(hDlg, IDC_CHECK_TASK_OPTION2) == BST_CHECKED) {inf.work_select = THREAD_WORK_OPTION2;}
+            else                                                                 {inf.work_select = THREAD_WORK_ROUTINE;}
             break;
         }
         break;
@@ -446,7 +446,7 @@ LRESULT CALLBACK CPublicRelation::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPAR
 void CPublicRelation::set_panel_pb_txt()
 {
     wstring wstr;
-    wstr = L"PANEL";    SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_RADIO_TASK_FUNC1), wstr.c_str()); wstr.clear();
+    wstr = L"IMAGE";    SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_RADIO_TASK_FUNC1), wstr.c_str()); wstr.clear();
     wstr = L"-";        SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_RADIO_TASK_FUNC2), wstr.c_str()); wstr.clear();
     wstr = L"-";        SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_RADIO_TASK_FUNC3), wstr.c_str()); wstr.clear();
     wstr = L"-";        SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_RADIO_TASK_FUNC4), wstr.c_str()); wstr.clear();
@@ -466,7 +466,7 @@ void CPublicRelation::set_panel_tip_txt()
     switch (inf.panel_func_id)
     {
     case IDC_RADIO_TASK_FUNC1:
-    {
+        {
         wstr = L"Type for Func1 \n\r 1:OPEN 2:?? 3:?? \n\r 4:?? 5:?? 6:??";
         switch (inf.panel_type_id)
         {
@@ -479,10 +479,10 @@ void CPublicRelation::set_panel_tip_txt()
         default:
             break;
         }
-    }
-    break;
+        }
+        break;
     case IDC_RADIO_TASK_FUNC2:
-    {
+        {
         wstr = L"Type of Func2 \n\r  1:?? 2:?? 3:?? \n\r 4:?? 5:?? 6:??";
         switch (inf.panel_type_id)
         {
@@ -495,10 +495,10 @@ void CPublicRelation::set_panel_tip_txt()
         default:
             break;
         }
-    }
-    break;
+        }
+        break;
     case IDC_RADIO_TASK_FUNC3:
-    {
+        {
         wstr = L"Type for Func3 \n\r 1:?? 2:?? 3:?? \n\r 4:?? 5:?? 6:??";
         switch (inf.panel_type_id)
         {
@@ -511,10 +511,10 @@ void CPublicRelation::set_panel_tip_txt()
         default:
             break;
         }
-    }
-    break;
+        }
+        break;
     case IDC_RADIO_TASK_FUNC4:
-    {
+        {
         wstr = L"Type for Func4 \n\r  1:?? 2:?? 3:?? \n\r 4:?? 5:?? 6:??";
         switch (inf.panel_type_id)
         {
@@ -527,10 +527,10 @@ void CPublicRelation::set_panel_tip_txt()
         default:
             break;
         }
-    }
-    break;
+        }
+        break;
     case IDC_RADIO_TASK_FUNC5:
-    {
+        {
         wstr = L"Type for Func5 \n\r 1:?? 2:?? 3:?? \n\r 4:?? 5:?? 6:??";
         switch (inf.panel_type_id)
         {
@@ -543,10 +543,10 @@ void CPublicRelation::set_panel_tip_txt()
         default:
             break;
         }
-    }
-    break;
+        }
+        break;
     case IDC_RADIO_TASK_FUNC6:
-    {
+        {
         wstr = L"Type for Func6 \n\r  1:?? 2:?? 3:?? \n\r 4:?? 5:?? 6:??";
         switch (inf.panel_type_id)
         {
@@ -559,14 +559,14 @@ void CPublicRelation::set_panel_tip_txt()
         default:
             break;
         }
-    }
-    break;
+        }
+        break;
     default:
-    {
+        {
         wstr = L"Type for Func? \n\r 1:?? 2:?? 3:?? \n\r 4:?? 5:?? 6:??";
         wstr_type += L"(Param of type?) \n\r 1:?? 2:??  3:?? \n\r 4:?? 5:?? 6:??";
-    }
-    break;
+        }
+        break;
     }
 
     SetWindowText(GetDlgItem(inf.hWnd_opepane, IDC_STATIC_TASK_ITEM), wstr.c_str());
@@ -605,13 +605,6 @@ HWND CPublicRelation::OpenCameraPanel()
 
         HWND    wndhdl;
         UINT32  val;
-        //----------------------------------------------------------------------------
-        // ROI有効
-        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_ENABLE, &val);
-        wndhdl = GetDlgItem(m_hCamDlg, IDC_CHECK_ROI);
-        if (val > 0) {SendMessage(wndhdl, BM_SETCHECK, BST_CHECKED,   0);}
-        else         {SendMessage(wndhdl, BM_SETCHECK, BST_UNCHECKED, 0);}
-
         //----------------------------------------------------------------------------
         // 画像1
         // 色相H(Low)
@@ -808,6 +801,22 @@ HWND CPublicRelation::OpenCameraPanel()
         _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
 
         //----------------------------------------------------------------------------
+        // ROI有効
+        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_ENABLE, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_CHECK_ROI);
+        if (val > 0) {SendMessage(wndhdl, BM_SETCHECK, BST_CHECKED,   0);}
+        else         {SendMessage(wndhdl, BM_SETCHECK, BST_UNCHECKED, 0);}
+        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_ROI);
+        SendMessage(wndhdl, TBM_SETRANGEMIN, TRUE, 10);         // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, 2500);       // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ, 1000, 0);           // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS, TRUE, val);             // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0, 1);             // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_ROI);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+
+        //----------------------------------------------------------------------------
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X1),        msg);
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X2),        msg);
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y1),        msg);
@@ -962,6 +971,14 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
             pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_CAMERA_EXPOSURE), TBM_GETPOS, 0, 0);
             _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_CAMERA_EXPOSURE), (LPCTSTR)str);
             g_pSharedObject->SetParam(PARAM_ID_CAM_EXPOSURE_TIME, (UINT32)pos);
+        }
+        //----------------------------------------------------------------------------
+        // ROI
+        if (GetDlgItem(m_hCamDlg, IDC_SLIDER_ROI) == (HWND)lp)
+        {
+            pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_ROI), TBM_GETPOS, 0, 0);
+            _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_ROI), (LPCTSTR)str);
+            g_pSharedObject->SetParam(PARAM_ID_IMG_ROI_SIZE, (UINT32)pos);
         }
         }
         break;

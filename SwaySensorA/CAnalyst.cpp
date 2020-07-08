@@ -30,15 +30,17 @@ void CAnalyst::init_task(void* pobj)
     m_iBufferImgProc  = IMAGE_ID_PROC_A;
 
     stImageProcData stImgProcData[IMGPROC_ID_MAX];
+    UINT32          val;
+    g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE, &val);
     for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
     {
         stImgProcData[ii].posx       = 0.0;
         stImgProcData[ii].posy       = 0.0;
         stImgProcData[ii].roi.x      = 0;
         stImgProcData[ii].roi.y      = 0;
-        stImgProcData[ii].roi.width  = IMAGE_ROI_SIZE;
-        stImgProcData[ii].roi.height = IMAGE_ROI_SIZE;
-        stImgProcData[ii].roisize    = IMAGE_ROI_SIZE;
+        stImgProcData[ii].roi.width  = val;
+        stImgProcData[ii].roi.height = val;
+        stImgProcData[ii].roisize    = val;
         stImgProcData[ii].enable     = FALSE;
         g_pSharedObject->SetProcData(ii, stImgProcData[ii]);
     }
@@ -94,7 +96,7 @@ void CAnalyst::ImageProc(void)
     UINT32          width = 0, height = 0;
     UINT            maskLow[3], maskUpp[3];
     std::vector<cv::Mat> planes;
-    UINT32          roiEnable;
+    UINT32          roiEnable, roisize;
     UINT32          filter;
     UINT32          filterval;
     std::vector<std::vector<cv::Point>> contours;
@@ -124,6 +126,9 @@ void CAnalyst::ImageProc(void)
         // 各チャンネルごとに2値化(LUT変換)し、3チャンネル全てのANDを取り、マスク画像を作成する
 #pragma region CreateMaskImage
         lut = cv::Mat(256, 1, CV_8UC3); // LUT
+        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE, &roisize);
+        if (roisize >= imgSrc.cols) roisize = imgSrc.cols;
+        if (roisize >= imgSrc.rows) roisize = imgSrc.rows;
         // 画像1
 #pragma region Image1
         if (roiEnable > 0)
@@ -139,6 +144,7 @@ void CAnalyst::ImageProc(void)
             if (stImgProcData[IMGPROC_ID_IMG_1].enable)
             {
 //@@@roisizeは自動計算するようにする必要あり
+                stImgProcData[IMGPROC_ID_IMG_1].roisize = roisize;
                 if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posx - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = 0;}
                 else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posx + (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_1].roisize;}
                 else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_1].posx - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2);}
@@ -150,6 +156,7 @@ void CAnalyst::ImageProc(void)
             }
             else
             {
+                stImgProcData[IMGPROC_ID_IMG_1].roisize    = roisize;
                 stImgProcData[IMGPROC_ID_IMG_1].roi.x      = 0;
                 stImgProcData[IMGPROC_ID_IMG_1].roi.y      = 0;
                 stImgProcData[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
@@ -164,11 +171,11 @@ void CAnalyst::ImageProc(void)
         }
         else
         {
+            stImgProcData[IMGPROC_ID_IMG_1].roisize    = roisize;
             stImgProcData[IMGPROC_ID_IMG_1].roi.x      = 0;
             stImgProcData[IMGPROC_ID_IMG_1].roi.y      = 0;
             stImgProcData[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
             stImgProcData[IMGPROC_ID_IMG_1].roi.height = imgSrc.rows;
-            stImgProcData[IMGPROC_ID_IMG_1].roisize    = IMAGE_ROI_SIZE;
         }
         // 3チャンネルのLUT作成
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_HLOW, &maskLow[0]);
@@ -216,6 +223,7 @@ void CAnalyst::ImageProc(void)
             if (stImgProcData[IMGPROC_ID_IMG_2].enable)
             {
 //@@@roisizeは自動計算するようにする必要あり
+                stImgProcData[IMGPROC_ID_IMG_2].roisize = roisize;
                 if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posx - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = 0;}
                 else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posx + (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_2].roisize;}
                 else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_2].posx - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2);}
@@ -227,11 +235,11 @@ void CAnalyst::ImageProc(void)
             }
             else
             {
+                stImgProcData[IMGPROC_ID_IMG_2].roisize    = roisize;
                 stImgProcData[IMGPROC_ID_IMG_2].roi.x      = 0;
                 stImgProcData[IMGPROC_ID_IMG_2].roi.y      = 0;
                 stImgProcData[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
                 stImgProcData[IMGPROC_ID_IMG_2].roi.height = imgSrc.rows;
-                stImgProcData[IMGPROC_ID_IMG_2].roisize    = IMAGE_ROI_SIZE;
             }
             // 部分画像を生成
             // * 部分画像とその元画像は共通の画像データを参照するため、
@@ -242,11 +250,11 @@ void CAnalyst::ImageProc(void)
         }
         else
         {
+            stImgProcData[IMGPROC_ID_IMG_2].roisize    = roisize;
             stImgProcData[IMGPROC_ID_IMG_2].roi.x      = 0;
             stImgProcData[IMGPROC_ID_IMG_2].roi.y      = 0;
             stImgProcData[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
             stImgProcData[IMGPROC_ID_IMG_2].roi.height = imgSrc.rows;
-            stImgProcData[IMGPROC_ID_IMG_2].roisize    = IMAGE_ROI_SIZE;
         }
         // 3チャンネルのLUT作成
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_HLOW, &maskLow[0]);
@@ -424,11 +432,11 @@ void CAnalyst::ImageProc(void)
         {
             stImgProcData[ii].posx       = 0.0;
             stImgProcData[ii].posy       = 0.0;
+            stImgProcData[ii].roisize    = 0;
             stImgProcData[ii].roi.x      = 0;
             stImgProcData[ii].roi.y      = 0;
-            stImgProcData[ii].roi.width  = IMAGE_ROI_SIZE;
-            stImgProcData[ii].roi.height = IMAGE_ROI_SIZE;
-            stImgProcData[ii].roisize    = IMAGE_ROI_SIZE;
+            stImgProcData[ii].roi.width  = 0;
+            stImgProcData[ii].roi.height = 0;
             stImgProcData[ii].enable     = FALSE;
             g_pSharedObject->SetProcData(ii, stImgProcData[ii]);
         }
