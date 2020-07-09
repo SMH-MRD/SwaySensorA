@@ -4,12 +4,7 @@
 extern vector<void*>    VectpCTaskObj;  // タスクオブジェクトのポインタ
 extern ST_iTask         g_itask;
 
-#define S_MAX           255
-#define S_MIN           50
-#define V_MAX           255
-#define V_MIN           50
-
-#define BEVEL_MAX_ANGLE 30.0
+#define INCLINATION_MAX     30.0
 
 class CAnalyst : public CTaskObj
 {
@@ -21,10 +16,11 @@ public:
     void init_task(void* pobj);
 
 private:
-    BOOL m_bSaveImageArea;
+    UINT8 m_iBufferImgMask1;
+    UINT8 m_iBufferImgMask2;
+    UINT8 m_iBufferImgProc;
 
     void ImageProc(void);
     void InclinationProc(void);
-    void CalcCenterOfGravity1(InputOutputArray image, vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY);
-    void CalcCenterOfGravity2(InputOutputArray image, vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY);
+    BOOL CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY, UINT32 sel);
 };

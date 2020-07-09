@@ -31,7 +31,7 @@ CClerk::~CClerk()
 void CClerk::routine_work(void *param) {
 
 //	ws << L"Act:" << *(inf.psys_counter) % 100;
-	ws << L"Port1:" << g_pSharedObject->m_stInclinoData[INCLINO_ID_PORT_1_ANALOG].data << L" Port2:" << g_pSharedObject->m_stInclinoData[INCLINO_ID_PORT_2_ANALOG].data;
+	ws << L"Port1:" << g_pSharedObject->m_stIncData[INCLINO_ID_PORT_1_ANALOG].data << L" Port2:" << g_pSharedObject->m_stIncData[INCLINO_ID_PORT_2_ANALOG].data;
 	tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
 };
@@ -63,9 +63,9 @@ LRESULT CALLBACK CClerk::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp) {
 				if (inf.panel_type_id == IDC_RADIO_TASK_ITEM1) {
 
 					//PORT1 生データ
-					MKChart::CMKChart::set_double_data(&(g_pSharedObject->m_stInclinoData[INCLINO_ID_PORT_1_MA].data), MK_CHART1, 0, 0, 20.0, false);
+					MKChart::CMKChart::set_double_data(&(g_pSharedObject->m_stIncData[INCLINO_ID_PORT_1_MA].data), MK_CHART1, 0, 0, 20.0, false);
 					//PORT1 生データ
-					MKChart::CMKChart::set_double_data(&(g_pSharedObject->m_stInclinoData[INCLINO_ID_PORT_2_MA].data), MK_CHART1, 0, 1, 20.0, false);
+					MKChart::CMKChart::set_double_data(&(g_pSharedObject->m_stIncData[INCLINO_ID_PORT_2_MA].data), MK_CHART1, 0, 1, 20.0, false);
 
 					MKChart::CMKChart::open_chart(MK_CHART1, hDlg);
 					MKChart::CMKChart::set_chart_spd(MK_CHART1, 30000);
