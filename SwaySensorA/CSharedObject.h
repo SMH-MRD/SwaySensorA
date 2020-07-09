@@ -40,10 +40,12 @@ enum
 {
     PARAM_ID_IMG_GRAB_CAMERA = 0,   // 画像取込み(カメラ)
     PARAM_ID_IMG_GRAB_FILE,         // 画像取込み(ファイル)
-    PARAM_ID_CAM_EXPOSURE_TIME,     // カメラ設定(露光時間)
-    PARAM_ID_CAM_FRAMERATE,         // カメラ設定(フレームレート)
     PARAM_ID_CAM_WIDTH,             // カメラ設定(キャプチャサイズ横幅)
     PARAM_ID_CAM_HEIGHT,            // カメラ設定(キャプチャサイズ高さ)
+    PARAM_ID_CAM_FRAMERATE,         // カメラ設定(フレームレート)
+    PARAM_ID_CAM_EXPOSURE_TIME_MIN, // カメラ設定(露光時間最小値)
+    PARAM_ID_CAM_EXPOSURE_TIME_MAX, // カメラ設定(露光時間最大値)
+    PARAM_ID_CAM_EXPOSURE_TIME,     // カメラ設定(露光時間)
     PARAM_ID_CAM_READ_FRAMERATE,    // カメラ読出し(フレームレート)
     PARAM_ID_IMG_ROI_ENABLE,        // 画像処理設定(ROI有効)
     PARAM_ID_IMG_ROI_SIZE,          // 画像処理設定(ROIサイズ)
@@ -118,11 +120,12 @@ typedef struct _stImageData
 
 typedef struct _stImageProcData
 {
-    double      posx;
-    double      posy;
-    cv::Rect    roi;
-    int         roisize;
-    BOOL        enable;
+    double      posx;           // 検出位置X
+    double      posy;           // 検出位置Y
+    int         roiSize;        // ROIサイズ
+    cv::Rect    roi;            // ROI
+    double      expTime;        // 露光時間
+    BOOL        enable;         // 検出状態
 } stImageProcData;
 
 typedef struct _stInclinationData

@@ -790,11 +790,13 @@ HWND CPublicRelation::OpenCameraPanel()
 
         //----------------------------------------------------------------------------
         // カメラ露光時間
-        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_CAMERA_EXPOSURE);
-        SendMessage(wndhdl, TBM_SETRANGEMIN, TRUE, 81);         // レンジを指定
-        SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, 1000000);    // レンジを指定
+        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME_MIN, &val);
+        SendMessage(wndhdl, TBM_SETRANGEMIN, TRUE, val);        // レンジを指定
+        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME_MAX, &val);
+        SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, val);        // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ, 1000, 0);           // 目盛りの増分
+        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME, &val);
         SendMessage(wndhdl, TBM_SETPOS, TRUE, val);             // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0, 1);             // クリック時の移動量
         wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_CAMERA_EXPOSURE);
@@ -806,11 +808,11 @@ HWND CPublicRelation::OpenCameraPanel()
         wndhdl = GetDlgItem(m_hCamDlg, IDC_CHECK_ROI);
         if (val > 0) {SendMessage(wndhdl, BM_SETCHECK, BST_CHECKED,   0);}
         else         {SendMessage(wndhdl, BM_SETCHECK, BST_UNCHECKED, 0);}
-        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_ROI);
         SendMessage(wndhdl, TBM_SETRANGEMIN, TRUE, 10);         // レンジを指定
         SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, 2500);       // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ, 1000, 0);           // 目盛りの増分
+        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE, &val);
         SendMessage(wndhdl, TBM_SETPOS, TRUE, val);             // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0, 1);             // クリック時の移動量
         wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_ROI);

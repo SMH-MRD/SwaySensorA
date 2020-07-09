@@ -24,10 +24,10 @@
 #define DUMMY_KEY_OF_INIFILE        L"DUMMY"
 
 // ------------------ カメラ設定セクションのキー名 ---------------------------
-#define	INI_KEY_CAM_EXPOSURE    L"ExposureTime" // キー名：露光時間
-#define	INI_KEY_CAM_WIDTH       L"Width"        // キー名：カメラ撮影横幅
-#define	INI_KEY_CAM_HEIGHT      L"Height"       // キー名：カメラ撮影高さ
-#define	INI_KEY_CAM_FRAMERATE   L"FrameRate"    // キー名：フレームレート
+#define	INI_KEY_CAM_WIDTH       L"Width"            // キー名：カメラ撮影横幅
+#define	INI_KEY_CAM_HEIGHT      L"Height"           // キー名：カメラ撮影高さ
+#define	INI_KEY_CAM_FRAMERATE   L"FrameRate"        // キー名：フレームレート
+#define	INI_KEY_CAM_EXPOSURE    L"ExposureTime"     // キー名：露光時間
 
 // ------------------ 画像処理設定セクションのキー名 ---------------------------
 #define	INI_KEY_IMG_ROI             L"Roi"          // キー名：ROI
@@ -50,10 +50,12 @@
 // ------------------ Iniファイル情報の構造体 ---------------------------
 typedef struct _stIniInf    //***** Iniファイル情報 *****
 {
-    INT     exposureTime;       // 露光時間
     INT     camWidth;           // カメラ取得横幅
     INT     camHeight;          // カメラ取得高さ
     INT     frameRate;          // フレームレート
+    INT     expTimeMin;         // 露光時間(最小値)
+    INT     expTimeMax;         // 露光時間(最大値)
+    INT     expTime;            // 露光時間
 
     INT     roiEnable;          // ROI有効
     INT     roiSize;            // ROIサイズ

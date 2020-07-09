@@ -728,15 +728,21 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 
     //--------------------------------------------------------------------------
     // カメラ設定
-    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_EXPOSURE,  L"10000", INITYPE_INT, &(pInf->exposureTime)); // 露光時間
-    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_WIDTH,     L"640",   INITYPE_INT, &(pInf->camWidth));     // カメラ撮影横幅
-    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_HEIGHT,    L"480",   INITYPE_INT, &(pInf->camHeight));    // カメラ撮影高さ
-    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_FRAMERATE, L"30",    INITYPE_INT, &(pInf->frameRate));    // フレームレート
+    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_WIDTH,     L"640",       INITYPE_INT, &(pInf->camWidth));     // カメラ撮影横幅
+    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_HEIGHT,    L"480",       INITYPE_INT, &(pInf->camHeight));    // カメラ撮影高さ
+    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_FRAMERATE, L"30",        INITYPE_INT, &(pInf->frameRate));    // フレームレート
+    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_EXPOSURE,  L"1,1000,10", INITYPE_CHAR, str);  // 露光時間
+    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->expTimeMin, &pInf->expTimeMax, &pInf->expTime))
+    {
+        pInf->expTimeMin = 1;
+        pInf->expTimeMax = 1000;
+        pInf->expTime    = 10;
+    }
 
     //--------------------------------------------------------------------------
     // 画像処理設定
     // ROI有効
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ROI, L"1, 100", INITYPE_CHAR, str);                   // ROI設定
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ROI, L"1,100", INITYPE_CHAR, str);                   // ROI設定
     // 画像1設定
     if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->roiEnable, &pInf->roiSize))
     {
@@ -827,10 +833,12 @@ void CreateSharedData(void)
 
     //--------------------------------------------------------------------------
     // カメラ設定
-    g_pSharedObject->SetParam(PARAM_ID_CAM_EXPOSURE_TIME, (UINT32)ini.exposureTime);
-    g_pSharedObject->SetParam(PARAM_ID_CAM_FRAMERATE,     (UINT32)ini.frameRate);
-    g_pSharedObject->SetParam(PARAM_ID_CAM_WIDTH,         (UINT32)ini.camWidth);
-    g_pSharedObject->SetParam(PARAM_ID_CAM_HEIGHT,        (UINT32)ini.camHeight);
+    g_pSharedObject->SetParam(PARAM_ID_CAM_WIDTH,             (UINT32)ini.camWidth);
+    g_pSharedObject->SetParam(PARAM_ID_CAM_HEIGHT,            (UINT32)ini.camHeight);
+    g_pSharedObject->SetParam(PARAM_ID_CAM_FRAMERATE,         (UINT32)ini.frameRate);
+    g_pSharedObject->SetParam(PARAM_ID_CAM_EXPOSURE_TIME_MIN, (UINT32)ini.expTimeMin);
+    g_pSharedObject->SetParam(PARAM_ID_CAM_EXPOSURE_TIME_MAX, (UINT32)ini.expTimeMax);
+    g_pSharedObject->SetParam(PARAM_ID_CAM_EXPOSURE_TIME,     (UINT32)ini.expTime);
 
     //--------------------------------------------------------------------------
     // 画像処理設定

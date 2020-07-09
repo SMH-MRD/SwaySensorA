@@ -31,11 +31,12 @@ void CSharedObject::InitSharedObject(void)
     {
         m_stImgProcData[ii].posx       = 0.0;
         m_stImgProcData[ii].posy       = 0.0;
+        m_stImgProcData[ii].roiSize    = 0;
         m_stImgProcData[ii].roi.x      = 0;
         m_stImgProcData[ii].roi.y      = 0;
         m_stImgProcData[ii].roi.width  = 0;
         m_stImgProcData[ii].roi.height = 0;
-        m_stImgProcData[ii].roisize    = 0;
+        m_stImgProcData[ii].expTime    = 0.0;
         m_stImgProcData[ii].enable     = FALSE;
     }
     for (UINT ii = 0; ii < INCLINO_ID_MAX; ii++)
@@ -128,11 +129,12 @@ INT CSharedObject::SetProcData(UINT8 id, stImageProcData data)
     EnterCriticalSection(&csProcData[id]);
     m_stImgProcData[id].posx       = data.posx;
     m_stImgProcData[id].posy       = data.posy;
+    m_stImgProcData[id].roiSize    = data.roiSize;
     m_stImgProcData[id].roi.x      = data.roi.x;
     m_stImgProcData[id].roi.y      = data.roi.y;
     m_stImgProcData[id].roi.width  = data.roi.width;
     m_stImgProcData[id].roi.height = data.roi.height;
-    m_stImgProcData[id].roisize    = data.roisize;
+    m_stImgProcData[id].expTime    = data.expTime;
     m_stImgProcData[id].enable     = data.enable;
     LeaveCriticalSection(&csProcData[id]);
 
@@ -151,11 +153,12 @@ INT CSharedObject::GetProcData(UINT8 id, stImageProcData* data)
     EnterCriticalSection(&csProcData[id]);
     data->posx       = m_stImgProcData[id].posx;
     data->posy       = m_stImgProcData[id].posy;
+    data->roiSize    = m_stImgProcData[id].roiSize;
     data->roi.x      = m_stImgProcData[id].roi.x;
     data->roi.y      = m_stImgProcData[id].roi.y;
     data->roi.width  = m_stImgProcData[id].roi.width;
     data->roi.height = m_stImgProcData[id].roi.height;
-    data->roisize    = m_stImgProcData[id].roisize;
+    data->expTime    = m_stImgProcData[id].expTime;
     data->enable     = m_stImgProcData[id].enable;
     LeaveCriticalSection(&csProcData[id]);
 
