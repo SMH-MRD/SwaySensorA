@@ -22,6 +22,7 @@ CComCamera::~CComCamera()
         if (m_pCamera->IsOpen()) {m_pCamera->Close();}
         m_pCamera = NULL;
     }
+    PylonTerminate();
 }
 
 /// @brief 
