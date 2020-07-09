@@ -30,17 +30,20 @@ void CAnalyst::init_task(void* pobj)
     m_iBufferImgProc  = IMAGE_ID_PROC_A;
 
     stImageProcData stImgProcData[IMGPROC_ID_MAX];
-    UINT32          val;
-    g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE, &val);
+    UINT32          roisize;
+    UINT32          exptime;
+    g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE,      &roisize);
+    g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME, &exptime);
     for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
     {
         stImgProcData[ii].posx       = 0.0;
         stImgProcData[ii].posy       = 0.0;
+        stImgProcData[ii].roiSize    = roisize;
         stImgProcData[ii].roi.x      = 0;
         stImgProcData[ii].roi.y      = 0;
-        stImgProcData[ii].roi.width  = val;
-        stImgProcData[ii].roi.height = val;
-        stImgProcData[ii].roisize    = val;
+        stImgProcData[ii].roi.width  = roisize;
+        stImgProcData[ii].roi.height = roisize;
+        stImgProcData[ii].expTime    = (double)exptime;
         stImgProcData[ii].enable     = FALSE;
         g_pSharedObject->SetProcData(ii, stImgProcData[ii]);
     }
@@ -144,20 +147,20 @@ void CAnalyst::ImageProc(void)
             if (stImgProcData[IMGPROC_ID_IMG_1].enable)
             {
 //@@@roisizeは自動計算するようにする必要あり
-                stImgProcData[IMGPROC_ID_IMG_1].roisize = roisize;
-                int tmpval = (int)(((double)stImgProcData[IMGPROC_ID_IMG_1].roisize / 2.0) + 0.5);
+                stImgProcData[IMGPROC_ID_IMG_1].roiSize = roisize;
+                int tmpval = (int)(((double)stImgProcData[IMGPROC_ID_IMG_1].roiSize / 2.0) + 0.5);
                 if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posx - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = 0;}
-                else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posx + tmpval) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_1].roisize;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posx + tmpval) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_1].roiSize;}
                 else                                                                         {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_1].posx - tmpval;}
                 if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posy - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = 0;}
-                else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posy + tmpval) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_1].roisize;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posy + tmpval) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_1].roiSize;}
                 else                                                                         {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_1].posy - tmpval;}
-                stImgProcData[IMGPROC_ID_IMG_1].roi.width  = stImgProcData[IMGPROC_ID_IMG_1].roisize;
-                stImgProcData[IMGPROC_ID_IMG_1].roi.height = stImgProcData[IMGPROC_ID_IMG_1].roisize;
+                stImgProcData[IMGPROC_ID_IMG_1].roi.width  = stImgProcData[IMGPROC_ID_IMG_1].roiSize;
+                stImgProcData[IMGPROC_ID_IMG_1].roi.height = stImgProcData[IMGPROC_ID_IMG_1].roiSize;
             }
             else
             {
-                stImgProcData[IMGPROC_ID_IMG_1].roisize    = roisize;
+                stImgProcData[IMGPROC_ID_IMG_1].roiSize    = roisize;
                 stImgProcData[IMGPROC_ID_IMG_1].roi.x      = 0;
                 stImgProcData[IMGPROC_ID_IMG_1].roi.y      = 0;
                 stImgProcData[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
@@ -172,7 +175,7 @@ void CAnalyst::ImageProc(void)
         }
         else
         {
-            stImgProcData[IMGPROC_ID_IMG_1].roisize    = roisize;
+            stImgProcData[IMGPROC_ID_IMG_1].roiSize    = roisize;
             stImgProcData[IMGPROC_ID_IMG_1].roi.x      = 0;
             stImgProcData[IMGPROC_ID_IMG_1].roi.y      = 0;
             stImgProcData[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
@@ -224,20 +227,20 @@ void CAnalyst::ImageProc(void)
             if (stImgProcData[IMGPROC_ID_IMG_2].enable)
             {
 //@@@roisizeは自動計算するようにする必要あり
-                stImgProcData[IMGPROC_ID_IMG_2].roisize = roisize;
-                int tmpval = (int)(((double)stImgProcData[IMGPROC_ID_IMG_2].roisize / 2.0) + 0.5);
+                stImgProcData[IMGPROC_ID_IMG_2].roiSize = roisize;
+                int tmpval = (int)(((double)stImgProcData[IMGPROC_ID_IMG_2].roiSize / 2.0) + 0.5);
                 if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posx - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = 0;}
-                else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posx + tmpval) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_2].roisize;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posx + tmpval) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_2].roiSize;}
                 else                                                                         {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_2].posx - tmpval;}
                 if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posy - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = 0;}
-                else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posy + tmpval) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_2].roisize;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posy + tmpval) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_2].roiSize;}
                 else                                                                         {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_2].posy - tmpval;}
-                stImgProcData[IMGPROC_ID_IMG_2].roi.width  = stImgProcData[IMGPROC_ID_IMG_2].roisize;
-                stImgProcData[IMGPROC_ID_IMG_2].roi.height = stImgProcData[IMGPROC_ID_IMG_2].roisize;
+                stImgProcData[IMGPROC_ID_IMG_2].roi.width  = stImgProcData[IMGPROC_ID_IMG_2].roiSize;
+                stImgProcData[IMGPROC_ID_IMG_2].roi.height = stImgProcData[IMGPROC_ID_IMG_2].roiSize;
             }
             else
             {
-                stImgProcData[IMGPROC_ID_IMG_2].roisize    = roisize;
+                stImgProcData[IMGPROC_ID_IMG_2].roiSize    = roisize;
                 stImgProcData[IMGPROC_ID_IMG_2].roi.x      = 0;
                 stImgProcData[IMGPROC_ID_IMG_2].roi.y      = 0;
                 stImgProcData[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
@@ -252,7 +255,7 @@ void CAnalyst::ImageProc(void)
         }
         else
         {
-            stImgProcData[IMGPROC_ID_IMG_2].roisize    = roisize;
+            stImgProcData[IMGPROC_ID_IMG_2].roiSize    = roisize;
             stImgProcData[IMGPROC_ID_IMG_2].roi.x      = 0;
             stImgProcData[IMGPROC_ID_IMG_2].roi.y      = 0;
             stImgProcData[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
@@ -434,11 +437,12 @@ void CAnalyst::ImageProc(void)
         {
             stImgProcData[ii].posx       = 0.0;
             stImgProcData[ii].posy       = 0.0;
-            stImgProcData[ii].roisize    = 0;
+            stImgProcData[ii].roiSize    = 0;
             stImgProcData[ii].roi.x      = 0;
             stImgProcData[ii].roi.y      = 0;
             stImgProcData[ii].roi.width  = 0;
             stImgProcData[ii].roi.height = 0;
+            stImgProcData[ii].expTime    = 0.0;
             stImgProcData[ii].enable     = FALSE;
             g_pSharedObject->SetProcData(ii, stImgProcData[ii]);
         }
