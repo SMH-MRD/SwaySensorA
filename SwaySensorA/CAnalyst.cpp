@@ -96,7 +96,7 @@ void CAnalyst::ImageProc(void)
     UINT32          width = 0, height = 0;
     UINT            maskLow[3], maskUpp[3];
     std::vector<cv::Mat> planes;
-    UINT32          roiEnable, roisize;
+    UINT32          roienable, roisize;
     UINT32          filter;
     UINT32          filterval;
     std::vector<std::vector<cv::Point>> contours;
@@ -118,8 +118,8 @@ void CAnalyst::ImageProc(void)
         //----------------------------------------------------------------------------
         // 画像色をBGR→HSVに変換
 #pragma region ConvBGRToHSV
-        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_ENABLE, &roiEnable);
-        if (roiEnable == 0) {cv::cvtColor(imgSrc, imgHSV, COLOR_BGR2HSV);}
+        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_ENABLE, &roienable);
+        if (roienable == 0) {cv::cvtColor(imgSrc, imgHSV, COLOR_BGR2HSV);}
 #pragma endregion ConvBGRToHSV
 
         //----------------------------------------------------------------------------
@@ -127,11 +127,11 @@ void CAnalyst::ImageProc(void)
 #pragma region CreateMaskImage
         lut = cv::Mat(256, 1, CV_8UC3); // LUT
         g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE, &roisize);
-        if (roisize >= imgSrc.cols) roisize = imgSrc.cols;
-        if (roisize >= imgSrc.rows) roisize = imgSrc.rows;
+        if ((int)roisize >= imgSrc.cols) roisize = imgSrc.cols;
+        if ((int)roisize >= imgSrc.rows) roisize = imgSrc.rows;
         // 画像1
 #pragma region Image1
-        if (roiEnable > 0)
+        if (roienable > 0)
         {
             // ROIの範囲(長方形)を設定する
             // * (x, y, width, height)で指定
@@ -145,12 +145,13 @@ void CAnalyst::ImageProc(void)
             {
 //@@@roisizeは自動計算するようにする必要あり
                 stImgProcData[IMGPROC_ID_IMG_1].roisize = roisize;
-                if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posx - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = 0;}
-                else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posx + (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_1].roisize;}
-                else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_1].posx - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2);}
-                if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posy - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = 0;}
-                else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posy + (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2)) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_1].roisize;}
-                else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_1].posy - (stImgProcData[IMGPROC_ID_IMG_1].roisize / 2);}
+                int tmpval = (int)(((double)stImgProcData[IMGPROC_ID_IMG_1].roisize / 2.0) + 0.5);
+                if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posx - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = 0;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posx + tmpval) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_1].roisize;}
+                else                                                                         {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_1].posx - tmpval;}
+                if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posy - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = 0;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posy + tmpval) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_1].roisize;}
+                else                                                                         {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_1].posy - tmpval;}
                 stImgProcData[IMGPROC_ID_IMG_1].roi.width  = stImgProcData[IMGPROC_ID_IMG_1].roisize;
                 stImgProcData[IMGPROC_ID_IMG_1].roi.height = stImgProcData[IMGPROC_ID_IMG_1].roisize;
             }
@@ -210,7 +211,7 @@ void CAnalyst::ImageProc(void)
 
         // 画像2
 #pragma region Image2
-        if (roiEnable > 0)
+        if (roienable > 0)
         {
             // ROIの範囲（長方形）を設定する
             // * (x, y, width, height)で指定
@@ -224,12 +225,13 @@ void CAnalyst::ImageProc(void)
             {
 //@@@roisizeは自動計算するようにする必要あり
                 stImgProcData[IMGPROC_ID_IMG_2].roisize = roisize;
-                if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posx - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = 0;}
-                else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posx + (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_2].roisize;}
-                else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_2].posx - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2);}
-                if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posy - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = 0;}
-                else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posy + (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2)) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_2].roisize;}
-                else                                                                                                                {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_2].posy - (stImgProcData[IMGPROC_ID_IMG_2].roisize / 2);}
+                int tmpval = (int)(((double)stImgProcData[IMGPROC_ID_IMG_2].roisize / 2.0) + 0.5);
+                if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posx - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = 0;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posx + tmpval) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_2].roisize;}
+                else                                                                         {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_2].posx - tmpval;}
+                if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posy - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = 0;}
+                else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posy + tmpval) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_2].roisize;}
+                else                                                                         {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_2].posy - tmpval;}
                 stImgProcData[IMGPROC_ID_IMG_2].roi.width  = stImgProcData[IMGPROC_ID_IMG_2].roisize;
                 stImgProcData[IMGPROC_ID_IMG_2].roi.height = stImgProcData[IMGPROC_ID_IMG_2].roisize;
             }
@@ -524,9 +526,6 @@ BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPo
             posY /= count;
             ret = TRUE;
         }
-
-        *outPosX = posX;
-        *outPosY = posY;
         }
         break;
 #pragma endregion COG_ALGORITHM1
@@ -586,9 +585,12 @@ BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPo
             if (max_id >= 0)
             {
 	            Moments mu = moments(contours[max_id]);
-	            posX = mu.m10 / mu.m00;
-	            posY = mu.m01 / mu.m00;
-                ret = TRUE;
+                if(mu.m00 > 0.0)
+                {
+	                posX = mu.m10 / mu.m00;
+	                posY = mu.m01 / mu.m00;
+                    ret = TRUE;
+                }
             }
         }
         }
@@ -598,6 +600,13 @@ BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPo
     default:
         break;
     }   // switch (sel)
+
+    if (isnan(posX) || isnan(posY))
+    {
+        posX = 0.0;
+        posY = 0.0;
+        ret = FALSE;
+    }
     *outPosX = posX;
     *outPosY = posY;
 
