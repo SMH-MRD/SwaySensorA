@@ -163,7 +163,7 @@ namespace Pylon
 
 
         /*!
-        \brief Copies the image data from a different image and changes the padding while copying.
+        \brief 
 
         This method is used for making a full copy of an image except for changing the padding.
         Calls the Reset() method to set the same image properties as the source image and
