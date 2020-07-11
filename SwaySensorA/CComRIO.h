@@ -110,5 +110,5 @@ public:
 private:
     ST_RioPh stRIO_ph;
 
-    int init_RIO();
+    int Initialize();
 };

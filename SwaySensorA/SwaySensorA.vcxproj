@@ -92,12 +92,13 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\include\Modbus;..\include\opencv;..\include\pylon</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\lib;..\lib\opencv;..\lib\pylon\Win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>comctl32.lib;winmm.lib;shlwapi.lib;ModbusTCP.lib;modbus.lib;opencv_world420d.lib;MKLog.lib;MKChartLib.lib;Ws2_32.lib;GCBase_MD_VC141_v3_1_Basler_pylon.lib;GenApi_MD_VC141_v3_1_Basler_pylon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\Modbus;..\lib;..\lib\opencv;..\lib\pylon\Win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;winmm.lib;shlwapi.lib;ModbusTCP.lib;modbus.lib;opencv_world420d.lib;MKChartLib.lib;MKlog.lib;Ws2_32.lib;GCBase_MD_VC141_v3_1_Basler_pylon.lib;GenApi_MD_VC141_v3_1_Basler_pylon.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,14 +131,15 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\include\Modbus;..\include\opencv;..\include\pylon</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\lib;..\lib\opencv;..\lib\pylon\Win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>comctl32.lib;winmm.lib;shlwapi.lib;ModbusTCP.lib;modbus.lib;opencv_world420d.lib;MKLog.lib;MKChartLib.lib;GCBase_MD_VC141_v3_1_Basler_pylon.lib;GenApi_MD_VC141_v3_1_Basler_pylon.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\Modbus;..\lib;..\lib\opencv;..\lib\pylon\Win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;winmm.lib;shlwapi.lib;ModbusTCP.lib;modbus.lib;opencv_world420.lib;MKChartLib.lib;MKlog.lib;Ws2_32.lib;GCBase_MD_VC141_v3_1_Basler_pylon.lib;GenApi_MD_VC141_v3_1_Basler_pylon.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -199,6 +201,14 @@
   <ItemGroup>
     <Image Include="..\bmp\alube.bmp" />
     <Image Include="..\bmp\analy2.bmp" />
+    <Image Include="..\bmp\BitmapBlue.bmp" />
+    <Image Include="..\bmp\BitmapGray.bmp" />
+    <Image Include="..\bmp\BitmapGreen.bmp" />
+    <Image Include="..\bmp\BitmapLightBlue.bmp" />
+    <Image Include="..\bmp\BitmapMagenta.bmp" />
+    <Image Include="..\bmp\BitmapRed.bmp" />
+    <Image Include="..\bmp\BitmapWhite.bmp" />
+    <Image Include="..\bmp\BitmapYellow.bmp" />
     <Image Include="..\bmp\clerk2.bmp" />
     <Image Include="..\bmp\comm1.bmp" />
     <Image Include="..\bmp\comm2.bmp" />

@@ -9,8 +9,6 @@ extern CSharedObject*   g_pSharedObject;    // タスク間共有データのポインタ
 /// @note
 CComCamera::CComCamera()
 {
-    m_pCamera        = NULL;
-    m_bSaveImageArea = FALSE;
 }
 
 /// @brief デストラクタ
@@ -24,7 +22,7 @@ CComCamera::~CComCamera()
         if (m_pCamera->IsOpen()) {m_pCamera->Close();}
         m_pCamera = NULL;
     }
-	PylonTerminate(true);
+    PylonTerminate();
 }
 
 /// @brief 
@@ -34,6 +32,8 @@ CComCamera::~CComCamera()
 void CComCamera::init_task(void *pobj)
 {
     PylonInitialize();
+    m_pCamera = NULL;
+    m_iBufferImg = IMAGE_ID_RAW_A;
     return;
 };
 
@@ -55,22 +55,48 @@ void CComCamera::routine_work(void *param)
     else                                {inf.cycle_count = 1;}
 
     UINT32 camProc, imageProc;
-    if (g_pSharedObject->GetParam(PARAM_ID_CAM_PROC,      &camProc)   != RESULT_OK) {return;}
-    if (g_pSharedObject->GetParam(PARAM_ID_PIC_PROC_FLAG, &imageProc) != RESULT_OK) {return;}
+    if (g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_CAMERA, &camProc)   != RESULT_OK) {return;}
+    if (g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_FILE,   &imageProc) != RESULT_OK) {return;}
 
-    // Open camera.
-    if (!OpenCamera()) {return;}
+    //----------------------------------------------------------------------------
+    // 処理時間計測(開始時間取得)
+    LARGE_INTEGER   frequency;
+    LARGE_INTEGER   start;
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&start);
 
     if (camProc)
     {
+        //----------------------------------------------------------------------------
+        // Open camera.
+        if (!OpenCamera()) {return;}
+
+        //----------------------------------------------------------------------------
+        // Start the grabbing
         StartGrabImage();
+
+        //----------------------------------------------------------------------------
+        // Image grabbed
         CaptureImage();
     }
     else if (imageProc)
     {
+        //----------------------------------------------------------------------------
+        // Image grabbed
         ImageProcStart();
     }
     else ;
+
+    //----------------------------------------------------------------------------
+    // 処理時間計測(終了時間取得)
+    LARGE_INTEGER   end;
+    LONGLONG        span, usec;
+    QueryPerformanceCounter(&end);
+    span = end.QuadPart - start.QuadPart;
+    usec = (span * 1000000L) / frequency.QuadPart;
+    g_pSharedObject->SetParam(PARAM_ID_DOUBLE_IMG_GRAB_TIME, (DOUBLE)usec / 1000.0);
+
+    return;
 }
 
 /// @brief カメラ撮影処理
@@ -81,6 +107,7 @@ BOOL CComCamera::OpenCamera(void)
 {
     try
     {
+        //----------------------------------------------------------------------------
         if (m_pCamera == NULL)
         {
             m_pCamera = new CBaslerUniversalInstantCamera(CTlFactory::GetInstance().CreateFirstDevice());
@@ -89,7 +116,9 @@ BOOL CComCamera::OpenCamera(void)
 
         if (m_pCamera->IsOpen()) {return TRUE;}
 
-        m_pCamera->Open();  // Open camera.
+        //----------------------------------------------------------------------------
+        // Open camera
+        m_pCamera->Open();
 
         UINT32 setWidth;
         g_pSharedObject->GetParam(PARAM_ID_CAM_WIDTH, &setWidth);
@@ -122,7 +151,7 @@ BOOL CComCamera::OpenCamera(void)
 
         return TRUE;
     }
-    catch (GenICam::GenericException & e)   // エラーハンドリング
+    catch (GenICam::GenericException)   // エラーハンドリング
     {
         return FALSE;
     }
@@ -140,6 +169,11 @@ void CComCamera::StartGrabImage(void)
         if (!m_pCamera->IsOpen() || m_pCamera->IsGrabbing()) {return;}
         // Start the grabbing of c_countOfImagesToGrab images.
         // The camera device is parameterized with a default configuration which sets up free-running continuous acquisition.
+
+        UINT32 setExposure;
+        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME, &setExposure);
+        m_pCamera->ExposureTime.SetValue(setExposure);
+
         m_pCamera->StartGrabbing(c_countOfImagesToGrab, GrabStrategy_LatestImageOnly);
     }
     catch (Pylon::GenericException)
@@ -158,14 +192,6 @@ void CComCamera::CaptureImage(void)
 
     wstring out_string;	wstring wstr; string str;
 
-    // 処理時間計測(開始時間取得)
-    LARGE_INTEGER   frequency;
-    LARGE_INTEGER   start, end;
-    LONGLONG        span, usec;
-
-    QueryPerformanceFrequency(&frequency);
-    QueryPerformanceCounter(&start);
-
     // Declare an integer variable to count the number of grabbed images and create image file names with ascending number.
     static int grabbedImages = 0;
     try
@@ -177,7 +203,7 @@ void CComCamera::CaptureImage(void)
         CGrabResultPtr          ptrGrabResult;      // This smart pointer will receive the grab result data.
         CImageFormatConverter   formatConverter;    // First the image format converter class must be created.
         CPylonImage             pylonImage;         // Create a PylonImage that will be used to reate OpenCV images later.
-        Mat                     openCvImage;        // Create an OpenCV image.
+        cv::Mat                 openCvImage;        // Create an OpenCV image.
 
         // Camera.StopGrabbing() is called automatically by the Retriveresult() method when c_countOfImagesToGrab images hav been retrived.
         while (m_pCamera->IsGrabbing())
@@ -201,15 +227,15 @@ void CComCamera::CaptureImage(void)
 
                 // Create an OpenCV image from a pylon image.
                 openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer());
-                if (m_bSaveImageArea == FALSE)
+                if (m_iBufferImg == IMAGE_ID_RAW_A)
                 {
-                    g_pSharedObject->SetImage(IMAGE_ID_CAM_A, openCvImage);
-                    m_bSaveImageArea = TRUE;
+                    g_pSharedObject->SetImage(IMAGE_ID_RAW_A, openCvImage);
+                    m_iBufferImg = IMAGE_ID_RAW_B;
                 }
                 else
                 {
-                    g_pSharedObject->SetImage(IMAGE_ID_CAM_B, openCvImage);
-                    m_bSaveImageArea = FALSE;
+                    g_pSharedObject->SetImage(IMAGE_ID_RAW_B, openCvImage);
+                    m_iBufferImg = IMAGE_ID_RAW_A;
                 }
                 // Set saveImages to '1' to save images
                 if (saveImages)
@@ -245,11 +271,6 @@ void CComCamera::CaptureImage(void)
             }
             else ;
         }
-
-        // 処理時間計測(終了時間取得)
-        QueryPerformanceCounter(&end);
-        span = end.QuadPart - start.QuadPart;
-        usec = (span * 1000000L) / frequency.QuadPart;
     }
     catch (GenICam::GenericException & e)   // エラーハンドリング
     {
@@ -268,7 +289,7 @@ void CComCamera::CaptureImage(void)
 /// @note
 void CComCamera::ImageProcStart(void)
 {
-    g_pSharedObject->SetParam(PARAM_ID_PIC_PROC_FLAG, (UINT32)FALSE);
+//  g_pSharedObject->SetParam(PARAM_ID_IMG_GRAB_FILE, (UINT32)FALSE);
 
     string  fileName;
     Mat     fileData;
@@ -276,14 +297,14 @@ void CComCamera::ImageProcStart(void)
 
     fileData = imread(fileName);
 
-    if (m_bSaveImageArea == FALSE)
+    if (m_iBufferImg == IMAGE_ID_RAW_A)
     {
-        g_pSharedObject->SetImage(IMAGE_ID_CAM_A, fileData);
-        m_bSaveImageArea = TRUE;
+        g_pSharedObject->SetImage(IMAGE_ID_RAW_A, fileData);
+        m_iBufferImg = IMAGE_ID_RAW_B;
     }
     else
     {
-        g_pSharedObject->SetImage(IMAGE_ID_CAM_B, fileData);
-        m_bSaveImageArea = FALSE;
+        g_pSharedObject->SetImage(IMAGE_ID_RAW_B, fileData);
+        m_iBufferImg = IMAGE_ID_RAW_A;
     }
 }

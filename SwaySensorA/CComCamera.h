@@ -17,10 +17,10 @@ public:
     void routine_work(void* param);
 
 private:
-    CBaslerUniversalInstantCamera* m_pCamera;
-    BOOL                           m_bSaveImageArea;
-    const UINT32                   c_countOfImagesToGrab = 1;
-    VideoWriter                    cvVideoCreator;
+    CBaslerUniversalInstantCamera*  m_pCamera;
+    const UINT32                    c_countOfImagesToGrab = 1;
+    VideoWriter                     cvVideoCreator;
+    UINT8                           m_iBufferImg;
 
     BOOL OpenCamera(void);
     void StartGrabImage(void);
