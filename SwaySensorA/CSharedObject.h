@@ -1,6 +1,13 @@
 #pragma once
 #include "framework.h"
 
+#define IMAGE_HSV_H_MIN     0
+#define IMAGE_HSV_H_MAX     179
+#define IMAGE_HSV_S_MIN     0
+#define IMAGE_HSV_S_MAX     255
+#define IMAGE_HSV_V_MIN     0
+#define IMAGE_HSV_V_MAX     255
+
 // カメラ画像配列　INDEX
 enum
 {
@@ -46,9 +53,9 @@ enum
     PARAM_ID_CAM_EXPOSURE_TIME_MIN, // カメラ設定(露光時間最小値)
     PARAM_ID_CAM_EXPOSURE_TIME_MAX, // カメラ設定(露光時間最大値)
     PARAM_ID_CAM_EXPOSURE_TIME,     // カメラ設定(露光時間)
-    PARAM_ID_CAM_READ_FRAMERATE,    // カメラ読出し(フレームレート)
     PARAM_ID_IMG_ROI_ENABLE,        // 画像処理設定(ROI有効)
     PARAM_ID_IMG_ROI_SIZE,          // 画像処理設定(ROIサイズ)
+    PARAM_ID_IMG_MASK_TYPE,         // 画像処理設定(マスク画像選択)
     PARAM_ID_IMG_MASK1_HLOW,        // 画像処理設定(画像マスク1(H)下限)
     PARAM_ID_IMG_MASK1_HUPP,        // 画像処理設定(画像マスク1(H)上限)
     PARAM_ID_IMG_MASK1_SLOW,        // 画像処理設定(画像マスク1(S)下限)
@@ -90,6 +97,14 @@ enum
 
 enum
 {
+    MASK_IMG_ALL = 0,               // マスク画像選択(両方)
+    MASK_IMG_IMAGE1 ,               // マスク画像選択(画像1のみ)
+    MASK_IMG_IMAGE2,                // マスク画像選択(画像2のみ)
+    MASK_IMG_MAX
+};
+
+enum
+{
     NOISEFILTER1_NONE = 0,           // ノイズフィルタ:なし
     NOISEFILTER1_MEDIAN,             // ノイズフィルタ:中央値フィルタ
     NOISEFILTER1_OPENNING,           // ノイズフィルタ:オープニング処理
@@ -105,7 +120,7 @@ enum
 
 enum
 {
-    COG_ALGORITHM_ALL = 1,          // 重心位置算出アルゴリズム(全輪郭点)
+    COG_ALGORITHM_ALL = 0,          // 重心位置算出アルゴリズム(全輪郭点)
     COG_ALGORITHM_AREA,             // 重心位置算出アルゴリズム(最大輪郭面積)
     COG_ALGORITHM_LEN,              // 重心位置算出アルゴリズム(最大輪郭長)
     COG_ALGORITHM_MAX
@@ -124,7 +139,7 @@ typedef struct _stImageProcData
     double      posy;           // 検出位置Y
     int         roiSize;        // ROIサイズ
     cv::Rect    roi;            // ROI
-    double      expTime;        // 露光時間
+    double      expTime;        // 露光時間@@@共通の情報にしたほうがいい
     BOOL        enable;         // 検出状態
 } stImageProcData;
 

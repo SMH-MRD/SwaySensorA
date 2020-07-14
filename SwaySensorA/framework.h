@@ -29,7 +29,11 @@
 using namespace std;
 using namespace cv;
 using namespace GenApi;
+// Namespace for using pylon objects.
 using namespace Pylon;
+// Namespaces for using pylon universal instant camera parameters.
+using namespace Basler_UniversalCameraParams;
+using namespace Basler_UniversalStreamParams;
 
 // iostream用
 #include <iostream>

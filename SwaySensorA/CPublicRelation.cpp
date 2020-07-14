@@ -6,11 +6,11 @@
 
 extern CSharedObject*   g_pSharedObject;    // タスク間共有データのポインタ
 
-HWND CPublicRelation::m_hCamDlg;
+HWND    CPublicRelation::m_hCamDlg;
 cv::Mat CPublicRelation::m_mtSaveImage;
-BOOL CPublicRelation::m_bCursor;
-POINT CPublicRelation::m_pntCursor;
-UINT CPublicRelation::m_iSelImg;
+BOOL    CPublicRelation::m_bCursor;
+POINT   CPublicRelation::m_pntCursor;
+UINT    CPublicRelation::m_iSelImg;
 
 /// @brief コンストラクタ
 /// @param
@@ -131,13 +131,6 @@ void CPublicRelation::routine_work(void *param)
         else                {_stprintf_s(msg, TEXT("-"));           SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_Y_DEG), msg);}
     }
 
-    // フレームレート
-    if (g_pSharedObject->GetParam(PARAM_ID_CAM_READ_FRAMERATE, &iVal) == RESULT_OK)
-    {
-        _stprintf_s(msg, TEXT("%d"), iVal);
-        SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_FPS), msg);
-    }
-
     // 画像取込時間
     g_pSharedObject->GetParam(PARAM_ID_DOUBLE_IMG_GRAB_TIME, &dVal);
     if (!isnan(dVal))
@@ -238,19 +231,44 @@ void CPublicRelation::routine_work(void *param)
 
         //----------------------------------------------------------------------------
         // マスク画像表示
-        if (m_iSelImg == 0)
+        UINT32 maskimage;
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK_TYPE, &maskimage);  // マスク画像選択
+        switch (maskimage)
         {
+        case MASK_IMG_ALL:
+            if (m_iSelImg == 0)
+            {
+                if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_A, &imgMask) != RESULT_OK)
+                {
+                    if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
+                }
+            }
+            else
+            {
+                if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_A, &imgMask) != RESULT_OK)
+                {
+                    if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
+                }
+            }
+            break;
+        case MASK_IMG_IMAGE1:
             if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_A, &imgMask) != RESULT_OK)
             {
                 if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
             }
-        }
-        else
-        {
+            break;
+        case MASK_IMG_IMAGE2:
             if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_A, &imgMask) != RESULT_OK)
             {
                 if (g_pSharedObject->GetImage(IMAGE_ID_MASK2_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
             }
+            break;
+        default:
+            if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_A, &imgMask) != RESULT_OK)
+            {
+                if (g_pSharedObject->GetImage(IMAGE_ID_MASK1_B, &imgMask) != RESULT_OK) {return;}  // 成功以外のため、終了
+            }
+            break;
         }
         cv::resize(imgMask, imgDisp, cv::Size(), DISP_IMG_WIDTH / imgMask.cols, DISP_IMG_HEIGHT / imgMask.rows);
 
@@ -594,7 +612,6 @@ void CPublicRelation::set_PNLparam_value(float p1, float p2, float p3, float p4,
 /// @note
 HWND CPublicRelation::OpenCameraPanel()
 {
-    TCHAR msg[10];
 
     if (m_hCamDlg == NULL)
     {
@@ -603,14 +620,17 @@ HWND CPublicRelation::OpenCameraPanel()
         MoveWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_IMAGE_MASK), DISP_IMG_MSK_X0, DISP_IMG_MSK_Y0, (int)DISP_IMG_WIDTH, (int)DISP_IMG_HEIGHT, false);
         ShowWindow(m_hCamDlg, SW_SHOW);
 
-        HWND    wndhdl;
-        UINT32  val;
         //----------------------------------------------------------------------------
         // 画像1
+        {
+        HWND    wndhdl;
+        UINT32  val;
+        TCHAR   msg[10];
+
         // 色相H(Low)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_HLOW, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_H1_LOW);
-        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 179)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(IMAGE_HSV_H_MIN, IMAGE_HSV_H_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  20,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
@@ -619,7 +639,7 @@ HWND CPublicRelation::OpenCameraPanel()
         // 色相H(Upp)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_HUPP, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_H1_UPP);
-        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 170)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(IMAGE_HSV_H_MIN, IMAGE_HSV_H_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  20,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
@@ -628,7 +648,7 @@ HWND CPublicRelation::OpenCameraPanel()
         // 彩度S(Low)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_SLOW, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_S1_LOW);
-        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(IMAGE_HSV_S_MIN, IMAGE_HSV_S_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
@@ -637,7 +657,7 @@ HWND CPublicRelation::OpenCameraPanel()
         // 彩度S(Upp)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_SUPP, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_S1_UPP);
-        SendMessage(wndhdl, TBM_SETRANGE,   TRUE,  MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,   TRUE,  MAKELPARAM(IMAGE_HSV_S_MIN, IMAGE_HSV_S_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
@@ -646,7 +666,7 @@ HWND CPublicRelation::OpenCameraPanel()
         // 明度V(Low)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_VLOW, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_V1_LOW);
-        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(IMAGE_HSV_V_MIN, IMAGE_HSV_V_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
@@ -655,19 +675,25 @@ HWND CPublicRelation::OpenCameraPanel()
         // 明度V(Upp)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_VUPP, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_V1_UPP);
-        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(IMAGE_HSV_V_MIN, IMAGE_HSV_V_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
         wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_V1_UPP);
         _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        }
 
         //----------------------------------------------------------------------------
         // 画像2
+        {
+        HWND    wndhdl;
+        UINT32  val;
+        TCHAR   msg[10];
+
         // 色相H(Low)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_HLOW, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_H2_LOW);
-        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 179)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(IMAGE_HSV_H_MIN, IMAGE_HSV_H_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  20,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
@@ -676,7 +702,7 @@ HWND CPublicRelation::OpenCameraPanel()
         // 色相H(Upp)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_HUPP, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_H2_UPP);
-        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 179)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(IMAGE_HSV_H_MIN, IMAGE_HSV_H_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  20,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
@@ -685,7 +711,7 @@ HWND CPublicRelation::OpenCameraPanel()
         // 彩度S(Low)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_SLOW, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_S2_LOW);
-        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(IMAGE_HSV_S_MIN, IMAGE_HSV_S_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
@@ -694,7 +720,7 @@ HWND CPublicRelation::OpenCameraPanel()
         // 彩度S(Upp)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_SUPP, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_S2_UPP);
-        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(IMAGE_HSV_S_MIN, IMAGE_HSV_S_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
@@ -703,7 +729,7 @@ HWND CPublicRelation::OpenCameraPanel()
         // 明度V(Low)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_VLOW, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_V2_LOW);
-        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(IMAGE_HSV_V_MIN, IMAGE_HSV_V_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
@@ -712,111 +738,157 @@ HWND CPublicRelation::OpenCameraPanel()
         // 明度V(Upp)
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_VUPP, &val);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_V2_UPP);
-        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(0, 255)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGE,    TRUE, MAKELPARAM(IMAGE_HSV_V_MIN, IMAGE_HSV_V_MAX)); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ,  25,   0);                  // 目盛りの増分
         SendMessage(wndhdl, TBM_SETPOS,      TRUE, val);                // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0,    1);                  // クリック時の移動量
         wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_V2_UPP);
         _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        }
 
         //----------------------------------------------------------------------------
         // 画像選択
+        {
         LPCTSTR strImgItem[] = {TEXT("画像1"), TEXT("画像2")};
+        HWND    wndhdl;
+        UINT32  maskimage;
+
+        g_pSharedObject->GetParam(PARAM_ID_IMG_MASK_TYPE, &maskimage);  // マスク画像選択
         wndhdl = GetDlgItem(m_hCamDlg, IDC_COMBO_IMG);
-        for (int i = 0; i < 2; i++)   {SendMessage(wndhdl, CB_ADDSTRING, 0, (LPARAM)strImgItem[i]); }
-        SendMessage(wndhdl, CB_SETCURSEL, m_iSelImg, 0);
+        switch (maskimage)
+        {
+        case MASK_IMG_ALL:
+            for (int i = 0; i < 2; i++)   {SendMessage(wndhdl, CB_ADDSTRING, i, (LPARAM)strImgItem[i]);}
+            SendMessage(wndhdl, CB_SETCURSEL, m_iSelImg, 0);
+            break;
+        case MASK_IMG_IMAGE1:
+            SendMessage(wndhdl, CB_ADDSTRING, 0, (LPARAM)strImgItem[0]);
+            SendMessage(wndhdl, CB_SETCURSEL, m_iSelImg, 0);
+            break;
+        case MASK_IMG_IMAGE2:
+            SendMessage(wndhdl, CB_ADDSTRING, 0, (LPARAM)strImgItem[1]);
+            SendMessage(wndhdl, CB_SETCURSEL, m_iSelImg, 0);
+            break;
+        default:
+            break;
+        }
+        }
 
         //----------------------------------------------------------------------------
         // ノイズフィルタ
         // ゴマ塩
         {
-            // 種類
-            UINT32  pgsize = 1;
-            LPCTSTR strFilterItem[] = {TEXT("なし"), TEXT("中央値フィルタ"), TEXT("オープニング処理")};
-            wndhdl = GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER1);
-            for (int i = 0; i < NOIZEFILTER1_MAX; i++) {SendMessage(wndhdl, CB_ADDSTRING, 0, (LPARAM)strFilterItem[i]);}
-            g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER1, &val);
-            SendMessage(wndhdl, CB_SETCURSEL, val, 0);
-            if ((val == NOISEFILTER1_MEDIAN) || (val == NOISEFILTER1_OPENNING))
-            {
-                ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1),     SW_SHOW);
-                ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1), SW_SHOW);
-                if (val == NOISEFILTER1_MEDIAN) {pgsize = 2;}
-            }
-            else
-            {
-                ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1),     SW_HIDE);
-                ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1), SW_HIDE);
-            }
-            // フィルタ値
-            g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTERVAL1, &val);
-            wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1);
-            SendMessage(wndhdl, TBM_SETRANGE, TRUE, MAKELPARAM(1, 30)); // レンジを指定
-            SendMessage(wndhdl, TBM_SETTICFREQ, 5, 0);                  // 目盛りの増分
-            SendMessage(wndhdl, TBM_SETPOS, TRUE, val);                 // 位置の設定
-            SendMessage(wndhdl, TBM_SETPAGESIZE, 0, pgsize);            // クリック時の移動量
-            wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1);
-            _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 種類
+        UINT32  pgsize = 1;
+        LPCTSTR strFilterItem[] = {TEXT("なし"), TEXT("中央値フィルタ"), TEXT("オープニング処理")};
+        HWND    wndhdl;
+        UINT32  val;
+        TCHAR   msg[10];
+ 
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER1);
+        for (int i = 0; i < NOIZEFILTER1_MAX; i++) {SendMessage(wndhdl, CB_ADDSTRING, 0, (LPARAM)strFilterItem[i]);}
+        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER1, &val);
+        SendMessage(wndhdl, CB_SETCURSEL, val, 0);
+        if ((val == NOISEFILTER1_MEDIAN) || (val == NOISEFILTER1_OPENNING))
+        {
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1),     SW_SHOW);
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1), SW_SHOW);
+            if (val == NOISEFILTER1_MEDIAN) {pgsize = 2;}
+        }
+        else
+        {
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1),     SW_HIDE);
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1), SW_HIDE);
+        }
+        // フィルタ値
+        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTERVAL1, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER1);
+        SendMessage(wndhdl, TBM_SETRANGE, TRUE, MAKELPARAM(1, 30)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ, 5, 0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS, TRUE, val);                 // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0, pgsize);            // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER1);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
         }
         // 穴埋め
         {
-            // 種類
-            UINT32  pgsize = 1;
-            LPCTSTR strFilterItem[] = {TEXT("なし"), TEXT("クロージング処理")};
-            wndhdl = GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER2);
-            for (int i = 0; i < NOIZEFILTER2_MAX; i++) {SendMessage(wndhdl, CB_ADDSTRING, 0, (LPARAM)strFilterItem[i]);}
-            g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER2, &val);
-            SendMessage(wndhdl, CB_SETCURSEL, val, 0);
-            if (val == NOISEFILTER2_CLOSING)
-            {
-                ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2),     SW_SHOW);
-                ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2), SW_SHOW);
-            }
-            else
-            {
-                ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2),     SW_HIDE);
-                ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2), SW_HIDE);
-            }
-            // フィルタ値
-            g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTERVAL2, &val);
-            wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2);
-            SendMessage(wndhdl, TBM_SETRANGE, TRUE, MAKELPARAM(1, 30)); // レンジを指定
-            SendMessage(wndhdl, TBM_SETTICFREQ, 5, 0);                  // 目盛りの増分
-            SendMessage(wndhdl, TBM_SETPOS, TRUE, val);                 // 位置の設定
-            SendMessage(wndhdl, TBM_SETPAGESIZE, 0, pgsize);            // クリック時の移動量
-            wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2);
-            _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        // 種類
+        UINT32  pgsize = 1;
+        LPCTSTR strFilterItem[] = {TEXT("なし"), TEXT("クロージング処理")};
+        HWND    wndhdl;
+        UINT32  val;
+        TCHAR   msg[10];
+
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_COMBO_NOISEFILTER2);
+        for (int i = 0; i < NOIZEFILTER2_MAX; i++) {SendMessage(wndhdl, CB_ADDSTRING, 0, (LPARAM)strFilterItem[i]);}
+        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTER2, &val);
+        SendMessage(wndhdl, CB_SETCURSEL, val, 0);
+        if (val == NOISEFILTER2_CLOSING)
+        {
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2),     SW_SHOW);
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2), SW_SHOW);
+        }
+        else
+        {
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2),     SW_HIDE);
+            ShowWindow(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2), SW_HIDE);
+        }
+        // フィルタ値
+        g_pSharedObject->GetParam(PARAM_ID_IMG_NOISEFILTERVAL2, &val);
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_NOISEFILTER2);
+        SendMessage(wndhdl, TBM_SETRANGE, TRUE, MAKELPARAM(1, 30)); // レンジを指定
+        SendMessage(wndhdl, TBM_SETTICFREQ, 5, 0);                  // 目盛りの増分
+        SendMessage(wndhdl, TBM_SETPOS, TRUE, val);                 // 位置の設定
+        SendMessage(wndhdl, TBM_SETPAGESIZE, 0, pgsize);            // クリック時の移動量
+        wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_NOISEFILTER2);
+        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
         }
 
         //----------------------------------------------------------------------------
         // カメラ露光時間
+        {
+        HWND    wndhdl;
+        UINT32  exptimemin, exptimemax, exptime;
+        TCHAR   msg[10];
+
+        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME_MIN, &exptimemin);
+        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME_MAX, &exptimemax);
+        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME,     &exptime);
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_CAMERA_EXPOSURE);
-        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME_MIN, &val);
-        SendMessage(wndhdl, TBM_SETRANGEMIN, TRUE, val);        // レンジを指定
-        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME_MAX, &val);
-        SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, val);        // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGEMIN, TRUE, exptimemin); // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, exptimemax); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ, 1000, 0);           // 目盛りの増分
-        g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME, &val);
-        SendMessage(wndhdl, TBM_SETPOS, TRUE, val);             // 位置の設定
+        SendMessage(wndhdl, TBM_SETPOS, TRUE, exptime);         // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0, 1);             // クリック時の移動量
         wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_CAMERA_EXPOSURE);
-        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        _stprintf_s(msg, 10, TEXT("%d"), exptime);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        }
 
         //----------------------------------------------------------------------------
         // ROI有効
-        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_ENABLE, &val);
+        {
+        HWND    wndhdl;
+        UINT32  roienable, roisize, roisizemax;
+        UINT32  imgw, imgh;
+        TCHAR   msg[10];
+
+        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_ENABLE, &roienable);
+        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE,   &roisize);
+        g_pSharedObject->GetParam(PARAM_ID_CAM_WIDTH,      &imgw);
+        g_pSharedObject->GetParam(PARAM_ID_CAM_HEIGHT,     &imgh);
+        if (imgh > imgw) {roisizemax = imgw;}
+        else             {roisizemax = imgh;}
         wndhdl = GetDlgItem(m_hCamDlg, IDC_CHECK_ROI);
-        if (val > 0) {SendMessage(wndhdl, BM_SETCHECK, BST_CHECKED,   0);}
-        else         {SendMessage(wndhdl, BM_SETCHECK, BST_UNCHECKED, 0);}
+        if (roienable > 0) {SendMessage(wndhdl, BM_SETCHECK, BST_CHECKED,   0);}
+        else               {SendMessage(wndhdl, BM_SETCHECK, BST_UNCHECKED, 0);}
         wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_ROI);
         SendMessage(wndhdl, TBM_SETRANGEMIN, TRUE, 10);         // レンジを指定
-        SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, 2500);       // レンジを指定
+        SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, roisizemax); // レンジを指定
         SendMessage(wndhdl, TBM_SETTICFREQ, 1000, 0);           // 目盛りの増分
-        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE, &val);
-        SendMessage(wndhdl, TBM_SETPOS, TRUE, val);             // 位置の設定
+        SendMessage(wndhdl, TBM_SETPOS, TRUE, roisize);         // 位置の設定
         SendMessage(wndhdl, TBM_SETPAGESIZE, 0, 1);             // クリック時の移動量
         wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_ROI);
-        _stprintf_s(msg, 10, TEXT("%d"), val);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        _stprintf_s(msg, 10, TEXT("%d"), roisize);  SetWindowText(wndhdl, (LPCTSTR)msg);
 
         //----------------------------------------------------------------------------
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X1),        msg);
@@ -827,9 +899,9 @@ HWND CPublicRelation::OpenCameraPanel()
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_Y),         msg);
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_X_DEG),     msg);
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_INC_Y_DEG),     msg);
-        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_FPS),           msg);
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_IMG_GRAB_TIME), msg);
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_PROC_TIME),     msg);
+        }
     }
     return m_hCamDlg;
 }
