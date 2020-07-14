@@ -87,7 +87,7 @@ void CSharedObject::InitSharedObject(void)
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::SetImage(UINT8 id, Mat image)
+INT CSharedObject::SetImage(UINT8 id, cv::Mat image)
 {
     if (id >= IMAGE_ID_MAX) {return RESULT_NG_INVALID;}
 

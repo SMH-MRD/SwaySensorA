@@ -313,6 +313,7 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     CreateSharedData(); // 共有メモリクリエイト
 
     DWORD   str_num;
+    UINT    val;
     // ###Task1 設定 MANAGER
 #pragma region Task1
     // -タスクインスタンス作成->リスト登録
@@ -331,7 +332,8 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
 //  ptempobj->inf.hevents[ID_OPT1_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL);   // 自動リセット,初期値非シグナル
 
     // -スレッド起動周期セット
-    ptempobj->inf.cycle_ms = 1000;
+    CHelper::GetIniInf(PATH_OF_INIFILE, OBJ_CYCLE_SECT_OF_INIFILE, MANAGER_KEY_OF_INIFILE, L"100", INITYPE_INT, &val);
+    ptempobj->inf.cycle_ms = val;
 
     // -ツイートメッセージ用iconセット
     hBmp = (HBITMAP)LoadBitmap(hInst, MAKEINTRESOURCE(IDB_MANAGER));    // ビットマップ割り当て
@@ -362,7 +364,8 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));    // 自動リセット,初期値非シグナル
 
     // -スレッド起動周期セット
-    ptempobj->inf.cycle_ms = 50;
+    CHelper::GetIniInf(PATH_OF_INIFILE, OBJ_CYCLE_SECT_OF_INIFILE, PLAYER_KEY_OF_INIFILE, L"100", INITYPE_INT, &val);
+    ptempobj->inf.cycle_ms = val;
 
     // -ツイートメッセージ用iconセット
     hBmp = (HBITMAP)LoadBitmap(hInst, MAKEINTRESOURCE(IDB_PLAYER)); // ビットマップ割り当て
@@ -394,7 +397,8 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));    // 自動リセット,初期値非シグナル
 
     // -スレッド起動周期セット
-    ptempobj->inf.cycle_ms = 1000;
+    CHelper::GetIniInf(PATH_OF_INIFILE, OBJ_CYCLE_SECT_OF_INIFILE, CLIENT_COM_KEY_OF_INIFILE, L"100", INITYPE_INT, &val);
+    ptempobj->inf.cycle_ms = val;
 
     // -ツイートメッセージ用iconセット
     hBmp = (HBITMAP)LoadBitmap(hInst, MAKEINTRESOURCE(IDB_COMCLIENT));  // ビットマップ割り当て
@@ -426,7 +430,8 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));    // 自動リセット,初期値非シグナル
 
     // -スレッド起動周期セット
-    ptempobj->inf.cycle_ms = 50;
+    CHelper::GetIniInf(PATH_OF_INIFILE, OBJ_CYCLE_SECT_OF_INIFILE, RIO_COM_KEY_OF_INIFILE, L"100", INITYPE_INT, &val);
+    ptempobj->inf.cycle_ms = val;
 
     // -ツイートメッセージ用iconセット
     hBmp = (HBITMAP)LoadBitmap(hInst, MAKEINTRESOURCE(IDB_RIOCOM)); // ビットマップ割り当て
@@ -458,7 +463,8 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));    // 自動リセット,初期値非シグナル
 
     // -スレッド起動周期セット
-    ptempobj->inf.cycle_ms = 50;
+    CHelper::GetIniInf(PATH_OF_INIFILE, OBJ_CYCLE_SECT_OF_INIFILE, CAMERA_COM_KEY_OF_INIFILE, L"100", INITYPE_INT, &val);
+    ptempobj->inf.cycle_ms = val;
 
     // -ツイートメッセージ用iconセット
     hBmp = (HBITMAP)LoadBitmap(hInst, MAKEINTRESOURCE(IDB_CAMERACOM));  // ビットマップ割り当て
@@ -490,7 +496,8 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));    // 自動リセット,初期値非シグナル
 
     // -スレッド起動周期セット
-    ptempobj->inf.cycle_ms = 100;
+    CHelper::GetIniInf(PATH_OF_INIFILE, OBJ_CYCLE_SECT_OF_INIFILE, CLERK_KEY_OF_INIFILE, L"100", INITYPE_INT, &val);
+    ptempobj->inf.cycle_ms = val;
 
     // -ツイートメッセージ用iconセット
     hBmp = (HBITMAP)LoadBitmap(hInst, MAKEINTRESOURCE(IDB_CLERK));  // ビットマップ割り当て
@@ -522,7 +529,8 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));    // 自動リセット,初期値非シグナル
 
     // -スレッド起動周期セット
-    ptempobj->inf.cycle_ms = 50;
+    CHelper::GetIniInf(PATH_OF_INIFILE, OBJ_CYCLE_SECT_OF_INIFILE, ANALYST_KEY_OF_INIFILE, L"100", INITYPE_INT, &val);
+    ptempobj->inf.cycle_ms = val;
 
     // -ツイートメッセージ用iconセット
     hBmp = (HBITMAP)LoadBitmap(hInst, MAKEINTRESOURCE(IDB_ANALYST));    // ビットマップ割り当て
@@ -554,7 +562,8 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));    // 自動リセット,初期値非シグナル
 
     // -スレッド起動周期セット
-    ptempobj->inf.cycle_ms = 50;
+    CHelper::GetIniInf(PATH_OF_INIFILE, OBJ_CYCLE_SECT_OF_INIFILE, PR_KEY_OF_INIFILE, L"100", INITYPE_INT, &val);
+    ptempobj->inf.cycle_ms = val;
 
     // -ツイートメッセージ用iconセット
     hBmp = (HBITMAP)LoadBitmap(hInst, MAKEINTRESOURCE(IDB_PR)); // ビットマップ割り当て
@@ -743,6 +752,9 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
     // 画像処理設定
     // ROI有効
     CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ROI, L"1,100", INITYPE_CHAR, str);                   // ROI設定
+    // マスク画像選択
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK_IMAGE, L"0", INITYPE_INT, &(pInf->maskImage));  // マスク画像選択
+    if ((pInf->maskImage < MASK_IMG_ALL) || (pInf->maskImage > MASK_IMG_MAX)) {pInf->maskImage = MASK_IMG_ALL;}
     // 画像1設定
     if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->roiEnable, &pInf->roiSize))
     {
@@ -794,7 +806,7 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
     }
     // ターゲット検出アルゴリズム
     CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ALGORITHM, L"1", INITYPE_INT, &(pInf->algorithm)); // ターゲット検出アルゴリズム
-    if ((pInf->algorithm < COG_ALGORITHM_ALL) || (pInf->algorithm >= COG_ALGORITHM_MAX)) {pInf->algorithm = COG_ALGORITHM_ALL;}
+    if ((pInf->algorithm < COG_ALGORITHM_ALL) || (pInf->algorithm > COG_ALGORITHM_MAX)) {pInf->algorithm = COG_ALGORITHM_ALL;}
 
     //--------------------------------------------------------------------------
     // RIO設定
@@ -844,6 +856,7 @@ void CreateSharedData(void)
     // 画像処理設定
     g_pSharedObject->SetParam(PARAM_ID_IMG_ROI_ENABLE,      (UINT32)ini.roiEnable);
     g_pSharedObject->SetParam(PARAM_ID_IMG_ROI_SIZE,        (UINT32)ini.roiSize);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK_TYPE,       (UINT32)ini.maskImage);
     g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_HLOW,      (UINT32)ini.mask1HLow);
     g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_HUPP,      (UINT32)ini.mask1HUpp);
     g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_SLOW,      (UINT32)ini.mask1SLow);
