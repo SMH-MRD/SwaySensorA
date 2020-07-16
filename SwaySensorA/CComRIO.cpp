@@ -48,11 +48,13 @@ void CComRIO::routine_work(void *param)
 
     if (!stRIO_ph.bRIO_init_ok)
     {
-        if (Initialize() >= 0)
-        {
-            stRIO_ph.bRIO_init_ok = true;
-            stRIO_ph.error_status = 0x0000;
-        }
+		if (inf.act_count % 100){ //‰Šú‰»–¢Š®Žž‚Ì‰Šú‰»ŽüŠú100ƒXƒLƒƒƒ“–ˆ
+			if (Initialize() >= 0)
+			{
+				stRIO_ph.bRIO_init_ok = true;
+				stRIO_ph.error_status = 0x0000;
+			}
+		}
     }
     else
     {

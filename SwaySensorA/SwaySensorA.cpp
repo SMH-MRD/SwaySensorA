@@ -313,6 +313,8 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     CreateSharedData(); // 共有メモリクリエイト
 
     DWORD   str_num;
+
+/*
     // ###Task1 設定 MANAGER
 #pragma region Task1
     // -タスクインスタンス作成->リスト登録
@@ -379,7 +381,7 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     // スレッド起動に使うイベント数（定周期タイマーのみの場合１）
     ptempobj->inf.n_active_events = 1;
 #pragma endregion Task2
-
+*/
     // ###Task3 設定 COMCLIENT
 #pragma region Task3
     // -タスクインスタンス作成->リスト登録
@@ -490,7 +492,7 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     VectHevent.push_back(ptempobj->inf.hevents[ID_TIMER_EVENT] = CreateEvent(NULL, FALSE, FALSE, NULL));    // 自動リセット,初期値非シグナル
 
     // -スレッド起動周期セット
-    ptempobj->inf.cycle_ms = 100;
+    ptempobj->inf.cycle_ms = 1000;
 
     // -ツイートメッセージ用iconセット
     hBmp = (HBITMAP)LoadBitmap(hInst, MAKEINTRESOURCE(IDB_CLERK));  // ビットマップ割り当て

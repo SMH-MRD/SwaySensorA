@@ -31,7 +31,7 @@ CClerk::~CClerk()
 void CClerk::routine_work(void *param) {
 
 //	ws << L"Act:" << *(inf.psys_counter) % 100;
-	ws << L"Port1:" << g_pSharedObject->m_stIncData[INCLINO_ID_PORT_1_ANALOG].data << L" Port2:" << g_pSharedObject->m_stIncData[INCLINO_ID_PORT_2_ANALOG].data;
+	ws << L"Act:" << *(inf.psys_counter) % 100 << L" Port1:" << g_pSharedObject->m_stIncData[INCLINO_ID_PORT_1_ANALOG].data << L" Port2:" << g_pSharedObject->m_stIncData[INCLINO_ID_PORT_2_ANALOG].data;
 	tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
 };
