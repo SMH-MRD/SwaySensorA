@@ -1,5 +1,6 @@
 #pragma once
 #include "CTaskObj.h"
+#include "CSharedObject.h"
 
 extern vector<void*>    VectpCTaskObj;  // タスクオブジェクトのポインタ
 extern ST_iTask         g_itask;
@@ -45,11 +46,17 @@ private:
     Pylon::CBaslerUniversalInstantCamera    m_camera;
     Pylon::CAcquireContinuousConfiguration  m_continousConfiguration;
     Pylon::CDeviceInfo                      m_info;
+    Pylon::CGrabResultPtr                   m_ptrGrabResult;
 
-    BOOL    m_bOpenCmare;
-    UINT8   m_iBufferImg;
+    stCameraInfo        m_stCameraInfo;
+    UINT8               m_iBufferImg;
+    CRITICAL_SECTION    m_csImageGrab;
+
+    LARGE_INTEGER    m_iGrabStartPC;
 
 private:
+    void Initialize(void);
+    void Close(void);
     void GrabImage(void);
-    void ImageProcStart(void);
+    void ProcImage(void);
 };

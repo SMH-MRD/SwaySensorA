@@ -1,12 +1,26 @@
 #pragma once
 #include "framework.h"
 
-#define IMAGE_HSV_H_MIN     0
-#define IMAGE_HSV_H_MAX     179
-#define IMAGE_HSV_S_MIN     0
-#define IMAGE_HSV_S_MAX     255
-#define IMAGE_HSV_V_MIN     0
-#define IMAGE_HSV_V_MAX     255
+// H, S, V
+#define IMAGE_HSV_H_MIN                 0
+#define IMAGE_HSV_H_MAX                 179
+#define IMAGE_HSV_S_MIN                 0
+#define IMAGE_HSV_S_MAX                 255
+#define IMAGE_HSV_V_MIN                 0
+#define IMAGE_HSV_V_MAX                 255
+
+// RIOエラービット
+#define RIO_ERR_NONE                    0x0000  // エラーなし
+#define RIO_ERR_INIT_INCOMPLETE         0x0001  // RIO初期化未完了
+#define RIO_ERR_SET_IOLINKMODE          0x0010  // IO LINK MODE設定エラー
+#define RIO_ERR_SET_PARAM_VALID         0x0020  // 有効化設定エラー
+#define RIO_ERR_SET_PARAM_AI            0x0040  // AI設定エラー
+#define RIO_ERR_GET_AI_READ             0x0100  // データ読み込みエラー応答
+
+// Process Data Error
+#define S7CMPTBL_FORMAT_OVERRANGE       0x7FFF  // Overrange
+#define S7CMPTBL_FORMAT_UNDERRANGE      0x8000  // Open circuit/short circuit/underrange
+#define S7CMPTBL_FORMAT_SIGNBIT         0x8000  // Sign bit
 
 // カメラ画像配列　INDEX
 enum
@@ -30,16 +44,12 @@ enum
     IMGPROC_ID_MAX
 };
 
-//傾斜計入力データ　INDEX
+//傾斜計入力データ
 enum
 {
-    INCLINO_ID_PORT_1_ANALOG = 0,   // RIO PORT1入力値(生値) 
-    INCLINO_ID_PORT_2_ANALOG,       // RIO PORT2入力値(生値)
-    INCLINO_ID_PORT_1_MA,           // RIO PORT1入力値(mA)
-    INCLINO_ID_PORT_2_MA,           // RIO PORT2入力値(mA)
-    INCLINO_ID_PORT_1_RAD,			// RIO PORT1入力値(角度 radian)
-    INCLINO_ID_PORT_2_RAD,			// RIO PORT2入力値(角度 radian)
-    INCLINO_ID_MAX
+    RIO_PORT_1 = 0, // RIO入力ポート1 
+    RIO_PORT_2,     // RIO入力ポート2 
+    RIO_PORT_MAX
 };
 
 //傾斜計/カメラ制御用パラメータ　INDEX
@@ -90,13 +100,6 @@ enum
 
 enum
 {
-    PARAM_ID_DOUBLE_IMG_GRAB_TIME = 0,  // 画像取込み時間
-    PARAM_ID_DOUBLE_PROC_TIME,          // 画処理時間
-    PARAM_ID_DOUBLE_MAX
-};
-
-enum
-{
     MASK_IMG_ALL = 0,               // マスク画像選択(両方)
     MASK_IMG_IMAGE1 ,               // マスク画像選択(画像1のみ)
     MASK_IMG_IMAGE2,                // マスク画像選択(画像2のみ)
@@ -127,11 +130,30 @@ enum
 };
 
 // 構造体定義
+typedef struct _stCameraInfo
+{
+    BOOL    valid;              // カメラ状態
+    DOUBLE  cycleTime;          // 画像取込み間隔[ms]
+} stCameraInfo;
+
 typedef struct _stImageData
 {
     cv::Mat image;
-    BOOL    update; // image setでtrue getでfalse
+    BOOL    update;             // image setでtrue getでfalse
 } stImageData;
+
+typedef struct _stRIOInfoData
+{
+    int16_t dig;
+    double  cur;    // 入力データ変換値(mA)
+    double  deg;    // 入力データ変換値(deg.)
+} stRIOInfoData;
+
+typedef struct _stRIOInfo   // RIO情報
+{
+    int32_t         error;  // エラー情報
+    stRIOInfoData   data[RIO_PORT_MAX];
+} stRIOInfo;
 
 typedef struct _stImageProcData
 {
@@ -139,14 +161,16 @@ typedef struct _stImageProcData
     double      posy;           // 検出位置Y
     int         roiSize;        // ROIサイズ
     cv::Rect    roi;            // ROI
-    double      expTime;        // 露光時間@@@共通の情報にしたほうがいい
-    BOOL        enable;         // 検出状態
+    double      expTime;        // 露光時間
+    BOOL        valid;          // 検出状態
 } stImageProcData;
 
-typedef struct _stInclinationData
+typedef struct _stProcInfo
 {
-    DOUBLE data;
-} stInclinationData;
+    stImageProcData data[IMGPROC_ID_MAX];   // 画像処理結果
+    DOUBLE          exposureTime;           // 露光時間[us]
+    DOUBLE          procTime;               // 処理時間[ms]
+} stProcInfo;
 
 ///
 class CSharedObject
@@ -157,33 +181,35 @@ public:
 
     void InitSharedObject(void);
 
-    INT SetImage(UINT8 id, Mat image);
-    INT GetImage(UINT8 id, Mat* image);
-
-    INT SetProcData(UINT8 id, stImageProcData data);
-    INT GetProcData(UINT8 id, stImageProcData* data);
-
-    INT SetInclinoData(UINT8 id, DOUBLE data);
-    INT GetInclinoData(UINT8 id, DOUBLE* data);
-
     INT SetParam(UINT8 id, UINT32 data);
     INT GetParam(UINT8 id, UINT32* data);
     INT SetParam(UINT8 id, string str);
     INT GetParam(UINT8 id, string* str);
-    INT SetParam(UINT8 id, DOUBLE data);
-    INT GetParam(UINT8 id, DOUBLE* data);
 
-    stImageData         m_stImgData[IMAGE_ID_MAX];
-    stImageProcData     m_stImgProcData[IMGPROC_ID_MAX];
-    stInclinationData   m_stIncData[INCLINO_ID_MAX];
+    INT SetCameraInfo(stCameraInfo info);
+    INT GetCameraInfo(stCameraInfo* info);
+
+    INT SetRIOInfo(stRIOInfo info);
+    INT GetRIOInfo(stRIOInfo* info);
+
+    INT SetImage(UINT8 id, Mat image);
+    INT GetImage(UINT8 id, Mat* image);
+
+    INT SetProcInfo(stProcInfo info);
+    INT GetProcInfo(stProcInfo* info);
+
+private:
     UINT32              m_u32Param[PARAM_ID_MAX];
     string              m_strParam[PARAM_ID_STR_MAX];
-    DOUBLE              m_dParam[PARAM_ID_DOUBLE_MAX];
+    stCameraInfo        m_stCameraInfo;
+    stRIOInfo           m_stRIOInfo;
+    stImageData         m_stImgData[IMAGE_ID_MAX];
+    stProcInfo          m_stProcInfo;
 
-    CRITICAL_SECTION csImage[IMAGE_ID_MAX];
-    CRITICAL_SECTION csProcData[IMGPROC_ID_MAX];
-    CRITICAL_SECTION csInclino[INCLINO_ID_MAX];
-    CRITICAL_SECTION csParam[PARAM_ID_MAX];
-    CRITICAL_SECTION csStrParam[PARAM_ID_STR_MAX];
-    CRITICAL_SECTION csDoubleParam[PARAM_ID_DOUBLE_MAX];
+    CRITICAL_SECTION    csParam[PARAM_ID_MAX];
+    CRITICAL_SECTION    csStrParam[PARAM_ID_STR_MAX];
+    CRITICAL_SECTION    csCameraInfo;
+    CRITICAL_SECTION    csRIOInfo;
+    CRITICAL_SECTION    csImage[IMAGE_ID_MAX];
+    CRITICAL_SECTION    csProcInfo;
 };
