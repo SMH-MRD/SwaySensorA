@@ -1,5 +1,4 @@
 #include "CComRIO.h"
-#include "CSharedObject.h"
 
 extern CSharedObject*   g_pSharedObject;    // タスク間共有データのポインタ
 
@@ -25,16 +24,8 @@ CComRIO::~CComRIO()
 /// @note
 void CComRIO::init_task(void *pobj)
 {
-    stRIO_ph.bRIO_init_ok = false;
-
-    if (g_pSharedObject == NULL) {return;}
-    g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANALOG, (DOUBLE)NAN);
-    g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_MA,     (DOUBLE)NAN);
-    g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_ANALOG, (DOUBLE)NAN);
-    g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_MA,     (DOUBLE)NAN);
-
-    return;
-};
+    Initialize();
+}
 
 /// @brief タスクスレッドでの処理関数
 /// @param
@@ -46,60 +37,8 @@ void CComRIO::routine_work(void *param)
     ws << L"Act: " << std::setw(2) << *(inf.psys_counter) % 100;
     tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
-    if (!stRIO_ph.bRIO_init_ok)
-    {
-        if (Initialize() >= 0)
-        {
-            stRIO_ph.bRIO_init_ok = true;
-            stRIO_ph.error_status = 0x0000;
-        }
-    }
-    else
-    {
-        // PORT1データ読み込み
-        stRIO_ph.error_code = modtGetdata(stRIO_ph.modbusDesc, stRIO_ph.stModbusTcpReq_p1read, (uint8_t *)stRIO_ph.RIO_ai_port1.uint8);
-
-        if (stRIO_ph.error_code)
-        {
-            stRIO_ph.error_status = RIO_ERR_TYPE_AI_READ1;
-            stRIO_ph.bRIO_init_ok = false;
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANALOG, (DOUBLE)NAN);
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_MA,     (DOUBLE)NAN);
-        }
-        else
-        {
-            UINT temp = (stRIO_ph.RIO_ai_port1.uint8[0] << 8) | stRIO_ph.RIO_ai_port1.uint8[1];
-            // PORT1読み込みデータ mA変換
-            if      (temp == 0x7FFF) {stRIO_ph.RIO_ai_p1_mA = 22.81;}
-            else if (temp == 0x8000) {stRIO_ph.RIO_ai_p1_mA = 1.186;}
-			else if (temp |  0x8000) {stRIO_ph.RIO_ai_p1_mA = 0.0;} //ERROR
-            else                     {stRIO_ph.RIO_ai_p1_mA = 4.0 + 16.0 / 30000.0 * (double)(temp);}
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANALOG, (double)temp);
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_MA,     stRIO_ph.RIO_ai_p1_mA);
-        }
-
-        // PORT2データ読み込み
-        stRIO_ph.error_code = modtGetdata(stRIO_ph.modbusDesc, stRIO_ph.stModbusTcpReq_p2read, (uint8_t *)stRIO_ph.RIO_ai_port2.uint8);
-
-        if (stRIO_ph.error_code)
-        {
-            stRIO_ph.error_status = RIO_ERR_TYPE_AI_READ2;
-            stRIO_ph.bRIO_init_ok = false;
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_ANALOG, (DOUBLE)NAN);
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_MA,     (DOUBLE)NAN);
-        }
-        else
-        {
-            // PORT2読み込みデータ mA変換
-            UINT temp = (stRIO_ph.RIO_ai_port2.uint8[0] << 8) | stRIO_ph.RIO_ai_port2.uint8[1];
-            if      (temp == 0x7FFF) {stRIO_ph.RIO_ai_p2_mA = 22.81;}
-            else if (temp == 0x8000) {stRIO_ph.RIO_ai_p2_mA = 1.186;}
-			else if (temp |  0x8000) {stRIO_ph.RIO_ai_p1_mA = 0.0;} //ERROR
-            else                     {stRIO_ph.RIO_ai_p2_mA = 4.0 + 16.0 / 30000.0 * (double)(temp);}
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_ANALOG, (double)temp);
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_MA,     stRIO_ph.RIO_ai_p2_mA);
-        }
-    }
+    //----------------------------------------------------------------------------
+    ProcRIO();
 
     return;
 }
@@ -108,103 +47,195 @@ void CComRIO::routine_work(void *param)
 /// @param
 /// @return 
 /// @note
-int CComRIO::Initialize()
+void CComRIO::Initialize(void)
 {
+    //--------------------------------------------------------------------------
+    // ModbusTCP設定値
     string ipAddr;
-    g_pSharedObject->GetParam(PARAM_ID_STR_RIO_IPADDR, &ipAddr);    memcpy(stRIO_ph.ip_string, ipAddr.c_str(), ipAddr.length());
-    g_pSharedObject->GetParam(PARAM_ID_RIO_TCPPORT,    (UINT32*)&stRIO_ph.port_num);
-    g_pSharedObject->GetParam(PARAM_ID_RIO_SLAVEADDR,  (UINT32*)&stRIO_ph.slave_addr);
-    g_pSharedObject->GetParam(PARAM_ID_RIO_TIMEOUT,    (UINT32*)&stRIO_ph.timeOut);
+    g_pSharedObject->GetParam(PARAM_ID_STR_RIO_IPADDR, &ipAddr);    memcpy(m_stRIOCnfg.modbusInitCnfg.ipaddrs, ipAddr.c_str(), ipAddr.length());
+    g_pSharedObject->GetParam(PARAM_ID_RIO_TCPPORT,    (UINT32*)&m_stRIOCnfg.modbusInitCnfg.portnum);
+    g_pSharedObject->GetParam(PARAM_ID_RIO_TIMEOUT,    (UINT32*)&m_stRIOCnfg.modbusInitCnfg.timeout);
 
-    UINT32 xPort, yPort;
-    g_pSharedObject->GetParam(PARAM_ID_RIO_XPORT, &xPort);
-    g_pSharedObject->GetParam(PARAM_ID_RIO_YPORT, &yPort);
+	int32_t slaveaddrs;
+    UINT32  portX, portY;
+    g_pSharedObject->GetParam(PARAM_ID_RIO_SLAVEADDR, (UINT32*)&slaveaddrs);
+    g_pSharedObject->GetParam(PARAM_ID_RIO_XPORT,     &portX);
+    g_pSharedObject->GetParam(PARAM_ID_RIO_YPORT,     &portY);
 
-    stRIO_ph.modbusDesc = modtInit((const int8_t*)stRIO_ph.ip_string, stRIO_ph.port_num, stRIO_ph.timeOut);
-    if (stRIO_ph.modbusDesc == NULL)
+    //--------------------------------------------------------------------------
+    // Command書き込み
+    m_stRIOCnfg.stModbusTcpSetCmndReq.slaveAddr = slaveaddrs;
+    m_stRIOCnfg.stModbusTcpSetCmndReq.funcCode  = MODBUS_TCPLIB_FUNCCODE_WRITE_REGISTER;
+    m_stRIOCnfg.stModbusTcpSetCmndReq.regAddr   = RIO_COMMAND_REGISTER;
+    m_stRIOCnfg.stModbusTcpSetCmndReq.dataCnt   = 1;
+    m_stRIOCnfg.stModbusTcpSetCmndReq.option    = 0;
+
+    //--------------------------------------------------------------------------
+    // IO-Link書き込み
+    // PORT1
+    m_stRIOCnfg.stModbusTcpSetIOLinkReq[RIO_PORT_1].slaveAddr = slaveaddrs;
+    m_stRIOCnfg.stModbusTcpSetIOLinkReq[RIO_PORT_1].funcCode  = MODBUS_TCPLIB_FUNCCODE_WRITE_REGISTER;
+    m_stRIOCnfg.stModbusTcpSetIOLinkReq[RIO_PORT_1].regAddr   = m_stRegTable[portX].portMode;
+    m_stRIOCnfg.stModbusTcpSetIOLinkReq[RIO_PORT_1].dataCnt   = 1;
+    m_stRIOCnfg.stModbusTcpSetIOLinkReq[RIO_PORT_1].option    = 0;
+    // PORT2
+    m_stRIOCnfg.stModbusTcpSetIOLinkReq[RIO_PORT_2].slaveAddr = slaveaddrs;
+    m_stRIOCnfg.stModbusTcpSetIOLinkReq[RIO_PORT_2].funcCode  = MODBUS_TCPLIB_FUNCCODE_WRITE_REGISTER;
+    m_stRIOCnfg.stModbusTcpSetIOLinkReq[RIO_PORT_2].regAddr   = m_stRegTable[portY].portMode;
+    m_stRIOCnfg.stModbusTcpSetIOLinkReq[RIO_PORT_2].dataCnt   = 1;
+    m_stRIOCnfg.stModbusTcpSetIOLinkReq[RIO_PORT_2].option    = 0;
+
+    //--------------------------------------------------------------------------
+    // ポート書き込み
+    // PORT1
+    m_stRIOCnfg.stModbusTcpSetPortReq[RIO_PORT_1].slaveAddr = slaveaddrs;
+    m_stRIOCnfg.stModbusTcpSetPortReq[RIO_PORT_1].funcCode  = MODBUS_TCPLIB_FUNCCODE_WRITE_REGISTER;
+    m_stRIOCnfg.stModbusTcpSetPortReq[RIO_PORT_1].regAddr   = m_stRegTable[portX].outAddr;
+    m_stRIOCnfg.stModbusTcpSetPortReq[RIO_PORT_1].dataCnt   = 1;
+    m_stRIOCnfg.stModbusTcpSetPortReq[RIO_PORT_1].option    = 0;
+    // PORT2
+    m_stRIOCnfg.stModbusTcpSetPortReq[RIO_PORT_2].slaveAddr = slaveaddrs;
+    m_stRIOCnfg.stModbusTcpSetPortReq[RIO_PORT_2].funcCode  = MODBUS_TCPLIB_FUNCCODE_WRITE_REGISTER;
+    m_stRIOCnfg.stModbusTcpSetPortReq[RIO_PORT_2].regAddr   = m_stRegTable[portY].outAddr;
+    m_stRIOCnfg.stModbusTcpSetPortReq[RIO_PORT_2].dataCnt   = 1;
+    m_stRIOCnfg.stModbusTcpSetPortReq[RIO_PORT_2].option    = 0;
+
+   //--------------------------------------------------------------------------
+    // ポート読み出し
+    // PORT1
+    m_stRIOCnfg.stModbusTcpGetPortReq[RIO_PORT_1].slaveAddr = slaveaddrs;
+    m_stRIOCnfg.stModbusTcpGetPortReq[RIO_PORT_1].funcCode  = MODBUS_TCPLIB_FUNCCODE_READ_REGISTER;
+    m_stRIOCnfg.stModbusTcpGetPortReq[RIO_PORT_1].regAddr   = m_stRegTable[portX].inAddr;
+    m_stRIOCnfg.stModbusTcpGetPortReq[RIO_PORT_1].dataCnt   = 1;
+    m_stRIOCnfg.stModbusTcpGetPortReq[RIO_PORT_1].option    = 0;
+    // PORT2
+    m_stRIOCnfg.stModbusTcpGetPortReq[RIO_PORT_2].slaveAddr = slaveaddrs;
+    m_stRIOCnfg.stModbusTcpGetPortReq[RIO_PORT_2].funcCode  = MODBUS_TCPLIB_FUNCCODE_READ_REGISTER;
+    m_stRIOCnfg.stModbusTcpGetPortReq[RIO_PORT_2].regAddr   = m_stRegTable[portY].inAddr;
+    m_stRIOCnfg.stModbusTcpGetPortReq[RIO_PORT_2].dataCnt   = 1;
+    m_stRIOCnfg.stModbusTcpGetPortReq[RIO_PORT_2].option    = 0;
+
+    //--------------------------------------------------------------------------
+    // RIO情報初期化
+    m_stRIOInfo.error = RIO_ERR_INIT_INCOMPLETE;    // RIO初期化未完了
+    for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
     {
-        stRIO_ph.error_status = RIO_ERR_ITEM_INIT_FAIL;
-        stRIO_ph.bRIO_init_ok = false;
-        return -1;
+        m_stRIOInfo.data[ii].dig = 0;   // 入力データ
+        m_stRIOInfo.data[ii].cur = 0.0; // 入力データ変換値(mA)
+        m_stRIOInfo.data[ii].deg = 0.0; // 入力データ変換値(deg.)    
     }
-    // PORT1をIO LINK MODEに設定
-    stRIO_ph.stModbusTcpReq.slaveAddr = stRIO_ph.slave_addr;
-    stRIO_ph.stModbusTcpReq.funcCode  = MODBUS_TCPLIB_FUNCCODE_WRITE_REGISTER;
-    stRIO_ph.stModbusTcpReq.regAddr   = m_stRegTable[xPort].portMode;
-    stRIO_ph.stModbusTcpReq.dataCnt   = 1;
-    stRIO_ph.stModbusTcpReq.option    = 0;
-    stRIO_ph.setData[0].uint16        = RIO_PORT_REGISTER_MODE_IOLINK;
+    g_pSharedObject->SetRIOInfo(m_stRIOInfo);
 
-    stRIO_ph.error_code = modtSetdata(stRIO_ph.modbusDesc, stRIO_ph.stModbusTcpReq, stRIO_ph.setData[0].uint8);
-    if (stRIO_ph.error_code)
+    return;
+}
+
+/// @brief 
+/// @param
+/// @return 
+/// @note
+void CComRIO::Close(void)
+{
+    modtClose(m_stRIOCnfg.modbusDesc);
+}
+
+/// @brief 
+/// @param
+/// @return 
+/// @note
+int32_t CComRIO::InitializeRIO(void)
+{
+    int32_t err;
+
+    //--------------------------------------------------------------------------
+    // ModbusTCP初期化
+    m_stRIOCnfg.modbusDesc = modtInit((const int8_t*)m_stRIOCnfg.modbusInitCnfg.ipaddrs, m_stRIOCnfg.modbusInitCnfg.portnum, m_stRIOCnfg.modbusInitCnfg.timeout);
+    if (m_stRIOCnfg.modbusDesc == NULL) {return RIO_ERR_INIT_INCOMPLETE;}
+
+	int32_t slaveaddrs;
+    UINT32  xPort, yPort;
+    g_pSharedObject->GetParam(PARAM_ID_RIO_SLAVEADDR, (UINT32*)&slaveaddrs);
+    g_pSharedObject->GetParam(PARAM_ID_RIO_XPORT,     &xPort);
+    g_pSharedObject->GetParam(PARAM_ID_RIO_YPORT,     &yPort);
+    //--------------------------------------------------------------------------
+    // IO LINK MODE設定
+    m_stRIOCnfg.setdata.uint16 = RIO_PORT_REGISTER_MODE_IOLINK;
+    for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
     {
-        stRIO_ph.error_status = RIO_ERR_TYPE_PARAM_SET;
-        stRIO_ph.bRIO_init_ok = false;
-        return -1;
+        if ((err = modtSetdata(m_stRIOCnfg.modbusDesc, m_stRIOCnfg.stModbusTcpSetIOLinkReq[ii], m_stRIOCnfg.setdata.uint8)) != 0)
+        {
+            return RIO_ERR_SET_IOLINKMODE;
+        }
     }
 
-    // PORT2をIO LINK MODEに設定
-    stRIO_ph.stModbusTcpReq.regAddr = m_stRegTable[yPort].portMode;
-    stRIO_ph.error_code             = modtSetdata(stRIO_ph.modbusDesc, stRIO_ph.stModbusTcpReq, stRIO_ph.setData[0].uint8);
-    if (stRIO_ph.error_code)
-    {
-        stRIO_ph.error_status = RIO_ERR_TYPE_PARAM_SET;
-        stRIO_ph.bRIO_init_ok = false;
-        return -1;
-    }
-
+    //--------------------------------------------------------------------------
     // パラメータ設定値有効化
-    stRIO_ph.stModbusTcpReq.regAddr = RIO_COMMAND_REGISTER;
-    stRIO_ph.stModbusTcpReq.dataCnt = 2;
-    stRIO_ph.stModbusTcpReq.option  = 0;
-    stRIO_ph.setData[0].uint16      = RIO_COMMAND_AI_PORT_ACTIVE;
-
-    stRIO_ph.error_code = modtSetdata(stRIO_ph.modbusDesc, stRIO_ph.stModbusTcpReq, stRIO_ph.setData[0].uint8);
-    if (stRIO_ph.error_code)
+    m_stRIOCnfg.setdata.uint16 = RIO_COMMAND_AI_PORT_ACTIVE;
+    if ((err = modtSetdata(m_stRIOCnfg.modbusDesc, m_stRIOCnfg.stModbusTcpSetCmndReq, m_stRIOCnfg.setdata.uint8)))
     {
-        stRIO_ph.error_status = RIO_ERR_TYPE_PARAM_SET;
-        stRIO_ph.bRIO_init_ok = false;
-        return -1;
+        return RIO_ERR_SET_PARAM_VALID;
     }
 
-    // PORT1 AIのパラメータ設定
-    stRIO_ph.stModbusTcpReq.funcCode = MODBUS_TCPLIB_FUNCCODE_WRITE_REGISTER;
-    stRIO_ph.stModbusTcpReq.regAddr  = m_stRegTable[xPort].outAddr;
-    stRIO_ph.stModbusTcpReq.dataCnt  = 1;
-    stRIO_ph.stModbusTcpReq.option   = 0;
-    stRIO_ph.setData[0].uint16       = RIO_COMMAND_AI_PARA_SET;
-
-    stRIO_ph.error_code = modtSetdata(stRIO_ph.modbusDesc, stRIO_ph.stModbusTcpReq, stRIO_ph.setData[0].uint8);
-    if (stRIO_ph.error_code)
+    //--------------------------------------------------------------------------
+    // AIパラメータ設定
+    m_stRIOCnfg.setdata.uint16 = RIO_COMMAND_AI_PARA_SET;
+    for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
     {
-        stRIO_ph.error_status = RIO_ERR_TYPE_PARAM_SET;
-        stRIO_ph.bRIO_init_ok = false;
-        return -1;
+        if ((err = modtSetdata(m_stRIOCnfg.modbusDesc, m_stRIOCnfg.stModbusTcpSetPortReq[ii], m_stRIOCnfg.setdata.uint8)))
+        {
+            return RIO_ERR_SET_PARAM_AI;
+        }
     }
 
-    // PORT2 AIのパラメータ設定
-    stRIO_ph.stModbusTcpReq.regAddr = m_stRegTable[yPort].outAddr;
-    stRIO_ph.error_code             = modtSetdata(stRIO_ph.modbusDesc, stRIO_ph.stModbusTcpReq, stRIO_ph.setData[0].uint8);
-    if (stRIO_ph.error_code)
+    return RIO_ERR_NONE;
+}
+
+/// @brief 傾斜計データ処理
+/// @param
+/// @return 
+/// @note
+void CComRIO::ProcRIO(void)
+{
+    //--------------------------------------------------------------------------
+    // 初期化
+    if (m_stRIOInfo.error != RIO_ERR_NONE) {m_stRIOInfo.error = InitializeRIO();}
+
+    //--------------------------------------------------------------------------
+    // データ読み出し
+    if (m_stRIOInfo.error == RIO_ERR_NONE)
     {
-        stRIO_ph.error_status = RIO_ERR_TYPE_PARAM_SET;
-        stRIO_ph.bRIO_init_ok = false;
-        return -1;
+        int32_t err = 0;
+        for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
+        {
+            // データ読み出し
+            if ((err =  modtGetdata(m_stRIOCnfg.modbusDesc, m_stRIOCnfg.stModbusTcpGetPortReq[ii], (uint8_t *)m_stRIOCnfg.getdata.uint8)))
+            {
+                m_stRIOInfo.error |= (RIO_ERR_GET_AI_READ << ii);
+                m_stRIOInfo.data[ii].dig = 0;       // 入力データ
+                m_stRIOInfo.data[ii].cur = 0.0;     // 入力データ変換値(mA)
+                m_stRIOInfo.data[ii].deg = 0.0;     // 入力データ変換値(deg.)
+            }
+            else
+            {
+                int16_t val = (m_stRIOCnfg.getdata.uint8[ADDR_LOW] << 8) | m_stRIOCnfg.getdata.uint8[ADDR_HIGH];
+
+                // 入力データ
+                m_stRIOInfo.data[ii].dig = val;
+                // 入力データ変換値(mA)
+                if      (m_stRIOInfo.data[ii].dig == S7CMPTBL_FORMAT_OVERRANGE)  {m_stRIOInfo.data[ii].cur = CUR_OVERRANGE;}
+                else if (m_stRIOInfo.data[ii].dig == S7CMPTBL_FORMAT_UNDERRANGE) {m_stRIOInfo.data[ii].cur = CUR_UNDERRANGE;}
+                else                                                             {m_stRIOInfo.data[ii].cur = CUR_MIN +  ((double)val * CONV_DIG_CUR);}
+                // 入力データ変換値(deg.)
+                m_stRIOInfo.data[ii].deg = ((m_stRIOInfo.data[ii].cur - CUR_MIN) * CONV_CUR_DEG) - (DEG_RANGE / 2.0);
+            }
+        }
     }
+    else
+    {
+        m_stRIOInfo.data[RIO_PORT_1].dig = 0;       // 入力データ
+        m_stRIOInfo.data[RIO_PORT_1].cur = 0.0;     // 入力データ変換値(mA)
+        m_stRIOInfo.data[RIO_PORT_1].deg = 0.0;     // 入力データ変換値(deg.)
+    }
+    g_pSharedObject->SetRIOInfo(m_stRIOInfo);
 
-    // PORT1読み込み設定登録
-    stRIO_ph.stModbusTcpReq_p1read.slaveAddr = stRIO_ph.slave_addr;
-    stRIO_ph.stModbusTcpReq_p1read.funcCode  = MODBUS_TCPLIB_FUNCCODE_READ_REGISTER;
-    stRIO_ph.stModbusTcpReq_p1read.regAddr   = m_stRegTable[xPort].inAddr;
-    stRIO_ph.stModbusTcpReq_p1read.dataCnt   = 1;
-    stRIO_ph.stModbusTcpReq_p1read.option    = 0;
-
-    // PORT2読み込み設定登録
-    stRIO_ph.stModbusTcpReq_p2read.slaveAddr = stRIO_ph.slave_addr;
-    stRIO_ph.stModbusTcpReq_p2read.funcCode  = MODBUS_TCPLIB_FUNCCODE_READ_REGISTER;
-    stRIO_ph.stModbusTcpReq_p2read.regAddr   = m_stRegTable[yPort].inAddr;
-    stRIO_ph.stModbusTcpReq_p2read.dataCnt   = 1;
-    stRIO_ph.stModbusTcpReq_p2read.option    = 0;
-
-    return 0;
+    return;
 }

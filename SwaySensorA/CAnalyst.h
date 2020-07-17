@@ -1,10 +1,9 @@
 #pragma once
 #include "CTaskObj.h"
+#include "CSharedObject.h"
 
 extern vector<void*>    VectpCTaskObj;  // タスクオブジェクトのポインタ
 extern ST_iTask         g_itask;
-
-#define INCLINATION_MAX     30.0
 
 class CAnalyst : public CTaskObj
 {
@@ -19,8 +18,10 @@ private:
     UINT8 m_iBufferImgMask1;
     UINT8 m_iBufferImgMask2;
     UINT8 m_iBufferImgProc;
+    
+    stProcInfo m_stProcInfo;
 
+private:
     void ImageProc(void);
-    void InclinationProc(void);
     BOOL CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY, UINT32 sel);
 };

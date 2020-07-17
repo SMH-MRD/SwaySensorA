@@ -23,64 +23,210 @@ CSharedObject::~CSharedObject()
 /// @note
 void CSharedObject::InitSharedObject(void)
 {
-    for (UINT ii = 0; ii < IMAGE_ID_MAX; ii++)
-    {
-        m_stImgData[ii].update = FALSE;
-    }
-    for (UINT ii = 0; ii < IMGPROC_ID_MAX; ii++)
-    {
-        m_stImgProcData[ii].posx       = 0.0;
-        m_stImgProcData[ii].posy       = 0.0;
-        m_stImgProcData[ii].roiSize    = 0;
-        m_stImgProcData[ii].roi.x      = 0;
-        m_stImgProcData[ii].roi.y      = 0;
-        m_stImgProcData[ii].roi.width  = 0;
-        m_stImgProcData[ii].roi.height = 0;
-        m_stImgProcData[ii].expTime    = 0.0;
-        m_stImgProcData[ii].enable     = FALSE;
-    }
-    for (UINT ii = 0; ii < INCLINO_ID_MAX; ii++)
-    {
-        m_stIncData[ii].data = 0.0;
-    }
+    //--------------------------------------------------------------------------
+    // 
+    // UINT32パラメータデータ
     for (UINT ii = 0; ii < PARAM_ID_MAX; ii++)
     {
         m_u32Param[ii] = 0;
     }
+    // stringパラメータデータ
     for (UINT ii = 0; ii < PARAM_ID_STR_MAX; ii++)
     {
         m_strParam[ii] = "";
     }
-    for (UINT ii = 0; ii < PARAM_ID_DOUBLE_MAX; ii++)
+    // カメラ情報
     {
-        m_dParam[ii] = 0.0;
+        m_stCameraInfo.valid     = FALSE;
+        m_stCameraInfo.cycleTime = 0.0;
     }
-
-    // 共有データアクセス用クリティカルセクションの初期化
+    // RIO情報
+    {
+        m_stRIOInfo.error = RIO_ERR_NONE;
+        for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
+        {
+            m_stRIOInfo.data[ii].dig = 0;   // 入力データ
+            m_stRIOInfo.data[ii].cur = 0.0; // 入力データ変換値(mA)
+            m_stRIOInfo.data[ii].deg = 0.0; // 入力データ変換値(deg.)    
+        }
+    }
+    // 画像データ
     for (UINT ii = 0; ii < IMAGE_ID_MAX; ii++)
     {
-        InitializeCriticalSection(&csImage[ii]);
+        m_stImgData[ii].update = FALSE;
     }
-    for (UINT ii = 0; ii < IMGPROC_ID_MAX; ii++)
+    // 処理情報
     {
-        InitializeCriticalSection(&csProcData[ii]);
+        for (UINT ii = 0; ii < IMGPROC_ID_MAX; ii++)
+        {
+            m_stProcInfo.data[ii].posx       = 0.0;
+            m_stProcInfo.data[ii].posy       = 0.0;
+            m_stProcInfo.data[ii].roiSize    = 0;
+            m_stProcInfo.data[ii].roi.x      = 0;
+            m_stProcInfo.data[ii].roi.y      = 0;
+            m_stProcInfo.data[ii].roi.width  = 0;
+            m_stProcInfo.data[ii].roi.height = 0;
+            m_stProcInfo.data[ii].valid      = FALSE;
+        }
+        m_stProcInfo.exposureTime = 0.0;    // 露光時間[us]
+        m_stProcInfo.procTime     = 0.0;    // 画処理時間[ms]
     }
-    for (UINT ii = 0; ii < INCLINO_ID_MAX; ii++)
-    {
-        InitializeCriticalSection(&csInclino[ii]);
-    }
+
+    //--------------------------------------------------------------------------
+    // 共有データアクセス用クリティカルセクションの初期化
+    // UINT32パラメータデータ
     for (UINT ii = 0; ii < PARAM_ID_MAX; ii++)
     {
         InitializeCriticalSection(&csParam[ii]);
     }
+    // stringパラメータデータ
     for (UINT ii = 0; ii < PARAM_ID_STR_MAX; ii++)
     {
         InitializeCriticalSection(&csStrParam[ii]);
     }
-    for (UINT ii = 0; ii < PARAM_ID_DOUBLE_MAX; ii++)
+    // カメラ情報
     {
-        InitializeCriticalSection(&csDoubleParam[ii]);
+        InitializeCriticalSection(&csCameraInfo);
     }
+    // RIO情報
+    {
+        InitializeCriticalSection(&csRIOInfo);
+    }
+    // 画像データ
+    for (UINT ii = 0; ii < IMAGE_ID_MAX; ii++)
+    {
+        InitializeCriticalSection(&csImage[ii]);
+    }
+    // 処理情報
+    {
+        InitializeCriticalSection(&csProcInfo);
+    }
+}
+
+/// @brief UINT32パラメータデータ設定処理
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::SetParam(UINT8 id, UINT32 data)
+{
+    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
+    EnterCriticalSection(&csParam[id]);
+    m_u32Param[id] = data;
+    LeaveCriticalSection(&csParam[id]);
+
+    return RESULT_OK;
+}
+
+/// @brief UINT32パラメータデータ取得処理
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::GetParam(UINT8 id, UINT32* data)
+{
+    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
+    if (data == NULL)       {return RESULT_NG_INVALID;}
+    EnterCriticalSection(&csParam[id]);
+    *data = m_u32Param[id];
+    LeaveCriticalSection(&csParam[id]);
+
+    return RESULT_OK;
+}
+
+/// @brief stringパラメータデータ設定処理
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::SetParam(UINT8 id, string str)
+{
+    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
+    EnterCriticalSection(&csStrParam[id]);
+    m_strParam[id] = str;
+    LeaveCriticalSection(&csStrParam[id]);
+
+    return RESULT_OK;
+}
+
+/// @brief stringパラメータデータ取得処理
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::GetParam(UINT8 id, string* str)
+{
+    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
+    if (str == NULL)        {return RESULT_NG_INVALID;}
+    EnterCriticalSection(&csStrParam[id]);
+    *str = m_strParam[id];
+    LeaveCriticalSection(&csStrParam[id]);
+
+    return RESULT_OK;
+}
+
+/// @brief カメラ情報設定処理
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::SetCameraInfo(stCameraInfo info)
+{
+    EnterCriticalSection(&csCameraInfo);
+    m_stCameraInfo.valid     = info.valid;
+    m_stCameraInfo.cycleTime = info.cycleTime;
+    LeaveCriticalSection(&csCameraInfo);
+
+    return RESULT_OK;
+}
+
+/// @brief カメラ情報取得処理
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::GetCameraInfo(stCameraInfo* info)
+{
+    if (info == NULL) {return RESULT_NG_INVALID;}
+    EnterCriticalSection(&csCameraInfo);
+    info->valid     = m_stCameraInfo.valid;
+    info->cycleTime = m_stCameraInfo.cycleTime;
+    LeaveCriticalSection(&csCameraInfo);
+
+    return RESULT_OK;
+}
+
+/// @brief RIO情報設定処理
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::SetRIOInfo(stRIOInfo info)
+{
+    EnterCriticalSection(&csRIOInfo);
+    m_stRIOInfo.error = info.error;
+    for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
+    {
+        m_stRIOInfo.data[ii].dig = info.data[ii].dig;   // 入力データ
+        m_stRIOInfo.data[ii].cur = info.data[ii].cur;   // 入力データ変換値(mA)
+        m_stRIOInfo.data[ii].deg = info.data[ii].deg;   // 入力データ変換値(deg.)
+    }
+    LeaveCriticalSection(&csRIOInfo);
+
+    return RESULT_OK;
+}
+
+/// @brief RIO情報取得処理
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::GetRIOInfo(stRIOInfo* info)
+{
+    if (info == NULL) {return RESULT_NG_INVALID;}
+    EnterCriticalSection(&csRIOInfo);
+    info->error = m_stRIOInfo.error;
+    for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
+    {
+        info->data[ii].dig = m_stRIOInfo.data[ii].dig;  // 入力データ
+        info->data[ii].cur = m_stRIOInfo.data[ii].cur;  // 入力データ変換値(mA)
+        info->data[ii].deg = m_stRIOInfo.data[ii].deg;  // 入力データ変換値(deg.)
+    }
+    LeaveCriticalSection(&csRIOInfo);
+
+    return RESULT_OK;
 }
 
 /// @brief 画像データ設定処理
@@ -90,7 +236,6 @@ void CSharedObject::InitSharedObject(void)
 INT CSharedObject::SetImage(UINT8 id, cv::Mat image)
 {
     if (id >= IMAGE_ID_MAX) {return RESULT_NG_INVALID;}
-
     EnterCriticalSection(&csImage[id]);
     image.copyTo(m_stImgData[id].image);
     m_stImgData[id].update = TRUE;
@@ -109,7 +254,6 @@ INT CSharedObject::GetImage(UINT8 id, Mat* image)
     if (image == NULL)      {return RESULT_NG_INVALID;}
     // 更新有無の確認
     if (m_stImgData[id].update == FALSE) {return RESULT_NG_SEQUENCE;}
-
     EnterCriticalSection(&csImage[id]);
     m_stImgData[id].image.copyTo(*image);
     m_stImgData[id].update = FALSE;
@@ -118,173 +262,53 @@ INT CSharedObject::GetImage(UINT8 id, Mat* image)
     return RESULT_OK;
 }
 
-/// @brief 画像処理データ設定処理
+/// @brief 処理データ設定処理
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::SetProcData(UINT8 id, stImageProcData data)
+INT CSharedObject::SetProcInfo(stProcInfo info)
 {
-    if (id >= IMGPROC_ID_MAX) {return RESULT_NG_INVALID;}
-
-    EnterCriticalSection(&csProcData[id]);
-    m_stImgProcData[id].posx       = data.posx;
-    m_stImgProcData[id].posy       = data.posy;
-    m_stImgProcData[id].roiSize    = data.roiSize;
-    m_stImgProcData[id].roi.x      = data.roi.x;
-    m_stImgProcData[id].roi.y      = data.roi.y;
-    m_stImgProcData[id].roi.width  = data.roi.width;
-    m_stImgProcData[id].roi.height = data.roi.height;
-    m_stImgProcData[id].expTime    = data.expTime;
-    m_stImgProcData[id].enable     = data.enable;
-    LeaveCriticalSection(&csProcData[id]);
+    EnterCriticalSection(&csProcInfo);
+    for (UINT ii = 0; ii < IMGPROC_ID_MAX; ii++)
+    {
+        m_stProcInfo.data[ii].posx       = info.data[ii].posx;
+        m_stProcInfo.data[ii].posy       = info.data[ii].posy;
+        m_stProcInfo.data[ii].roiSize    = info.data[ii].roiSize;
+        m_stProcInfo.data[ii].roi.x      = info.data[ii].roi.x;
+        m_stProcInfo.data[ii].roi.y      = info.data[ii].roi.y;
+        m_stProcInfo.data[ii].roi.width  = info.data[ii].roi.width;
+        m_stProcInfo.data[ii].roi.height = info.data[ii].roi.height;
+        m_stProcInfo.data[ii].valid      = info.data[ii].valid;
+    }
+    m_stProcInfo.exposureTime = info.exposureTime;  // 露光時間[us]
+    m_stProcInfo.procTime     = info.procTime;      // 処理時間[ms]
+    LeaveCriticalSection(&csProcInfo);
 
     return RESULT_OK;
 }
 
-/// @brief 画像処理データ取得処理
+/// @brief 処理データ取得処理
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::GetProcData(UINT8 id, stImageProcData* data)
+INT CSharedObject::GetProcInfo(stProcInfo* info)
 {
-    if (id >= IMGPROC_ID_MAX) {return RESULT_NG_INVALID;}
-    if (data == NULL)         {return RESULT_NG_INVALID;}
-
-    EnterCriticalSection(&csProcData[id]);
-    data->posx       = m_stImgProcData[id].posx;
-    data->posy       = m_stImgProcData[id].posy;
-    data->roiSize    = m_stImgProcData[id].roiSize;
-    data->roi.x      = m_stImgProcData[id].roi.x;
-    data->roi.y      = m_stImgProcData[id].roi.y;
-    data->roi.width  = m_stImgProcData[id].roi.width;
-    data->roi.height = m_stImgProcData[id].roi.height;
-    data->expTime    = m_stImgProcData[id].expTime;
-    data->enable     = m_stImgProcData[id].enable;
-    LeaveCriticalSection(&csProcData[id]);
-
-    return RESULT_OK;
-}
-
-/// @brief 傾斜計データ設定処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::SetInclinoData(UINT8 id, DOUBLE data)
-{
-    if (id >= INCLINO_ID_MAX) {return RESULT_NG_INVALID;}
-
-    EnterCriticalSection(&csInclino[id]);
-    m_stIncData[id].data = data;
-    LeaveCriticalSection(&csInclino[id]);
-
-    return RESULT_OK;
-}
-
-/// @brief 傾斜計データ取得処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::GetInclinoData(UINT8 id, DOUBLE* data)
-{
-    if (id >= INCLINO_ID_MAX) {return RESULT_NG_INVALID;}
-    if (data == NULL)         {return RESULT_NG_INVALID;}
-
-    EnterCriticalSection(&csInclino[id]);
-    *data = m_stIncData[id].data;
-    LeaveCriticalSection(&csInclino[id]);
-
-    return RESULT_OK;
-}
-
-/// @brief UINT32パラメータデータ設定処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::SetParam(UINT8 id, UINT32 data)
-{
-    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
-
-    EnterCriticalSection(&csParam[id]);
-    m_u32Param[id] = data;
-    LeaveCriticalSection(&csParam[id]);
-
-    return RESULT_OK;
-}
-
-/// @brief UINT32パラメータデータ取得処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::GetParam(UINT8 id, UINT32* data)
-{
-    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
-    if (data == NULL)       {return RESULT_NG_INVALID;}
-
-    EnterCriticalSection(&csParam[id]);
-    *data = m_u32Param[id];
-    LeaveCriticalSection(&csParam[id]);
-
-    return RESULT_OK;
-}
-
-/// @brief stringパラメータデータ設定処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::SetParam(UINT8 id, string str)
-{
-    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
-
-    EnterCriticalSection(&csStrParam[id]);
-    m_strParam[id] = str;
-    LeaveCriticalSection(&csStrParam[id]);
-
-    return RESULT_OK;
-}
-
-/// @brief stringパラメータデータ取得処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::GetParam(UINT8 id, string* str)
-{
-    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
-    if (str == NULL)        {return RESULT_NG_INVALID;}
-
-    EnterCriticalSection(&csStrParam[id]);
-    *str = m_strParam[id];
-    LeaveCriticalSection(&csStrParam[id]);
-
-    return RESULT_OK;
-}
-
-/// @brief DOUBLEパラメータデータ設定処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::SetParam(UINT8 id, DOUBLE data)
-{
-    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
-
-    EnterCriticalSection(&csDoubleParam[id]);
-    m_dParam[id] = data;
-    LeaveCriticalSection(&csDoubleParam[id]);
-
-    return RESULT_OK;
-}
-
-/// @brief DOUBLEパラメータデータ取得処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::GetParam(UINT8 id, DOUBLE* data)
-{
-    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
-    if (data == NULL)       {return RESULT_NG_INVALID;}
-
-    EnterCriticalSection(&csDoubleParam[id]);
-    *data = m_dParam[id];
-    LeaveCriticalSection(&csDoubleParam[id]);
+    if (info == NULL) {return RESULT_NG_INVALID;}
+    EnterCriticalSection(&csProcInfo);
+    for (UINT ii = 0; ii < IMGPROC_ID_MAX; ii++)
+    {
+        info->data[ii].posx       = m_stProcInfo.data[ii].posx;
+        info->data[ii].posy       = m_stProcInfo.data[ii].posy;
+        info->data[ii].roiSize    = m_stProcInfo.data[ii].roiSize;
+        info->data[ii].roi.x      = m_stProcInfo.data[ii].roi.x;
+        info->data[ii].roi.y      = m_stProcInfo.data[ii].roi.y;
+        info->data[ii].roi.width  = m_stProcInfo.data[ii].roi.width;
+        info->data[ii].roi.height = m_stProcInfo.data[ii].roi.height;
+        info->data[ii].valid      = m_stProcInfo.data[ii].valid;
+    }
+    info->exposureTime = m_stProcInfo.exposureTime; // 露光時間[us]
+    info->procTime     = m_stProcInfo.procTime;     // 画処理時間[ms]
+    LeaveCriticalSection(&csProcInfo);
 
     return RESULT_OK;
 }

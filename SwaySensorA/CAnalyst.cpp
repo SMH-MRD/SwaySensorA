@@ -1,5 +1,4 @@
 #include "CAnalyst.h"
-#include "CSharedObject.h"
 
 extern CSharedObject*   g_pSharedObject;    // タスク間共有データのポインタ
 
@@ -29,24 +28,24 @@ void CAnalyst::init_task(void* pobj)
     m_iBufferImgMask2 = IMAGE_ID_MASK2_A;
     m_iBufferImgProc  = IMAGE_ID_PROC_A;
 
-    stImageProcData stImgProcData[IMGPROC_ID_MAX];
     UINT32          roisize;
     UINT32          exptime;
     g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE,      &roisize);
     g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME, &exptime);
     for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
     {
-        stImgProcData[ii].posx       = 0.0;
-        stImgProcData[ii].posy       = 0.0;
-        stImgProcData[ii].roiSize    = roisize;
-        stImgProcData[ii].roi.x      = 0;
-        stImgProcData[ii].roi.y      = 0;
-        stImgProcData[ii].roi.width  = roisize;
-        stImgProcData[ii].roi.height = roisize;
-        stImgProcData[ii].expTime    = (double)exptime;
-        stImgProcData[ii].enable     = FALSE;
-        g_pSharedObject->SetProcData(ii, stImgProcData[ii]);
+        m_stProcInfo.data[ii].posx       = 0.0;
+        m_stProcInfo.data[ii].posy       = 0.0;
+        m_stProcInfo.data[ii].roiSize    = roisize;
+        m_stProcInfo.data[ii].roi.x      = 0;
+        m_stProcInfo.data[ii].roi.y      = 0;
+        m_stProcInfo.data[ii].roi.width  = roisize;
+        m_stProcInfo.data[ii].roi.height = roisize;
+        m_stProcInfo.data[ii].valid      = FALSE;
     }
+    m_stProcInfo.exposureTime = exptime;    // 露光時間[us]
+    m_stProcInfo.procTime     = 0.0;        // 画処理時間[ms]
+    g_pSharedObject->SetProcInfo(m_stProcInfo);
 }
 
 /// @brief 
@@ -69,16 +68,15 @@ void CAnalyst::routine_work(void* param)
     ImageProc();
 
     //----------------------------------------------------------------------------
-    InclinationProc();
-
-    //----------------------------------------------------------------------------
     // 処理時間計測(終了時間取得)
     LARGE_INTEGER   end;
     LONGLONG        span, usec;
     QueryPerformanceCounter(&end);
     span = end.QuadPart - start.QuadPart;
     usec = (span * 1000000L) / frequency.QuadPart;
-    g_pSharedObject->SetParam(PARAM_ID_DOUBLE_PROC_TIME, (DOUBLE)usec / 1000.0);
+    m_stProcInfo.procTime = (DOUBLE)usec / 1000.0;        // 画処理時間[ms]
+
+    g_pSharedObject->SetProcInfo(m_stProcInfo);
 
     return;
 }
@@ -104,7 +102,6 @@ void CAnalyst::ImageProc(void)
     UINT32          filter;
     UINT32          filterval;
     std::vector<std::vector<cv::Point>> contours;
-    stImageProcData stImgProcData[IMGPROC_ID_MAX];
     double          posX, posY;
     UINT32          algo;
     BOOL            ret = FALSE;
@@ -143,48 +140,42 @@ void CAnalyst::ImageProc(void)
             {
                 // ROIの範囲(長方形)を設定する
                 // * (x, y, width, height)で指定
-                if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_1, &stImgProcData[IMGPROC_ID_IMG_1]) != RESULT_OK)
-                {
-                    stImgProcData[IMGPROC_ID_IMG_1].posx = 0.0;
-                    stImgProcData[IMGPROC_ID_IMG_1].posy = 0.0;
-                    stImgProcData[IMGPROC_ID_IMG_1].enable = FALSE;
-                } 
-                if (stImgProcData[IMGPROC_ID_IMG_1].enable)
+                if (m_stProcInfo.data[IMGPROC_ID_IMG_1].valid)
                 {
 //@@@roisizeは自動計算するようにする必要あり
-                    stImgProcData[IMGPROC_ID_IMG_1].roiSize = roisize;
-                    int tmpval = (int)(((double)stImgProcData[IMGPROC_ID_IMG_1].roiSize / 2.0) + 0.5);
-                    if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posx - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = 0;}
-                    else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posx + tmpval) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_1].roiSize;}
-                    else                                                                         {stImgProcData[IMGPROC_ID_IMG_1].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_1].posx - tmpval;}
-                    if      (((int)stImgProcData[IMGPROC_ID_IMG_1].posy - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = 0;}
-                    else if (((int)stImgProcData[IMGPROC_ID_IMG_1].posy + tmpval) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_1].roiSize;}
-                    else                                                                         {stImgProcData[IMGPROC_ID_IMG_1].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_1].posy - tmpval;}
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.width  = stImgProcData[IMGPROC_ID_IMG_1].roiSize;
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.height = stImgProcData[IMGPROC_ID_IMG_1].roiSize;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize = roisize;
+                    int tmpval = (int)(((double)m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize / 2.0) + 0.5);
+                    if      (((int)m_stProcInfo.data[IMGPROC_ID_IMG_1].posx - tmpval) < 0)           {m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.x  = 0;}
+                    else if (((int)m_stProcInfo.data[IMGPROC_ID_IMG_1].posx + tmpval) > imgSrc.cols) {m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.x  = imgSrc.cols - m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize;}
+                    else                                                                             {m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.x  = (int)m_stProcInfo.data[IMGPROC_ID_IMG_1].posx - tmpval;}
+                    if      (((int)m_stProcInfo.data[IMGPROC_ID_IMG_1].posy - tmpval) < 0)           {m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.y  = 0;}
+                    else if (((int)m_stProcInfo.data[IMGPROC_ID_IMG_1].posy + tmpval) > imgSrc.rows) {m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.y  = imgSrc.rows - m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize;}
+                    else                                                                             {m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.y  = (int)m_stProcInfo.data[IMGPROC_ID_IMG_1].posy - tmpval;}
+                    m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.width  = m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.height = m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize;
                 }
                 else
                 {
-                    stImgProcData[IMGPROC_ID_IMG_1].roiSize    = roisize;
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.x      = 0;
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.y      = 0;
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
-                    stImgProcData[IMGPROC_ID_IMG_1].roi.height = imgSrc.rows;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize    = roisize;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.x      = 0;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.y      = 0;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.height = imgSrc.rows;
                 }
                 // 部分画像を生成
                 // * 部分画像とその元画像は共通の画像データを参照するため、
                 //   部分画像に変更を加えると、元画像も変更される。
-                imgROI = imgSrc(stImgProcData[IMGPROC_ID_IMG_1].roi);
+                imgROI = imgSrc(m_stProcInfo.data[IMGPROC_ID_IMG_1].roi);
                 // 画像色をBGR→HSVに変換
                 cv::cvtColor(imgROI, imgHSV, COLOR_BGR2HSV);
             }
             else
             {
-                stImgProcData[IMGPROC_ID_IMG_1].roiSize    = roisize;
-                stImgProcData[IMGPROC_ID_IMG_1].roi.x      = 0;
-                stImgProcData[IMGPROC_ID_IMG_1].roi.y      = 0;
-                stImgProcData[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
-                stImgProcData[IMGPROC_ID_IMG_1].roi.height = imgSrc.rows;
+                m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize    = roisize;
+                m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.x      = 0;
+                m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.y      = 0;
+                m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
+                m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.height = imgSrc.rows;
             }
             // 3チャンネルのLUT作成
             g_pSharedObject->GetParam(PARAM_ID_IMG_MASK1_HLOW, &maskLow[0]);
@@ -199,13 +190,13 @@ void CAnalyst::ImageProc(void)
                 {
                     if ((int)maskLow[k] <= (int)maskUpp[k])
                     {
-                        if (((int)maskLow[k] <= i) && (i <= (int)maskUpp[k])) { lut.data[i*lut.step + k] = 255; }
-                        else { lut.data[i*lut.step + k] = 0; }
+                        if (((int)maskLow[k] <= i) && (i <= (int)maskUpp[k])) {lut.data[i*lut.step + k] = 255;}
+                        else                                                  {lut.data[i*lut.step + k] = 0;}
                     }
                     else
                     {
-                        if ((i <= (int)maskUpp[k]) || ((int)maskLow[k] <= i)) { lut.data[i*lut.step + k] = 255; }
-                        else { lut.data[i*lut.step + k] = 0; }
+                        if ((i <= (int)maskUpp[k]) || ((int)maskLow[k] <= i)) {lut.data[i*lut.step + k] = 255;}
+                        else                                                  {lut.data[i*lut.step + k] = 0;}
                     }
                 }
             }
@@ -226,48 +217,42 @@ void CAnalyst::ImageProc(void)
             {
                 // ROIの範囲（長方形）を設定する
                 // * (x, y, width, height)で指定
-                if (g_pSharedObject->GetProcData(IMGPROC_ID_IMG_2, &stImgProcData[IMGPROC_ID_IMG_2]) != RESULT_OK)
-                {
-                    stImgProcData[IMGPROC_ID_IMG_2].posx   = 0.0;
-                    stImgProcData[IMGPROC_ID_IMG_2].posy   = 0.0;
-                    stImgProcData[IMGPROC_ID_IMG_2].enable = FALSE;
-                }
-                if (stImgProcData[IMGPROC_ID_IMG_2].enable)
+                if (m_stProcInfo.data[IMGPROC_ID_IMG_2].valid)
                 {
 //@@@roisizeは自動計算するようにする必要あり
-                    stImgProcData[IMGPROC_ID_IMG_2].roiSize = roisize;
-                    int tmpval = (int)(((double)stImgProcData[IMGPROC_ID_IMG_2].roiSize / 2.0) + 0.5);
-                    if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posx - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = 0;}
-                    else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posx + tmpval) > imgSrc.cols) {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = imgSrc.cols - stImgProcData[IMGPROC_ID_IMG_2].roiSize;}
-                    else                                                                         {stImgProcData[IMGPROC_ID_IMG_2].roi.x  = (int)stImgProcData[IMGPROC_ID_IMG_2].posx - tmpval;}
-                    if      (((int)stImgProcData[IMGPROC_ID_IMG_2].posy - tmpval) < 0)           {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = 0;}
-                    else if (((int)stImgProcData[IMGPROC_ID_IMG_2].posy + tmpval) > imgSrc.rows) {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = imgSrc.rows - stImgProcData[IMGPROC_ID_IMG_2].roiSize;}
-                    else                                                                         {stImgProcData[IMGPROC_ID_IMG_2].roi.y  = (int)stImgProcData[IMGPROC_ID_IMG_2].posy - tmpval;}
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.width  = stImgProcData[IMGPROC_ID_IMG_2].roiSize;
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.height = stImgProcData[IMGPROC_ID_IMG_2].roiSize;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize = roisize;
+                    int tmpval = (int)(((double)m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize / 2.0) + 0.5);
+                    if      (((int)m_stProcInfo.data[IMGPROC_ID_IMG_2].posx - tmpval) < 0)           {m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.x  = 0;}
+                    else if (((int)m_stProcInfo.data[IMGPROC_ID_IMG_2].posx + tmpval) > imgSrc.cols) {m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.x  = imgSrc.cols - m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize;}
+                    else                                                                             {m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.x  = (int)m_stProcInfo.data[IMGPROC_ID_IMG_2].posx - tmpval;}
+                    if      (((int)m_stProcInfo.data[IMGPROC_ID_IMG_2].posy - tmpval) < 0)           {m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.y  = 0;}
+                    else if (((int)m_stProcInfo.data[IMGPROC_ID_IMG_2].posy + tmpval) > imgSrc.rows) {m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.y  = imgSrc.rows - m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize;}
+                    else                                                                             {m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.y  = (int)m_stProcInfo.data[IMGPROC_ID_IMG_2].posy - tmpval;}
+                    m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.width  = m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.height = m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize;
                 }
                 else
                 {
-                    stImgProcData[IMGPROC_ID_IMG_2].roiSize    = roisize;
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.x      = 0;
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.y      = 0;
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
-                    stImgProcData[IMGPROC_ID_IMG_2].roi.height = imgSrc.rows;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize    = roisize;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.x      = 0;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.y      = 0;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
+                    m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.height = imgSrc.rows;
                 }
                 // 部分画像を生成
                 // * 部分画像とその元画像は共通の画像データを参照するため、
                 //   部分画像に変更を加えると、元画像も変更される。
-                imgROI = imgSrc(stImgProcData[IMGPROC_ID_IMG_2].roi);
+                imgROI = imgSrc(m_stProcInfo.data[IMGPROC_ID_IMG_2].roi);
                 // 画像色をBGR→HSVに変換
                 cv::cvtColor(imgROI, imgHSV, COLOR_BGR2HSV);
             }
             else
             {
-                stImgProcData[IMGPROC_ID_IMG_2].roiSize    = roisize;
-                stImgProcData[IMGPROC_ID_IMG_2].roi.x      = 0;
-                stImgProcData[IMGPROC_ID_IMG_2].roi.y      = 0;
-                stImgProcData[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
-                stImgProcData[IMGPROC_ID_IMG_2].roi.height = imgSrc.rows;
+                m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize    = roisize;
+                m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.x      = 0;
+                m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.y      = 0;
+                m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
+                m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.height = imgSrc.rows;
             }
             // 3チャンネルのLUT作成
             g_pSharedObject->GetParam(PARAM_ID_IMG_MASK2_HLOW, &maskLow[0]);
@@ -388,17 +373,15 @@ void CAnalyst::ImageProc(void)
             posX = 0.0;
             posY = 0.0;
             ret  = CalcCenterOfGravity(contours, &posX, &posY, algo);
-            stImgProcData[IMGPROC_ID_IMG_1].posx   = posX + stImgProcData[IMGPROC_ID_IMG_1].roi.x;
-            stImgProcData[IMGPROC_ID_IMG_1].posy   = posY + stImgProcData[IMGPROC_ID_IMG_1].roi.y;
-            stImgProcData[IMGPROC_ID_IMG_1].enable = ret;
-            g_pSharedObject->SetProcData(IMGPROC_ID_IMG_1, stImgProcData[IMGPROC_ID_IMG_1]);
+            m_stProcInfo.data[IMGPROC_ID_IMG_1].posx  = posX + m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.x;
+            m_stProcInfo.data[IMGPROC_ID_IMG_1].posy  = posY + m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.y;
+            m_stProcInfo.data[IMGPROC_ID_IMG_1].valid = ret;
         }
         else
         {
-            stImgProcData[IMGPROC_ID_IMG_1].posx   = 0.0;
-            stImgProcData[IMGPROC_ID_IMG_1].posy   = 0.0;
-            stImgProcData[IMGPROC_ID_IMG_1].enable = FALSE;
-            g_pSharedObject->SetProcData(IMGPROC_ID_IMG_1, stImgProcData[IMGPROC_ID_IMG_1]);
+            m_stProcInfo.data[IMGPROC_ID_IMG_1].posx  = 0.0;
+            m_stProcInfo.data[IMGPROC_ID_IMG_1].posy  = 0.0;
+            m_stProcInfo.data[IMGPROC_ID_IMG_1].valid = FALSE;
         }
 #pragma endregion Image1
 
@@ -413,17 +396,15 @@ void CAnalyst::ImageProc(void)
             posX = 0.0;
             posY = 0.0;
             ret  = CalcCenterOfGravity(contours, &posX, &posY, algo);
-            stImgProcData[IMGPROC_ID_IMG_2].posx   = posX + stImgProcData[IMGPROC_ID_IMG_2].roi.x;
-            stImgProcData[IMGPROC_ID_IMG_2].posy   = posY + stImgProcData[IMGPROC_ID_IMG_2].roi.y;
-            stImgProcData[IMGPROC_ID_IMG_2].enable = ret;
-            g_pSharedObject->SetProcData(IMGPROC_ID_IMG_2, stImgProcData[IMGPROC_ID_IMG_2]);
+            m_stProcInfo.data[IMGPROC_ID_IMG_2].posx  = posX + m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.x;
+            m_stProcInfo.data[IMGPROC_ID_IMG_2].posy  = posY + m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.y;
+            m_stProcInfo.data[IMGPROC_ID_IMG_2].valid = ret;
         }
         else
         {
-            stImgProcData[IMGPROC_ID_IMG_2].posx   = 0.0;
-            stImgProcData[IMGPROC_ID_IMG_2].posy   = 0.0;
-            stImgProcData[IMGPROC_ID_IMG_2].enable = FALSE;
-            g_pSharedObject->SetProcData(IMGPROC_ID_IMG_2, stImgProcData[IMGPROC_ID_IMG_2]);
+            m_stProcInfo.data[IMGPROC_ID_IMG_2].posx  = 0.0;
+            m_stProcInfo.data[IMGPROC_ID_IMG_2].posy  = 0.0;
+            m_stProcInfo.data[IMGPROC_ID_IMG_2].valid = FALSE;
         }
 #pragma endregion Image2
 #pragma endregion ImageProc
@@ -476,65 +457,15 @@ void CAnalyst::ImageProc(void)
     {
         for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
         {
-            stImgProcData[ii].posx       = 0.0;
-            stImgProcData[ii].posy       = 0.0;
-            stImgProcData[ii].roiSize    = 0;
-            stImgProcData[ii].roi.x      = 0;
-            stImgProcData[ii].roi.y      = 0;
-            stImgProcData[ii].roi.width  = 0;
-            stImgProcData[ii].roi.height = 0;
-            stImgProcData[ii].expTime    = 0.0;
-            stImgProcData[ii].enable     = FALSE;
-            g_pSharedObject->SetProcData(ii, stImgProcData[ii]);
+            m_stProcInfo.data[ii].posx       = 0.0;
+            m_stProcInfo.data[ii].posy       = 0.0;
+            m_stProcInfo.data[ii].roiSize    = 0;
+            m_stProcInfo.data[ii].roi.x      = 0;
+            m_stProcInfo.data[ii].roi.y      = 0;
+            m_stProcInfo.data[ii].roi.width  = 0;
+            m_stProcInfo.data[ii].roi.height = 0;
+            m_stProcInfo.data[ii].valid      = FALSE;
         }
-    }
-}
-
-/// @brief 傾斜計データ処理
-/// @param
-/// @return 
-/// @note
-void CAnalyst::InclinationProc(void)
-{
-    DOUBLE port1AnaData, port2AnaData;
-    DOUBLE port1AngleData, port2AngleData;
-
-    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_1_MA, &port1AnaData) == RESULT_OK)
-    {
-        if (isnan(port1AnaData))
-        {
-            port1AngleData = (DOUBLE)NAN;
-        }
-        else if (port1AnaData < 12.0)
-        {
-            // 12.0mA未満ならば角度は-方向に倒れている(4mAで-30度)
-            port1AngleData = ((port1AnaData - 4.0) - 8.0) / 8.0 * INCLINATION_MAX;
-        }
-        else
-        {
-            // 12.0mA以上ならば角度は+方向に倒れている(20mAで30度)
-            port1AngleData = (port1AnaData - 12.0) / 8.0 * INCLINATION_MAX;
-        }
-        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_RAD, port1AngleData);
-    }
-
-    if (g_pSharedObject->GetInclinoData(INCLINO_ID_PORT_2_MA, &port2AnaData) == RESULT_OK)
-    {
-        if (isnan(port2AnaData))
-        {
-            port2AngleData = (DOUBLE)NAN;
-        }
-        else if (port2AnaData < 12.0)
-        {
-            // 12.0mA未満ならば角度は-方向に倒れている(4mAで-30度)
-            port2AngleData = ((port2AnaData - 4.0) - 8.0) / 8.0 * INCLINATION_MAX;
-        }
-        else
-        {
-            // 12.0mA以上ならば角度は+方向に倒れている(20mAで30度)
-            port2AngleData = (port2AnaData - 12.0) / 8.0 * INCLINATION_MAX;
-        }
-        g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_2_RAD, port2AngleData);
     }
 }
 
