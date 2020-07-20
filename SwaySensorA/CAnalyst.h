@@ -23,5 +23,5 @@ private:
 
 private:
     void ImageProc(void);
-    BOOL CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY, UINT32 sel);
+    BOOL CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY, UINT32* outroisize, UINT32 sel);
 };

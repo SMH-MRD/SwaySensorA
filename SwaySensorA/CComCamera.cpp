@@ -41,6 +41,19 @@ void CComCamera::OnImageGrabbed( CInstantCamera& camera, const CGrabResultPtr& p
     m_ptrGrabResult = ptrGrabResult;
 
     //----------------------------------------------------------------------------
+    // 処理時間計測(終了時間取得)
+    LARGE_INTEGER   frequency;
+    LARGE_INTEGER   curPC;
+    LONGLONG        span, usec;
+
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&curPC);
+    span           = curPC.QuadPart - m_iGrabStartPC.QuadPart;
+    usec           = (span * 1000000L) / frequency.QuadPart;
+    m_iGrabStartPC = curPC;
+    m_stCameraInfo.cycleTime = (DOUBLE)usec / 1000.0;   // 画像取込み間隔[ms]
+
+    //----------------------------------------------------------------------------
     ProcImage();
 }
 
@@ -222,13 +235,13 @@ void CComCamera::init_task(void *pobj)
 /// @note
 void CComCamera::routine_work(void *param)
 {
-    if (g_pSharedObject == NULL) {return;}
+//  if (g_pSharedObject == NULL) {return;}
     ws << L"Act: " << std::setw(2) << *(inf.psys_counter) % 100;
     tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
-    UINT32 setFrameRate;
-    g_pSharedObject->GetParam(PARAM_ID_CAM_FRAMERATE, &setFrameRate);
-    inf.cycle_ms = 1000 / setFrameRate;
+    UINT32 framerate;
+    g_pSharedObject->GetParam(PARAM_ID_CAM_FRAMERATE, &framerate);
+    inf.cycle_ms = 1000 / framerate;
     // 起動周期カウント値
     if (inf.cycle_ms >= SYSTEM_TICK_ms) {inf.cycle_count = inf.cycle_ms / SYSTEM_TICK_ms;}
     else                                {inf.cycle_count = 1;}
@@ -251,6 +264,7 @@ void CComCamera::Initialize(void)
     InitializeCriticalSection(&m_csImageGrab);
     QueryPerformanceCounter(&m_iGrabStartPC);
     g_pSharedObject->SetCameraInfo(m_stCameraInfo);
+    g_pSharedObject->SetParam(PARAM_ID_IMG_GRAB_CAMERA, (UINT32)TRUE);
     return;
 }
 
@@ -271,12 +285,10 @@ void CComCamera::Close(void)
 /// @note
 void CComCamera::GrabImage(void)
 {
-    UINT32 camProc, imageProc;
-    if (g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_CAMERA, &camProc)   != RESULT_OK) {camProc   = 0;}
-    if (g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_FILE,   &imageProc) != RESULT_OK) {imageProc = 0;}
-
+    UINT32 camProc = 0, imageProc = 0;
     try
     {
+        g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_CAMERA, &camProc);
         if (camProc)
         {
             if (!m_camera.IsOpen())
@@ -349,7 +361,8 @@ void CComCamera::GrabImage(void)
         else
         {
             if (m_camera.IsGrabbing())  {m_camera.StopGrabbing();}
-            if (m_camera.IsOpen())      {m_camera.Close();}    
+            if (m_camera.IsOpen())      {m_camera.Close();}
+            g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_FILE, &imageProc);
             if (imageProc)
             {
                 LARGE_INTEGER   frequency;
@@ -402,19 +415,6 @@ void CComCamera::GrabImage(void)
 /// @note
 void CComCamera::ProcImage(void)
 {
-    //----------------------------------------------------------------------------
-    // 処理時間計測(終了時間取得)
-    LARGE_INTEGER   frequency;
-    LARGE_INTEGER   curPC;
-    LONGLONG        span, usec;
-
-    QueryPerformanceFrequency(&frequency);
-    QueryPerformanceCounter(&curPC);
-    span           = curPC.QuadPart - m_iGrabStartPC.QuadPart;
-    usec           = (span * 1000000L) / frequency.QuadPart;
-    m_iGrabStartPC = curPC;
-    m_stCameraInfo.cycleTime = (DOUBLE)usec / 1000.0;   // 画像取込み間隔[ms]
-
     if (g_pSharedObject == NULL) {return;}
     try
     {

@@ -33,7 +33,7 @@ void CComRIO::init_task(void *pobj)
 /// @note
 void CComRIO::routine_work(void *param)
 {
-    if (g_pSharedObject == NULL) {return;}
+//  if (g_pSharedObject == NULL) {return;}
     ws << L"Act: " << std::setw(2) << *(inf.psys_counter) % 100;
     tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
