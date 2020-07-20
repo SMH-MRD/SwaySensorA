@@ -28,19 +28,17 @@ void CAnalyst::init_task(void* pobj)
     m_iBufferImgMask2 = IMAGE_ID_MASK2_A;
     m_iBufferImgProc  = IMAGE_ID_PROC_A;
 
-    UINT32          roisize;
-    UINT32          exptime;
-    g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE,      &roisize);
+    UINT32  exptime;
     g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME, &exptime);
     for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
     {
         m_stProcInfo.data[ii].posx       = 0.0;
         m_stProcInfo.data[ii].posy       = 0.0;
-        m_stProcInfo.data[ii].roiSize    = roisize;
+        m_stProcInfo.data[ii].roiSize    = 0;
         m_stProcInfo.data[ii].roi.x      = 0;
         m_stProcInfo.data[ii].roi.y      = 0;
-        m_stProcInfo.data[ii].roi.width  = roisize;
-        m_stProcInfo.data[ii].roi.height = roisize;
+        m_stProcInfo.data[ii].roi.width  = 0;
+        m_stProcInfo.data[ii].roi.height = 0;
         m_stProcInfo.data[ii].valid      = FALSE;
     }
     m_stProcInfo.exposureTime = exptime;    // 露光時間[us]
@@ -54,6 +52,7 @@ void CAnalyst::init_task(void* pobj)
 /// @note
 void CAnalyst::routine_work(void* param)
 {
+//  if (g_pSharedObject == NULL) {return;}
     ws << L"Act: " << std::setw(2) << *(inf.psys_counter) % 100;
     tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
@@ -114,6 +113,9 @@ void CAnalyst::ImageProc(void)
     else ;
 #pragma endregion GetSrcImage
 
+    //----------------------------------------------------------------------------
+    // 検出処理
+#pragma region ProcTarget
     if (bImgEnable)
     {
         g_pSharedObject->GetParam(PARAM_ID_IMG_MASK_TYPE, &maskimage);  // マスク画像選択
@@ -129,9 +131,6 @@ void CAnalyst::ImageProc(void)
         // 各チャンネルごとに2値化(LUT変換)し、3チャンネル全てのANDを取り、マスク画像を作成する
 #pragma region CreateMaskImage
         lut = cv::Mat(256, 1, CV_8UC3); // LUT
-        g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE, &roisize);
-        if ((int)roisize >= imgSrc.cols) roisize = imgSrc.cols;
-        if ((int)roisize >= imgSrc.rows) roisize = imgSrc.rows;
         // 画像1
 #pragma region Image1
         if ((maskimage == MASK_IMG_ALL) || (maskimage == MASK_IMG_IMAGE1))
@@ -142,8 +141,6 @@ void CAnalyst::ImageProc(void)
                 // * (x, y, width, height)で指定
                 if (m_stProcInfo.data[IMGPROC_ID_IMG_1].valid)
                 {
-//@@@roisizeは自動計算するようにする必要あり
-                    m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize = roisize;
                     int tmpval = (int)(((double)m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize / 2.0) + 0.5);
                     if      (((int)m_stProcInfo.data[IMGPROC_ID_IMG_1].posx - tmpval) < 0)           {m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.x  = 0;}
                     else if (((int)m_stProcInfo.data[IMGPROC_ID_IMG_1].posx + tmpval) > imgSrc.cols) {m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.x  = imgSrc.cols - m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize;}
@@ -156,7 +153,6 @@ void CAnalyst::ImageProc(void)
                 }
                 else
                 {
-                    m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize    = roisize;
                     m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.x      = 0;
                     m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.y      = 0;
                     m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
@@ -171,7 +167,6 @@ void CAnalyst::ImageProc(void)
             }
             else
             {
-                m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize    = roisize;
                 m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.x      = 0;
                 m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.y      = 0;
                 m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.width  = imgSrc.cols;
@@ -219,8 +214,6 @@ void CAnalyst::ImageProc(void)
                 // * (x, y, width, height)で指定
                 if (m_stProcInfo.data[IMGPROC_ID_IMG_2].valid)
                 {
-//@@@roisizeは自動計算するようにする必要あり
-                    m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize = roisize;
                     int tmpval = (int)(((double)m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize / 2.0) + 0.5);
                     if      (((int)m_stProcInfo.data[IMGPROC_ID_IMG_2].posx - tmpval) < 0)           {m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.x  = 0;}
                     else if (((int)m_stProcInfo.data[IMGPROC_ID_IMG_2].posx + tmpval) > imgSrc.cols) {m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.x  = imgSrc.cols - m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize;}
@@ -233,7 +226,6 @@ void CAnalyst::ImageProc(void)
                 }
                 else
                 {
-                    m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize    = roisize;
                     m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.x      = 0;
                     m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.y      = 0;
                     m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
@@ -248,7 +240,6 @@ void CAnalyst::ImageProc(void)
             }
             else
             {
-                m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize    = roisize;
                 m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.x      = 0;
                 m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.y      = 0;
                 m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.width  = imgSrc.cols;
@@ -372,9 +363,12 @@ void CAnalyst::ImageProc(void)
             // 重心検出
             posX = 0.0;
             posY = 0.0;
-            ret  = CalcCenterOfGravity(contours, &posX, &posY, algo);
+            ret  = CalcCenterOfGravity(contours, &posX, &posY, &roisize, algo);
             m_stProcInfo.data[IMGPROC_ID_IMG_1].posx  = posX + m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.x;
             m_stProcInfo.data[IMGPROC_ID_IMG_1].posy  = posY + m_stProcInfo.data[IMGPROC_ID_IMG_1].roi.y;
+            m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize = (int)roisize;
+            if (m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize > imgSrc.cols) {m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize = imgSrc.cols;}
+            if (m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize > imgSrc.rows) {m_stProcInfo.data[IMGPROC_ID_IMG_1].roiSize = imgSrc.rows;}
             m_stProcInfo.data[IMGPROC_ID_IMG_1].valid = ret;
         }
         else
@@ -389,15 +383,18 @@ void CAnalyst::ImageProc(void)
 #pragma region Image2
         if ((maskimage == MASK_IMG_ALL) || (maskimage == MASK_IMG_IMAGE2))
         {
-            // 輪郭抽出
+            // 輪郭抽出(一番外側の白の輪郭のみを取得)
             cv::findContours(imgMask2, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
             // 重心検出
             posX = 0.0;
             posY = 0.0;
-            ret  = CalcCenterOfGravity(contours, &posX, &posY, algo);
+            ret  = CalcCenterOfGravity(contours, &posX, &posY, &roisize, algo);
             m_stProcInfo.data[IMGPROC_ID_IMG_2].posx  = posX + m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.x;
             m_stProcInfo.data[IMGPROC_ID_IMG_2].posy  = posY + m_stProcInfo.data[IMGPROC_ID_IMG_2].roi.y;
+            m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize = (int)roisize;
+            if (m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize > imgSrc.cols) {m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize = imgSrc.cols;}
+            if (m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize > imgSrc.rows) {m_stProcInfo.data[IMGPROC_ID_IMG_2].roiSize = imgSrc.rows;}
             m_stProcInfo.data[IMGPROC_ID_IMG_2].valid = ret;
         }
         else
@@ -467,108 +464,136 @@ void CAnalyst::ImageProc(void)
             m_stProcInfo.data[ii].valid      = FALSE;
         }
     }
+#pragma endregion ProcTarget
 }
 
 /// @brief 重心検出
 /// @param
 /// @return 
 /// @note 
-BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY, UINT32 sel)
+BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY, UINT32* outroisize, UINT32 sel)
 {
-    BOOL    ret  = FALSE;
-    double  posX = 0.0;
-    double  posY = 0.0;
-    
+    BOOL    ret     = FALSE;
+    double  posX    = 0.0;
+    double  posY    = 0.0;
+    UINT32  roisize = 0;    
+    UINT32  scale   = 0;
+
     switch (sel)
     {
 #pragma region COG_ALGORITHM1
-    case COG_ALGORITHM_ALL:     // 重心位置算出アルゴリズム(全輪郭点)
+    case COG_ALGORITHM_ALL:
+    //----------------------------------------------------------------------------
+    // 重心位置算出アルゴリズム(全輪郭点)
         {
-        UINT32  count = 0;
-
-        for (UINT ii = 0; ii < contours.size(); ii++)
-        {
-            UINT tempCount = contours.at(ii).size();
-            count += tempCount;
-            for (UINT jj = 0; jj < tempCount; jj++)
+            UINT32  count = 0;
+            double  x = 0.0, xmin = 3000.0, xmax = 0.0, width  = 0.0;
+            double  y = 0.0, ymin = 3000.0, ymax = 0.0, height = 0.0;
+            for (UINT ii = 0; ii < contours.size(); ii++)
             {
-                posX += contours.at(ii).at(jj).x;
-                posY += contours.at(ii).at(jj).y;
-            }
-        }
-        if (count > 0)
-        {
-            posX /= count;
-            posY /= count;
-            ret = TRUE;
-        }
-        }
-        break;
-#pragma endregion COG_ALGORITHM1
-
-#pragma region COG_ALGORITHM2
-    case COG_ALGORITHM_AREA:    // 重心位置算出アルゴリズム(最大輪郭面積)
-        {
-        UINT32  count            = 0;
-        double  max_area         = 0;
-        int     max_area_contour = -1;
-
-        for(UINT ii = 0; ii < contours.size(); ii++)
-        {
-            double area = contourArea(contours.at(ii));
-            if(max_area < area)
-            {
-                max_area = area;
-                max_area_contour = ii;
-            }
-        }
-
-        if (max_area_contour >= 0)
-        {
-            count = contours.at(max_area_contour).size();
-            for(UINT ii = 0; ii < count; ii++)
-            {
-                posX += contours.at(max_area_contour).at(ii).x;
-                posY += contours.at(max_area_contour).at(ii).y;
+                UINT tempCount = contours.at(ii).size();
+                count += tempCount;
+                for (UINT jj = 0; jj < tempCount; jj++)
+                {
+                    x = contours.at(ii).at(jj).x;
+                    y = contours.at(ii).at(jj).y;
+                    posX += x;
+                    posY += y;
+                    if      (xmin > x) {xmin = x;}
+                    else if (xmax < x) {xmax = x;}
+                    else ;
+                    if      (ymin > y) {ymin = y;}
+                    else if (ymax < y) {ymax = y;}
+                    else ;
+                }
             }
             if (count > 0)
             {
                 posX /= count;
                 posY /= count;
+                width  = (xmax - xmin);
+                height = (ymax - ymin);
+                if (width > height) {roisize = (UINT32)width  + 1;}
+                else                {roisize = (UINT32)height + 1;}
                 ret = TRUE;
             }
         }
+        break;
+#pragma endregion COG_ALGORITHM1
+
+#pragma region COG_ALGORITHM2
+    case COG_ALGORITHM_AREA:
+    //----------------------------------------------------------------------------
+    // 重心位置算出アルゴリズム(最大輪郭面積)
+        {
+            UINT32      count            = 0;
+            double      max_area         = 0;
+            int         max_area_contour = -1;
+            cv::Rect    roi;
+            for(UINT ii = 0; ii < contours.size(); ii++)
+            {
+                double area = contourArea(contours.at(ii));
+                if(max_area < area)
+                {
+                    max_area = area;
+                    max_area_contour = ii;
+                }
+            }
+
+            if (max_area_contour >= 0)
+            {
+                count = contours.at(max_area_contour).size();
+                for(UINT ii = 0; ii < count; ii++)
+                {
+                    posX += contours.at(max_area_contour).at(ii).x;
+                    posY += contours.at(max_area_contour).at(ii).y;
+                }
+                if (count > 0)
+                {
+                    posX /= count;
+                    posY /= count;
+                    roi = cv::boundingRect(contours[max_area_contour]);
+                    if (roi.width > roi.height) {roisize = (UINT32)roi.width  + 1;}
+                    else                        {roisize = (UINT32)roi.height + 1;}
+                    ret = TRUE;
+                }
+            }
         }
         break;
 #pragma endregion COG_ALGORITHM2
 
 #pragma region COG_ALGORITHM3
-    case COG_ALGORITHM_LEN:     // 重心位置算出アルゴリズム(最大輪郭長)
+    case COG_ALGORITHM_LEN:
+    //----------------------------------------------------------------------------
+    // 重心位置算出アルゴリズム(最大輪郭長)
         {
-	    double  max_size = 0;
-	    int     max_id   = -1;
-
-	    if (contours.size() > 0)
-        {
-	        for (UINT ii = 0; ii < contours.size(); ii++)
+	        double      max_size = 0;
+	        int         max_id   = -1;
+            cv::Rect    roi;
+	        if (contours.size() > 0)
             {
-		        if (contours[ii].size() > max_size)
+	            for (UINT ii = 0; ii < contours.size(); ii++)
                 {
-			        max_size = contours[ii].size();
-			        max_id   = ii;
-		        }
-	        }
-            if (max_id >= 0)
-            {
-	            Moments mu = moments(contours[max_id]);
-                if(mu.m00 > 0.0)
+		            if (contours[ii].size() > max_size)
+                    {
+			            max_size = contours[ii].size();
+			            max_id   = ii;
+		            }
+	            }
+                if (max_id >= 0)
                 {
-	                posX = mu.m10 / mu.m00;
-	                posY = mu.m01 / mu.m00;
-                    ret = TRUE;
+	                Moments mu = moments(contours[max_id]);
+                    if(mu.m00 > 0.0)
+                    {
+	                    posX = mu.m10 / mu.m00;
+	                    posY = mu.m01 / mu.m00;
+                        roi = cv::boundingRect(contours[max_id]);
+                        if (roi.width > roi.height) {roisize = (UINT32)roi.width  + 1;}
+                        else                        {roisize = (UINT32)roi.height + 1;}
+                        ret = TRUE;
+                    }
                 }
             }
-        }
         }
         break;
 #pragma endregion COG_ALGORITHM3
@@ -581,10 +606,12 @@ BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPo
     {
         posX = 0.0;
         posY = 0.0;
-        ret = FALSE;
+        ret  = FALSE;
     }
-    *outPosX = posX;
-    *outPosY = posY;
+    g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE, &scale);
+    *outPosX    = posX;
+    *outPosY    = posY;
+    *outroisize = (UINT32)((double)roisize * (double)scale/10.0);
 
     return ret;
 }

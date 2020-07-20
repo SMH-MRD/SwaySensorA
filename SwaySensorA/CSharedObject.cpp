@@ -68,6 +68,12 @@ void CSharedObject::InitSharedObject(void)
             m_stProcInfo.data[ii].roi.height = 0;
             m_stProcInfo.data[ii].valid      = FALSE;
         }
+        for (UINT ii = 0; ii < SWAY_MAX; ii++)
+        {
+            m_stProcInfo.sway[ii]    = 0.0; // êUÇÍäp
+            m_stProcInfo.swaySpd[ii] = 0.0; // êUÇÍäpë¨ìx
+        }
+        m_stProcInfo.valid        = FALSE;  // åüèoèÛë‘
         m_stProcInfo.exposureTime = 0.0;    // òIåıéûä‘[us]
         m_stProcInfo.procTime     = 0.0;    // âÊèàóùéûä‘[ms]
     }
@@ -280,7 +286,13 @@ INT CSharedObject::SetProcInfo(stProcInfo info)
         m_stProcInfo.data[ii].roi.height = info.data[ii].roi.height;
         m_stProcInfo.data[ii].valid      = info.data[ii].valid;
     }
+    for (UINT ii = 0; ii < SWAY_MAX; ii++)
+    {
+        m_stProcInfo.sway[ii]    = info.sway[ii];       // êUÇÍäp
+        m_stProcInfo.swaySpd[ii] = info.swaySpd[ii];    // êUÇÍäpë¨ìx
+    }
     m_stProcInfo.exposureTime = info.exposureTime;  // òIåıéûä‘[us]
+    m_stProcInfo.valid        = info.valid;         // åüèoèÛë‘
     m_stProcInfo.procTime     = info.procTime;      // èàóùéûä‘[ms]
     LeaveCriticalSection(&csProcInfo);
 
@@ -306,7 +318,13 @@ INT CSharedObject::GetProcInfo(stProcInfo* info)
         info->data[ii].roi.height = m_stProcInfo.data[ii].roi.height;
         info->data[ii].valid      = m_stProcInfo.data[ii].valid;
     }
+    for (UINT ii = 0; ii < SWAY_MAX; ii++)
+    {
+        info->sway[ii]    = m_stProcInfo.sway[ii];      // êUÇÍäp
+        info->swaySpd[ii] = m_stProcInfo.swaySpd[ii];   // êUÇÍäpë¨ìx
+    }
     info->exposureTime = m_stProcInfo.exposureTime; // òIåıéûä‘[us]
+    info->valid        = m_stProcInfo.valid;        // åüèoèÛë‘
     info->procTime     = m_stProcInfo.procTime;     // âÊèàóùéûä‘[ms]
     LeaveCriticalSection(&csProcInfo);
 

@@ -81,7 +81,8 @@ void CPublicRelation::routine_work(void *param)
     SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_CAMERA_STAT), msg);
 
     // 画像取込時間
-    _stprintf_s(msg, TEXT("%d"), (int)stCameraInfo.cycleTime);
+    if (stCameraInfo.valid) {_stprintf_s(msg, TEXT("%d"), (int)stCameraInfo.cycleTime);}
+    else                    {_stprintf_s(msg, TEXT("-"));}
     SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_IMG_GRAB_TIME), msg);
 
     //----------------------------------------------------------------------------
@@ -133,6 +134,22 @@ void CPublicRelation::routine_work(void *param)
     {
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X2), msg);
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y2), msg);
+    }
+
+    // 振れ
+    if (stProcInfo.valid)
+    {
+        _stprintf_s(msg, TEXT("%.1f"), stProcInfo.sway[SWAY_X]);    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_X),     msg);
+        _stprintf_s(msg, TEXT("%.1f"), stProcInfo.sway[SWAY_Y]);    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_Y),     msg);
+        _stprintf_s(msg, TEXT("%.1f"), stProcInfo.swaySpd[SWAY_X]); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_X), msg);
+        _stprintf_s(msg, TEXT("%.1f"), stProcInfo.swaySpd[SWAY_Y]); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_Y), msg);
+    }
+    else
+    {
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_X),     msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_Y),     msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_X), msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_Y), msg);
     }
 
     // 処理時間
@@ -604,7 +621,6 @@ void CPublicRelation::set_PNLparam_value(float p1, float p2, float p3, float p4,
 /// @note
 HWND CPublicRelation::OpenCameraPanel()
 {
-
     if (m_hCamDlg == NULL)
     {
         m_hCamDlg = CreateDialog(inf.hInstance, MAKEINTRESOURCE(IDD_DIALOG_IMAGE_PROC), nullptr, (DLGPROC)CameraWndProc);
@@ -614,11 +630,35 @@ HWND CPublicRelation::OpenCameraPanel()
 
         //----------------------------------------------------------------------------
         // 操作
-        g_pSharedObject->SetParam(PARAM_ID_IMG_GRAB_CAMERA, (UINT32)TRUE);
-        EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_CAM_START),  FALSE);
-        EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_CAM_STOP),   TRUE);
-        EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_FILE_START), FALSE);
-        EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_FILE_STOP),  FALSE);
+        {
+            UINT32 camProc = 0, imageProc = 0;
+            g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_CAMERA, &camProc);
+            if (camProc)
+            {
+                EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_CAM_START),  FALSE);
+                EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_CAM_STOP),   TRUE);
+                EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_FILE_START), FALSE);
+                EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_FILE_STOP),  FALSE);
+            }
+            else
+            {
+                g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_FILE, &imageProc);
+                if (imageProc)
+                {
+                    EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_CAM_START),  FALSE);
+                    EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_CAM_STOP),   FALSE);
+                    EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_FILE_START), FALSE);
+                    EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_FILE_STOP),  TRUE);
+                }
+                else
+                {
+                    EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_CAM_START),  TRUE);
+                    EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_CAM_STOP),   FALSE);
+                    EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_FILE_START), TRUE);
+                    EnableWindow(GetDlgItem(m_hCamDlg, IDC_BUTTON_FILE_STOP),  FALSE);
+                }
+            }
+        }
 
         //----------------------------------------------------------------------------
         // 画像1
@@ -868,27 +908,13 @@ HWND CPublicRelation::OpenCameraPanel()
         // ROI有効
         {
             HWND    wndhdl;
-            UINT32  roienable, roisize, roisizemax;
-            UINT32  imgw, imgh;
+            UINT32  roienable;
             TCHAR   msg[10];
 
             g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_ENABLE, &roienable);
-            g_pSharedObject->GetParam(PARAM_ID_IMG_ROI_SIZE,   &roisize);
-            g_pSharedObject->GetParam(PARAM_ID_CAM_WIDTH,      &imgw);
-            g_pSharedObject->GetParam(PARAM_ID_CAM_HEIGHT,     &imgh);
-            if (imgh > imgw) {roisizemax = imgw;}
-            else             {roisizemax = imgh;}
             wndhdl = GetDlgItem(m_hCamDlg, IDC_CHECK_ROI);
             if (roienable > 0) {SendMessage(wndhdl, BM_SETCHECK, BST_CHECKED,   0);}
             else               {SendMessage(wndhdl, BM_SETCHECK, BST_UNCHECKED, 0);}
-            wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_ROI);
-            SendMessage(wndhdl, TBM_SETRANGEMIN, TRUE, 10);         // レンジを指定
-            SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, roisizemax); // レンジを指定
-            SendMessage(wndhdl, TBM_SETTICFREQ, 1000, 0);           // 目盛りの増分
-            SendMessage(wndhdl, TBM_SETPOS, TRUE, roisize);         // 位置の設定
-            SendMessage(wndhdl, TBM_SETPAGESIZE, 0, 1);             // クリック時の移動量
-            wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_ROI);
-            _stprintf_s(msg, 10, TEXT("%d"), roisize);  SetWindowText(wndhdl, (LPCTSTR)msg);
         }
 
         //----------------------------------------------------------------------------
@@ -916,11 +942,15 @@ HWND CPublicRelation::OpenCameraPanel()
         // 処理情報
         {
             TCHAR   msg[10];
-            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X1),    msg);
-            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y1),    msg);
-            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X2),    msg);
-            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y2),    msg);
-            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_PROC_TIME), msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X1),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y1),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X2),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y2),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_X),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_Y),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_X), msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_Y), msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_PROC_TIME),  msg);
         }
     }
     return m_hCamDlg;
@@ -1065,15 +1095,6 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
                 pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_CAMERA_EXPOSURE), TBM_GETPOS, 0, 0);
                 _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_CAMERA_EXPOSURE), (LPCTSTR)str);
                 g_pSharedObject->SetParam(PARAM_ID_CAM_EXPOSURE_TIME, (UINT32)pos);
-            }
-
-            //----------------------------------------------------------------------------
-            // ROI
-            if (GetDlgItem(m_hCamDlg, IDC_SLIDER_ROI) == (HWND)lp)
-            {
-                pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_ROI), TBM_GETPOS, 0, 0);
-                _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_ROI), (LPCTSTR)str);
-                g_pSharedObject->SetParam(PARAM_ID_IMG_ROI_SIZE, (UINT32)pos);
             }
         }
         break;

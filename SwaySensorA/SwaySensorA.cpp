@@ -712,10 +712,10 @@ VOID CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD	dwUser, DWORD dw1, DWORD d
         // 起動後経過時間計算
         tmttl = knl_manage_set.sys_counter * knl_manage_set.cycle_base; // アプリケーション起動後の経過時間msec
         knl_manage_set.Knl_Time.wMilliseconds = (WORD)(tmttl % 1000);   tmttl /= 1000;
-        knl_manage_set.Knl_Time.wSecond = (WORD)(tmttl % 60);     tmttl /= 60;
-        knl_manage_set.Knl_Time.wMinute = (WORD)(tmttl % 60);     tmttl /= 60;
-        knl_manage_set.Knl_Time.wHour = (WORD)(tmttl % 60);     tmttl /= 24;
-        knl_manage_set.Knl_Time.wDay = (WORD)(tmttl % 24);
+        knl_manage_set.Knl_Time.wSecond       = (WORD)(tmttl % 60);     tmttl /= 60;
+        knl_manage_set.Knl_Time.wMinute       = (WORD)(tmttl % 60);     tmttl /= 60;
+        knl_manage_set.Knl_Time.wHour         = (WORD)(tmttl % 60);     tmttl /= 24;
+        knl_manage_set.Knl_Time.wDay          = (WORD)(tmttl % 24);
 
         TCHAR tbuf[32];
         wsprintf(tbuf, L"%3dD %02d:%02d:%02d", knl_manage_set.Knl_Time.wDay, knl_manage_set.Knl_Time.wHour, knl_manage_set.Knl_Time.wMinute, knl_manage_set.Knl_Time.wSecond);
