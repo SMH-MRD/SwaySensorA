@@ -129,6 +129,13 @@ enum
     COG_ALGORITHM_MAX
 };
 
+enum
+{
+    SWAY_X = 0,                     // U‚êX
+    SWAY_Y,                         // U‚êY
+    SWAY_MAX
+};
+
 // \‘¢‘Ì’è‹`
 typedef struct _stCameraInfo
 {
@@ -169,6 +176,9 @@ typedef struct _stProcInfo
 {
     stImageProcData data[IMGPROC_ID_MAX];   // ‰æ‘œˆ—Œ‹‰Ê
     DOUBLE          exposureTime;           // ˜IŒõŠÔ[us]
+    DOUBLE          sway[SWAY_MAX];         // U‚êŠp
+    DOUBLE          swaySpd[SWAY_MAX];      // U‚êŠp‘¬“x
+    BOOL            valid;                  // ŒŸoó‘Ô
     DOUBLE          procTime;               // ˆ—ŠÔ[ms]
 } stProcInfo;
 

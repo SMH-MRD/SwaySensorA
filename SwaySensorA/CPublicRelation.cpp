@@ -81,7 +81,8 @@ void CPublicRelation::routine_work(void *param)
     SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_CAMERA_STAT), msg);
 
     // âÊëúéÊçûéûä‘
-    _stprintf_s(msg, TEXT("%d"), (int)stCameraInfo.cycleTime);
+    if (stCameraInfo.valid) {_stprintf_s(msg, TEXT("%d"), (int)stCameraInfo.cycleTime);}
+    else                    {_stprintf_s(msg, TEXT("-"));}
     SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_IMG_GRAB_TIME), msg);
 
     //----------------------------------------------------------------------------
@@ -133,6 +134,22 @@ void CPublicRelation::routine_work(void *param)
     {
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X2), msg);
         _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y2), msg);
+    }
+
+    // êUÇÍ
+    if (stProcInfo.valid)
+    {
+        _stprintf_s(msg, TEXT("%.1f"), stProcInfo.sway[SWAY_X]);    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_X),     msg);
+        _stprintf_s(msg, TEXT("%.1f"), stProcInfo.sway[SWAY_Y]);    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_Y),     msg);
+        _stprintf_s(msg, TEXT("%.1f"), stProcInfo.swaySpd[SWAY_X]); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_X), msg);
+        _stprintf_s(msg, TEXT("%.1f"), stProcInfo.swaySpd[SWAY_Y]); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_Y), msg);
+    }
+    else
+    {
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_X),     msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_Y),     msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_X), msg);
+        _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_Y), msg);
     }
 
     // èàóùéûä‘
@@ -916,11 +933,15 @@ HWND CPublicRelation::OpenCameraPanel()
         // èàóùèÓïÒ
         {
             TCHAR   msg[10];
-            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X1),    msg);
-            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y1),    msg);
-            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X2),    msg);
-            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y2),    msg);
-            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_PROC_TIME), msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X1),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y1),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_X2),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_GRV_Y2),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_X),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_Y),     msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_X), msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_Y), msg);
+            _stprintf_s(msg, TEXT("-"));    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_PROC_TIME),  msg);
         }
     }
     return m_hCamDlg;
