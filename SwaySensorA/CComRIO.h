@@ -50,24 +50,24 @@ extern ST_iTask         g_itask;
 #define CUR_OVERRANGE                   22.81                           // Cur. overrange
 #define CUR_UNDERRANGE                  1.185                           // Cur. underrange
 
-union UNION_WandB   // 1WORD/2BYTE
+union UNION_WandB                   // 1WORD/2BYTE
 {
     uint16_t    uint16;
     uint8_t     uint8[2];
 };
 
-typedef struct _stModbusInitCnfg    // Modbus初期化設定
+typedef struct _stModbusInitCnfg                                // Modbus初期化設定
 {
-    char    ipaddrs[20U];   // IPアドレス
-    int32_t portnum;        // ポート番号
-    int32_t timeout;        // 通信タイムアウト
+    char    ipaddrs[20U];                                       // IPアドレス
+    int32_t portnum;                                            // ポート番号
+    int32_t timeout;                                            // 通信タイムアウト
 } stModbusInitCnfg;
 
-typedef struct _stRIOCnfg           // RIO設定
+typedef struct _stRIOCnfg                                       // RIO設定
 {
-    ModbusTCPDesc       modbusDesc;                         // ModbusTCPディスクリプタ
+    ModbusTCPDesc       modbusDesc;                             // ModbusTCPディスクリプタ
 
-    stModbusInitCnfg    modbusInitCnfg;                     // Modbus初期化設定
+    stModbusInitCnfg    modbusInitCnfg;                         // Modbus初期化設定
 
     ST_MODBUS_TCP_REQ   stModbusTcpSetCmndReq;                  // Command書き込み
     ST_MODBUS_TCP_REQ   stModbusTcpSetIOLinkReq[RIO_PORT_MAX];  // IO-Link書き込み
@@ -109,8 +109,8 @@ public:
     void routine_work(void* param);
 
 private:
-    ST_RIOCnfg  m_stRIOCnfg;
-    stRIOInfo   m_stRIOInfo;
+    ST_RIOCnfg      m_riocnfg;
+    stRIOInfoData   m_rioinfo;
 
 private:
     void    Initialize(void);

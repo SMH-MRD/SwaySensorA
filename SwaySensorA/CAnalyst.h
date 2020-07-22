@@ -15,13 +15,13 @@ public:
     void init_task(void* pobj);
 
 private:
-    UINT8 m_iBufferImgMask1;
-    UINT8 m_iBufferImgMask2;
+    UINT8 m_iBufferImgMask[IMGPROC_ID_MAX];
     UINT8 m_iBufferImgProc;
-    
-    stProcInfo m_stProcInfo;
+
+    stImgProcParamData  m_imgprocparam;     // ‰æ‘œˆ—İ’èƒf[ƒ^
+    stProcInfoData      m_proninfo;         // ‰æ‘œˆ—Œ‹‰Ê
 
 private:
     void ImageProc(void);
-    BOOL CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY, UINT32* outroisize, UINT32 sel);
+    BOOL CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY, int* outTgtSize, UINT32 sel);
 };

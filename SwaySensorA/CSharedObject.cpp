@@ -7,6 +7,7 @@
 /// @note
 CSharedObject::CSharedObject()
 {
+    Initialize();
 }
 
 /// @brief デストラクタ
@@ -21,236 +22,242 @@ CSharedObject::~CSharedObject()
 /// @param
 /// @return 
 /// @note
-void CSharedObject::InitSharedObject(void)
+void CSharedObject::Initialize(void)
 {
     //--------------------------------------------------------------------------
     // 
-    // UINT32パラメータデータ
-    for (UINT ii = 0; ii < PARAM_ID_MAX; ii++)
-    {
-        m_u32Param[ii] = 0;
-    }
-    // stringパラメータデータ
-    for (UINT ii = 0; ii < PARAM_ID_STR_MAX; ii++)
-    {
-        m_strParam[ii] = "";
-    }
     // カメラ情報
     {
-        m_stCameraInfo.valid     = FALSE;
-        m_stCameraInfo.cycleTime = 0.0;
+        m_caminfo.data.valid     = FALSE;
+        m_caminfo.data.cycleTime = 0.0;
     }
     // RIO情報
     {
-        m_stRIOInfo.error = RIO_ERR_NONE;
+        m_rioinfo.data.error = RIO_ERR_NONE;
         for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
         {
-            m_stRIOInfo.data[ii].dig = 0;   // 入力データ
-            m_stRIOInfo.data[ii].cur = 0.0; // 入力データ変換値(mA)
-            m_stRIOInfo.data[ii].deg = 0.0; // 入力データ変換値(deg.)    
+            m_rioinfo.data.incldata[ii].dig = 0;    // 入力データ
+            m_rioinfo.data.incldata[ii].cur = 0.0;  // 入力データ変換値(mA)
+            m_rioinfo.data.incldata[ii].deg = 0.0;  // 入力データ変換値(deg.)    
         }
     }
     // 画像データ
     for (UINT ii = 0; ii < IMAGE_ID_MAX; ii++)
     {
-        m_stImgData[ii].update = FALSE;
+        m_imginfo[ii].data.update = FALSE;
     }
     // 処理情報
     {
         for (UINT ii = 0; ii < IMGPROC_ID_MAX; ii++)
         {
-            m_stProcInfo.data[ii].posx       = 0.0;
-            m_stProcInfo.data[ii].posy       = 0.0;
-            m_stProcInfo.data[ii].roiSize    = 0;
-            m_stProcInfo.data[ii].roi.x      = 0;
-            m_stProcInfo.data[ii].roi.y      = 0;
-            m_stProcInfo.data[ii].roi.width  = 0;
-            m_stProcInfo.data[ii].roi.height = 0;
-            m_stProcInfo.data[ii].valid      = FALSE;
+            m_procinfo.data.imgprocdata[ii].posx       = 0.0;
+            m_procinfo.data.imgprocdata[ii].posy       = 0.0;
+            m_procinfo.data.imgprocdata[ii].tgtsize    = 0;
+            m_procinfo.data.imgprocdata[ii].roi.x      = 0;
+            m_procinfo.data.imgprocdata[ii].roi.y      = 0;
+            m_procinfo.data.imgprocdata[ii].roi.width  = 0;
+            m_procinfo.data.imgprocdata[ii].roi.height = 0;
+            m_procinfo.data.imgprocdata[ii].valid      = FALSE;
         }
         for (UINT ii = 0; ii < SWAY_MAX; ii++)
         {
-            m_stProcInfo.sway[ii]    = 0.0; // 振れ角
-            m_stProcInfo.swaySpd[ii] = 0.0; // 振れ角速度
+            m_procinfo.data.sway[ii]    = 0.0;  // 振れ角
+            m_procinfo.data.swaySpd[ii] = 0.0;  // 振れ角速度
         }
-        m_stProcInfo.valid        = FALSE;  // 検出状態
-        m_stProcInfo.exposureTime = 0.0;    // 露光時間[us]
-        m_stProcInfo.procTime     = 0.0;    // 画処理時間[ms]
+        m_procinfo.data.valid        = FALSE;   // 検出状態
+        m_procinfo.data.exposureTime = 0.0;     // 露光時間[us]
+        m_procinfo.data.procTime     = 0.0;     // 画処理時間[ms]
     }
 
     //--------------------------------------------------------------------------
     // 共有データアクセス用クリティカルセクションの初期化
-    // UINT32パラメータデータ
-    for (UINT ii = 0; ii < PARAM_ID_MAX; ii++)
+    // カメラ設定
     {
-        InitializeCriticalSection(&csParam[ii]);
+        InitializeCriticalSection(&m_camparam.cs);
     }
-    // stringパラメータデータ
-    for (UINT ii = 0; ii < PARAM_ID_STR_MAX; ii++)
+    // 画像処理設定
     {
-        InitializeCriticalSection(&csStrParam[ii]);
+        InitializeCriticalSection(&m_imgprocparam.cs);
+    }
+     // RemoteIO設定
+    {
+        InitializeCriticalSection(&m_rioparam.cs);
     }
     // カメラ情報
     {
-        InitializeCriticalSection(&csCameraInfo);
+        InitializeCriticalSection(&m_caminfo.cs);
     }
     // RIO情報
     {
-        InitializeCriticalSection(&csRIOInfo);
+        InitializeCriticalSection(&m_rioinfo.cs);
     }
     // 画像データ
     for (UINT ii = 0; ii < IMAGE_ID_MAX; ii++)
     {
-        InitializeCriticalSection(&csImage[ii]);
+        InitializeCriticalSection(&m_imginfo[ii].cs);
     }
     // 処理情報
     {
-        InitializeCriticalSection(&csProcInfo);
+        InitializeCriticalSection(&m_procinfo.cs);
     }
 }
 
-/// @brief UINT32パラメータデータ設定処理
+/// @brief カメラ設定データ書込み
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::SetParam(UINT8 id, UINT32 data)
+INT CSharedObject::SetParam(stCameraParamData data)
 {
-    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
-    EnterCriticalSection(&csParam[id]);
-    m_u32Param[id] = data;
-    LeaveCriticalSection(&csParam[id]);
+    EnterCriticalSection(&m_camparam.cs);
+    m_camparam.data.imgsource  = data.imgsource;    // 画像取込み元(0:停止 1:カメラ 2:画像ファイル) 
+    m_camparam.data.imgfname   = data.imgfname;     // 取込み画像ファイル名
+    m_camparam.data.width      = data.width;        // カメラ画像サイズ横幅(32の倍数, 2592以下)
+    m_camparam.data.height     = data.height;       // カメラ画像サイズ高さ(2の倍数, 2048以下)
+    m_camparam.data.fps        = data.fps;          // フレームレート
+    m_camparam.data.exptime    = data.exptime;      // 露光時間(usec)(初期値)
+    m_camparam.data.exptimemin = data.exptimemin;   // 露光時間(usec)(最小値)
+    m_camparam.data.exptimemax = data.exptimemax;   // 露光時間(usec)(最大値)
+    LeaveCriticalSection(&m_camparam.cs);
 
     return RESULT_OK;
 }
 
-/// @brief UINT32パラメータデータ取得処理
+/// @brief カメラ設定データ読出し
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::GetParam(UINT8 id, UINT32* data)
+INT CSharedObject::GetParam(stCameraParamData* data)
 {
-    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
-    if (data == NULL)       {return RESULT_NG_INVALID;}
-    EnterCriticalSection(&csParam[id]);
-    *data = m_u32Param[id];
-    LeaveCriticalSection(&csParam[id]);
+    EnterCriticalSection(&m_camparam.cs);
+    data->imgsource  = m_camparam.data.imgsource;   // 画像取込み元(0:停止 1:カメラ 2:画像ファイル) 
+    data->imgfname   = m_camparam.data.imgfname;    // 取込み画像ファイル名
+    data->width      = m_camparam.data.width;       // カメラ画像サイズ横幅(32の倍数, 2592以下)
+    data->height     = m_camparam.data.height;      // カメラ画像サイズ高さ(2の倍数, 2048以下)
+    data->fps        = m_camparam.data.fps;         // フレームレート
+    data->exptime    = m_camparam.data.exptime;     // 露光時間(usec)(初期値)
+    data->exptimemin = m_camparam.data.exptimemin;  // 露光時間(usec)(最小値)
+    data->exptimemax = m_camparam.data.exptimemax;  // 露光時間(usec)(最大値)
+    LeaveCriticalSection(&m_camparam.cs);
 
     return RESULT_OK;
 }
 
-/// @brief stringパラメータデータ設定処理
+/// @brief 画像処理設定データ書込み
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::SetParam(UINT8 id, string str)
+INT CSharedObject::SetParam(stImgProcParamData data)
 {
-    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
-    EnterCriticalSection(&csStrParam[id]);
-    m_strParam[id] = str;
-    LeaveCriticalSection(&csStrParam[id]);
-
-    return RESULT_OK;
-}
-
-/// @brief stringパラメータデータ取得処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::GetParam(UINT8 id, string* str)
-{
-    if (id >= PARAM_ID_MAX) {return RESULT_NG_INVALID;}
-    if (str == NULL)        {return RESULT_NG_INVALID;}
-    EnterCriticalSection(&csStrParam[id]);
-    *str = m_strParam[id];
-    LeaveCriticalSection(&csStrParam[id]);
-
-    return RESULT_OK;
-}
-
-/// @brief カメラ情報設定処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::SetCameraInfo(stCameraInfo info)
-{
-    EnterCriticalSection(&csCameraInfo);
-    m_stCameraInfo.valid     = info.valid;
-    m_stCameraInfo.cycleTime = info.cycleTime;
-    LeaveCriticalSection(&csCameraInfo);
-
-    return RESULT_OK;
-}
-
-/// @brief カメラ情報取得処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::GetCameraInfo(stCameraInfo* info)
-{
-    if (info == NULL) {return RESULT_NG_INVALID;}
-    EnterCriticalSection(&csCameraInfo);
-    info->valid     = m_stCameraInfo.valid;
-    info->cycleTime = m_stCameraInfo.cycleTime;
-    LeaveCriticalSection(&csCameraInfo);
-
-    return RESULT_OK;
-}
-
-/// @brief RIO情報設定処理
-/// @param
-/// @return 
-/// @note
-INT CSharedObject::SetRIOInfo(stRIOInfo info)
-{
-    EnterCriticalSection(&csRIOInfo);
-    m_stRIOInfo.error = info.error;
-    for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
+    EnterCriticalSection(&m_imgprocparam.cs);
+    m_imgprocparam.data.roi.valid = data.roi.valid;             // ROI有効
+    m_imgprocparam.data.roi.scale = data.roi.scale;             // ROIスケール(検出したターゲットに対する倍率)
+    for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
     {
-        m_stRIOInfo.data[ii].dig = info.data[ii].dig;   // 入力データ
-        m_stRIOInfo.data[ii].cur = info.data[ii].cur;   // 入力データ変換値(mA)
-        m_stRIOInfo.data[ii].deg = info.data[ii].deg;   // 入力データ変換値(deg.)
+        m_imgprocparam.data.maskvalid[ii] = data.maskvalid[ii]; // マスク画像選択(0=両方, 1=画像1のみ, 2=画像2のみ)
     }
-    LeaveCriticalSection(&csRIOInfo);
+    for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
+    {
+        m_imgprocparam.data.hsvl[ii].h =  data.hsvl[ii].h;      // H
+        m_imgprocparam.data.hsvl[ii].s =  data.hsvl[ii].s;      // S
+        m_imgprocparam.data.hsvl[ii].v =  data.hsvl[ii].v;      // V
+        m_imgprocparam.data.hsvu[ii].h =  data.hsvu[ii].h;      // H
+        m_imgprocparam.data.hsvu[ii].s =  data.hsvu[ii].s;      // S
+        m_imgprocparam.data.hsvu[ii].v =  data.hsvu[ii].v;      // V
+    }
+    m_imgprocparam.data.filter1.type = data.filter1.type;       // ゴマ塩ノイズフィルタ:フィルタ有効
+    m_imgprocparam.data.filter1.val  = data.filter1.val;        // ゴマ塩ノイズフィルタ:フィルタ値
+    m_imgprocparam.data.filter2.type = data.filter2.type;       // 穴埋めノイズフィルタ:フィルタ有効
+    m_imgprocparam.data.filter2.val  = data.filter2.val;        // 穴埋めノイズフィルタ:フィルタ値
+    m_imgprocparam.data.algorithm    = data.algorithm;          // ターゲット検出アルゴリズム(0=全輪郭点, 1=最大輪郭面積, 2=最大輪郭長)
+    LeaveCriticalSection(&m_imgprocparam.cs);
 
     return RESULT_OK;
 }
 
-/// @brief RIO情報取得処理
+/// @brief 画像処理設定データ読出し
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::GetRIOInfo(stRIOInfo* info)
+INT CSharedObject::GetParam(stImgProcParamData* data)
 {
-    if (info == NULL) {return RESULT_NG_INVALID;}
-    EnterCriticalSection(&csRIOInfo);
-    info->error = m_stRIOInfo.error;
-    for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
+    EnterCriticalSection(&m_imgprocparam.cs);
+    data->roi.valid = m_imgprocparam.data.roi.valid;                // ROI有効
+    data->roi.scale = m_imgprocparam.data.roi.scale;                // ROIスケール(検出したターゲットに対する倍率)
+    for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
     {
-        info->data[ii].dig = m_stRIOInfo.data[ii].dig;  // 入力データ
-        info->data[ii].cur = m_stRIOInfo.data[ii].cur;  // 入力データ変換値(mA)
-        info->data[ii].deg = m_stRIOInfo.data[ii].deg;  // 入力データ変換値(deg.)
+        data->maskvalid[ii] = m_imgprocparam.data.maskvalid[ii];    // マスク画像選択(0=両方, 1=画像1のみ, 2=画像2のみ)
     }
-    LeaveCriticalSection(&csRIOInfo);
+    for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
+    {
+        data->hsvl[ii].h =  m_imgprocparam.data.hsvl[ii].h;         // H
+        data->hsvl[ii].s =  m_imgprocparam.data.hsvl[ii].s;         // S
+        data->hsvl[ii].v =  m_imgprocparam.data.hsvl[ii].v;         // V
+        data->hsvu[ii].h =  m_imgprocparam.data.hsvu[ii].h;         // H
+        data->hsvu[ii].s =  m_imgprocparam.data.hsvu[ii].s;         // S
+        data->hsvu[ii].v =  m_imgprocparam.data.hsvu[ii].v;         // V
+    }
+    data->filter1.type = m_imgprocparam.data.filter1.type;          // ゴマ塩ノイズフィルタ:フィルタ有効
+    data->filter1.val  = m_imgprocparam.data.filter1.val;           // ゴマ塩ノイズフィルタ:フィルタ値
+    data->filter2.type = m_imgprocparam.data.filter2.type;          // 穴埋めノイズフィルタ:フィルタ有効
+    data->filter2.val  = m_imgprocparam.data.filter2.val;           // 穴埋めノイズフィルタ:フィルタ値
+    data->algorithm    = m_imgprocparam.data.algorithm;             // ターゲット検出アルゴリズム(0=全輪郭点, 1=最大輪郭面積, 2=最大輪郭長)
+    LeaveCriticalSection(&m_imgprocparam.cs);
 
     return RESULT_OK;
 }
 
-/// @brief 画像データ設定処理
+/// @brief RemoteIO設定データ書込み
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::SetParam(stRIOParamData data)
+{
+    EnterCriticalSection(&m_rioparam.cs);
+    memcpy(m_rioparam.data.ipaddrs, data.ipaddrs, sizeof(m_rioparam.data.ipaddrs)); // RIO IPアドレス
+    m_rioparam.data.tcpport    = data.tcpport;                                      // TCPポート番号
+    m_rioparam.data.slaveaddrs = data.slaveaddrs;                                   // スレーブアドレス
+    m_rioparam.data.timeout    = data.timeout;                                      // 通信タイムアウト(msec)
+    m_rioparam.data.portx      = data.portx;                                        // 傾斜計Xデータ接続ポート番号(1～8)
+    m_rioparam.data.porty      = data.porty;                                        // 傾斜計Yデータ接続ポート番号(1～8)
+    LeaveCriticalSection(&m_rioparam.cs);
+
+    return RESULT_OK;
+}
+
+/// @brief RemoteIO設定データ読出し
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::GetParam(stRIOParamData* data)
+{
+    EnterCriticalSection(&m_rioparam.cs);
+    memcpy(data->ipaddrs, m_rioparam.data.ipaddrs, sizeof(data->ipaddrs));  // RIO IPアドレス    
+    data->tcpport    = m_rioparam.data.tcpport;                             // TCPポート番号
+    data->slaveaddrs = m_rioparam.data.slaveaddrs;                          // スレーブアドレス
+    data->timeout    = m_rioparam.data.timeout;                             // 通信タイムアウト(msec)
+    data->portx      = m_rioparam.data.portx;                               // 傾斜計Xデータ接続ポート番号(1～8)
+    data->porty      = m_rioparam.data.porty;                               // 傾斜計Yデータ接続ポート番号(1～8)
+    LeaveCriticalSection(&m_rioparam.cs);
+
+    return RESULT_OK;
+}
+
+/// @brief 画像データ書込み
 /// @param
 /// @return 
 /// @note
 INT CSharedObject::SetImage(UINT8 id, cv::Mat image)
 {
     if (id >= IMAGE_ID_MAX) {return RESULT_NG_INVALID;}
-    EnterCriticalSection(&csImage[id]);
-    image.copyTo(m_stImgData[id].image);
-    m_stImgData[id].update = TRUE;
-    LeaveCriticalSection(&csImage[id]);
+    EnterCriticalSection(&m_imginfo[id].cs);
+    image.copyTo(m_imginfo[id].data.image);
+    m_imginfo[id].data.update = TRUE;
+    LeaveCriticalSection(&m_imginfo[id].cs);
 
     return RESULT_OK;
 }
 
-/// @brief 画像データ取得処理
+/// @brief 画像データ読出し
 /// @param
 /// @return 
 /// @note
@@ -259,74 +266,142 @@ INT CSharedObject::GetImage(UINT8 id, Mat* image)
     if (id >= IMAGE_ID_MAX) {return RESULT_NG_INVALID;}
     if (image == NULL)      {return RESULT_NG_INVALID;}
     // 更新有無の確認
-    if (m_stImgData[id].update == FALSE) {return RESULT_NG_SEQUENCE;}
-    EnterCriticalSection(&csImage[id]);
-    m_stImgData[id].image.copyTo(*image);
-    m_stImgData[id].update = FALSE;
-    LeaveCriticalSection(&csImage[id]);
+    if (m_imginfo[id].data.update == FALSE) {return RESULT_NG_SEQUENCE;}
+    EnterCriticalSection(&m_imginfo[id].cs);
+    m_imginfo[id].data.image.copyTo(*image);
+    m_imginfo[id].data.update = FALSE;
+    LeaveCriticalSection(&m_imginfo[id].cs);
 
     return RESULT_OK;
 }
 
-/// @brief 処理データ設定処理
+/// @brief カメラ情報書込み
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::SetProcInfo(stProcInfo info)
+INT CSharedObject::SetInfo(stCameraInfoData data)
 {
-    EnterCriticalSection(&csProcInfo);
-    for (UINT ii = 0; ii < IMGPROC_ID_MAX; ii++)
-    {
-        m_stProcInfo.data[ii].posx       = info.data[ii].posx;
-        m_stProcInfo.data[ii].posy       = info.data[ii].posy;
-        m_stProcInfo.data[ii].roiSize    = info.data[ii].roiSize;
-        m_stProcInfo.data[ii].roi.x      = info.data[ii].roi.x;
-        m_stProcInfo.data[ii].roi.y      = info.data[ii].roi.y;
-        m_stProcInfo.data[ii].roi.width  = info.data[ii].roi.width;
-        m_stProcInfo.data[ii].roi.height = info.data[ii].roi.height;
-        m_stProcInfo.data[ii].valid      = info.data[ii].valid;
-    }
-    for (UINT ii = 0; ii < SWAY_MAX; ii++)
-    {
-        m_stProcInfo.sway[ii]    = info.sway[ii];       // 振れ角
-        m_stProcInfo.swaySpd[ii] = info.swaySpd[ii];    // 振れ角速度
-    }
-    m_stProcInfo.exposureTime = info.exposureTime;  // 露光時間[us]
-    m_stProcInfo.valid        = info.valid;         // 検出状態
-    m_stProcInfo.procTime     = info.procTime;      // 処理時間[ms]
-    LeaveCriticalSection(&csProcInfo);
+    EnterCriticalSection(&m_caminfo.cs);
+    m_caminfo.data.valid     = data.valid;
+    m_caminfo.data.cycleTime = data.cycleTime;
+    LeaveCriticalSection(&m_caminfo.cs);
 
     return RESULT_OK;
 }
 
-/// @brief 処理データ取得処理
+/// @brief カメラ情報読出し
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::GetProcInfo(stProcInfo* info)
+INT CSharedObject::GetInfo(stCameraInfoData* data)
 {
-    if (info == NULL) {return RESULT_NG_INVALID;}
-    EnterCriticalSection(&csProcInfo);
+    if (data == NULL) {return RESULT_NG_INVALID;}
+    EnterCriticalSection(&m_caminfo.cs);
+    data->valid     = m_caminfo.data.valid;
+    data->cycleTime = m_caminfo.data.cycleTime;
+    LeaveCriticalSection(&m_caminfo.cs);
+
+    return RESULT_OK;
+}
+
+/// @brief RIO情報書込み
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::SetInfo(stRIOInfoData data)
+{
+    EnterCriticalSection(&m_rioinfo.cs);
+    m_rioinfo.data.error = data.error;
+    for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
+    {
+        m_rioinfo.data.incldata[ii].dig = data.incldata[ii].dig;    // 入力データ
+        m_rioinfo.data.incldata[ii].cur = data.incldata[ii].cur;    // 入力データ変換値(mA)
+        m_rioinfo.data.incldata[ii].deg = data.incldata[ii].deg;    // 入力データ変換値(deg.)
+    }
+    LeaveCriticalSection(&m_rioinfo.cs);
+
+    return RESULT_OK;
+}
+
+/// @brief RIO情報読出し
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::GetInfo(stRIOInfoData* data)
+{
+    if (data == NULL) {return RESULT_NG_INVALID;}
+    EnterCriticalSection(&m_rioinfo.cs);
+    data->error = m_rioinfo.data.error;
+    for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
+    {
+        data->incldata[ii].dig = m_rioinfo.data.incldata[ii].dig;   // 入力データ
+        data->incldata[ii].cur = m_rioinfo.data.incldata[ii].cur;   // 入力データ変換値(mA)
+        data->incldata[ii].deg = m_rioinfo.data.incldata[ii].deg;   // 入力データ変換値(deg.)
+    }
+    LeaveCriticalSection(&m_rioinfo.cs);
+
+    return RESULT_OK;
+}
+
+/// @brief 処理データ書込み
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::SetInfo(stProcInfoData data)
+{
+    EnterCriticalSection(&m_procinfo.cs);
     for (UINT ii = 0; ii < IMGPROC_ID_MAX; ii++)
     {
-        info->data[ii].posx       = m_stProcInfo.data[ii].posx;
-        info->data[ii].posy       = m_stProcInfo.data[ii].posy;
-        info->data[ii].roiSize    = m_stProcInfo.data[ii].roiSize;
-        info->data[ii].roi.x      = m_stProcInfo.data[ii].roi.x;
-        info->data[ii].roi.y      = m_stProcInfo.data[ii].roi.y;
-        info->data[ii].roi.width  = m_stProcInfo.data[ii].roi.width;
-        info->data[ii].roi.height = m_stProcInfo.data[ii].roi.height;
-        info->data[ii].valid      = m_stProcInfo.data[ii].valid;
+        m_procinfo.data.imgprocdata[ii].posx       = data.imgprocdata[ii].posx;
+        m_procinfo.data.imgprocdata[ii].posy       = data.imgprocdata[ii].posy;
+        m_procinfo.data.imgprocdata[ii].tgtsize    = data.imgprocdata[ii].tgtsize;
+        m_procinfo.data.imgprocdata[ii].roi.x      = data.imgprocdata[ii].roi.x;
+        m_procinfo.data.imgprocdata[ii].roi.y      = data.imgprocdata[ii].roi.y;
+        m_procinfo.data.imgprocdata[ii].roi.width  = data.imgprocdata[ii].roi.width;
+        m_procinfo.data.imgprocdata[ii].roi.height = data.imgprocdata[ii].roi.height;
+        m_procinfo.data.imgprocdata[ii].valid      = data.imgprocdata[ii].valid;
     }
     for (UINT ii = 0; ii < SWAY_MAX; ii++)
     {
-        info->sway[ii]    = m_stProcInfo.sway[ii];      // 振れ角
-        info->swaySpd[ii] = m_stProcInfo.swaySpd[ii];   // 振れ角速度
+        m_procinfo.data.sway[ii]    = data.sway[ii];    // 振れ角
+        m_procinfo.data.swaySpd[ii] = data.swaySpd[ii]; // 振れ角速度
     }
-    info->exposureTime = m_stProcInfo.exposureTime; // 露光時間[us]
-    info->valid        = m_stProcInfo.valid;        // 検出状態
-    info->procTime     = m_stProcInfo.procTime;     // 画処理時間[ms]
-    LeaveCriticalSection(&csProcInfo);
+    m_procinfo.data.exposureTime = data.exposureTime;   // 露光時間[us]
+    m_procinfo.data.valid        = data.valid;          // 検出状態
+    m_procinfo.data.procTime     = data.procTime;       // 処理時間[ms]
+    LeaveCriticalSection(&m_procinfo.cs);
+
+    return RESULT_OK;
+}
+
+/// @brief 処理データ読出し
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::GetInfo(stProcInfoData* data)
+{
+    if (data == NULL) {return RESULT_NG_INVALID;}
+    EnterCriticalSection(&m_procinfo.cs);
+    for (UINT ii = 0; ii < IMGPROC_ID_MAX; ii++)
+    {
+        data->imgprocdata[ii].posx       = m_procinfo.data.imgprocdata[ii].posx;
+        data->imgprocdata[ii].posy       = m_procinfo.data.imgprocdata[ii].posy;
+        data->imgprocdata[ii].tgtsize    = m_procinfo.data.imgprocdata[ii].tgtsize;
+        data->imgprocdata[ii].roi.x      = m_procinfo.data.imgprocdata[ii].roi.x;
+        data->imgprocdata[ii].roi.y      = m_procinfo.data.imgprocdata[ii].roi.y;
+        data->imgprocdata[ii].roi.width  = m_procinfo.data.imgprocdata[ii].roi.width;
+        data->imgprocdata[ii].roi.height = m_procinfo.data.imgprocdata[ii].roi.height;
+        data->imgprocdata[ii].valid      = m_procinfo.data.imgprocdata[ii].valid;
+    }
+    for (UINT ii = 0; ii < SWAY_MAX; ii++)
+    {
+        data->sway[ii]    = m_procinfo.data.sway[ii];       // 振れ角
+        data->swaySpd[ii] = m_procinfo.data.swaySpd[ii];    // 振れ角速度
+    }
+    data->exposureTime = m_procinfo.data.exposureTime;      // 露光時間[us]
+    data->valid        = m_procinfo.data.valid;             // 検出状態
+    data->procTime     = m_procinfo.data.procTime;          // 画処理時間[ms]
+    LeaveCriticalSection(&m_procinfo.cs);
 
     return RESULT_OK;
 }

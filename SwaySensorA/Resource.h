@@ -153,7 +153,6 @@
 #define IDC_STATIC_IMAGE_RAW            2045
 #define IDC_BUTTON_SET                  2053
 #define IDC_BUTTON_FILE_START           2057
-#define IDC_BUTTON_FILE_STOP            2058
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

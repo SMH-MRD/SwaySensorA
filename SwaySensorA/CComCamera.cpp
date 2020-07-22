@@ -1,6 +1,6 @@
 #include "CComCamera.h"
 
-extern CSharedObject*   g_pSharedObject;    // タスク間共有データのポインタ
+extern CSharedObject* g_pSharedObject;  // タスク間共有データのポインタ
 
 /// @brief コンストラクタ
 /// @param
@@ -51,7 +51,7 @@ void CComCamera::OnImageGrabbed( CInstantCamera& camera, const CGrabResultPtr& p
     span           = curPC.QuadPart - m_iGrabStartPC.QuadPart;
     usec           = (span * 1000000L) / frequency.QuadPart;
     m_iGrabStartPC = curPC;
-    m_stCameraInfo.cycleTime = (DOUBLE)usec / 1000.0;   // 画像取込み間隔[ms]
+    m_caminfo.cycleTime = (DOUBLE)usec / 1000.0;   // 画像取込み間隔[ms]
 
     //----------------------------------------------------------------------------
     ProcImage();
@@ -197,7 +197,7 @@ void CComCamera::OnGrabError(Pylon::CInstantCamera& camera, const char* errorMes
     _RPT1(_CRT_WARN, "%s\n", "OnGrabError");
     if (m_camera.IsOpen()) {m_camera.Close();}
     m_camera.DestroyDevice();
-    m_stCameraInfo.valid = FALSE;   // カメラ状態
+    m_caminfo.valid = FALSE;   // カメラ状態
 }
 
 /// @brief 
@@ -213,7 +213,7 @@ void CComCamera::OnCameraDeviceRemoved(Pylon::CInstantCamera& camera)
         // It can't be used anymore.
         m_ptrGrabResult.Release();
         m_camera.DestroyDevice();
-        m_stCameraInfo.valid = FALSE;   // カメラ状態
+        m_caminfo.valid = FALSE;   // カメラ状態
     }
     catch (Pylon::GenericException)
     {
@@ -239,9 +239,8 @@ void CComCamera::routine_work(void *param)
     ws << L"Act: " << std::setw(2) << *(inf.psys_counter) % 100;
     tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
-    UINT32 framerate;
-    g_pSharedObject->GetParam(PARAM_ID_CAM_FRAMERATE, &framerate);
-    inf.cycle_ms = 1000 / framerate;
+    g_pSharedObject->GetParam(&m_camparam);    //@@@シャッターコントロールのための仮、画像処理のコントロール値にする
+    inf.cycle_ms = 1000 / (int)m_camparam.fps;
     // 起動周期カウント値
     if (inf.cycle_ms >= SYSTEM_TICK_ms) {inf.cycle_count = inf.cycle_ms / SYSTEM_TICK_ms;}
     else                                {inf.cycle_count = 1;}
@@ -258,13 +257,15 @@ void CComCamera::routine_work(void *param)
 void CComCamera::Initialize(void)
 {
     PylonInitialize();
-    m_stCameraInfo.valid     = FALSE;   // カメラ状態
-    m_stCameraInfo.cycleTime = 0.0;     // 画像取込み間隔[ms]
-    m_iBufferImg             = IMAGE_ID_RAW_A;
+    g_pSharedObject->GetParam(&m_camparam);
+
+    m_caminfo.valid     = FALSE;    // カメラ状態
+    m_caminfo.cycleTime = 0.0;      // 画像取込み間隔[ms]
+    m_iBufferImg                = IMAGE_ID_RAW_A;
     InitializeCriticalSection(&m_csImageGrab);
     QueryPerformanceCounter(&m_iGrabStartPC);
-    g_pSharedObject->SetCameraInfo(m_stCameraInfo);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_GRAB_CAMERA, (UINT32)TRUE);
+    g_pSharedObject->SetInfo(m_caminfo);
+
     return;
 }
 
@@ -288,12 +289,11 @@ void CComCamera::GrabImage(void)
     UINT32 camProc = 0, imageProc = 0;
     try
     {
-        g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_CAMERA, &camProc);
-        if (camProc)
+        if (m_camparam.imgsource == GRAB_IMG_GRAB_CAMERA)
         {
             if (!m_camera.IsOpen())
             {
-                m_stCameraInfo.cycleTime = 0.0; // 画像取込み間隔[ms]
+                m_caminfo.cycleTime = 0.0;  // 画像取込み間隔[ms]
 
                 // Get the transport layer factory.
                 Pylon::CTlFactory& tlFactory = Pylon::CTlFactory::GetInstance();
@@ -320,25 +320,18 @@ void CComCamera::GrabImage(void)
                 m_ptrGrabResult.Release();
 
                 // Width, Height
-                UINT32 width, height;
-                g_pSharedObject->GetParam(PARAM_ID_CAM_WIDTH, &width);
-                m_camera.Width.SetValue(width);
-                g_pSharedObject->GetParam(PARAM_ID_CAM_HEIGHT, &height);
-                m_camera.Height.SetValue(height);
+                m_camera.Width.SetValue(m_camparam.width);
+                m_camera.Height.SetValue(m_camparam.height);
 
                 // Set the pixel data format.
                 m_camera.PixelFormat.SetValue(PixelFormat_BGR8);
 
                 // Acquisition Frame Rate
-                UINT32 setFrameRate;
-                g_pSharedObject->GetParam(PARAM_ID_CAM_FRAMERATE, &setFrameRate);
                 m_camera.AcquisitionFrameRateEnable.SetValue(true);
-                m_camera.AcquisitionFrameRate.SetValue((double)setFrameRate);
+                m_camera.AcquisitionFrameRate.SetValue(m_camparam.fps);
 
                 // Exposure
-                UINT32 exposure;
-                g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME, &exposure);
-                m_camera.ExposureTime.SetValue((double)exposure);
+                m_camera.ExposureTime.SetValue(m_camparam.exptime);
         
                 // Reconfigure the camera to use continuous acquisition.
                 m_continousConfiguration.OnOpened(m_camera);
@@ -347,23 +340,20 @@ void CComCamera::GrabImage(void)
 //              m_camera.StartGrabbing(Pylon::GrabStrategy_OneByOne, Pylon::GrabLoop_ProvidedByInstantCamera);
                 m_camera.StartGrabbing(Pylon::GrabStrategy_LatestImageOnly, Pylon::GrabLoop_ProvidedByInstantCamera);
 
-                m_stCameraInfo.valid = TRUE;    // カメラ状態
+                m_caminfo.valid = TRUE;     // カメラ状態
                 QueryPerformanceCounter(&m_iGrabStartPC);
             }
             else
             {
                 // Exposure
-                UINT32 exposure;
-                g_pSharedObject->GetParam(PARAM_ID_CAM_EXPOSURE_TIME, &exposure);
-                m_camera.ExposureTime.SetValue((double)exposure);
+                m_camera.ExposureTime.SetValue(m_camparam.exptime);    //@@@画像処理結果から決めた値にする
             }
         }
         else
         {
             if (m_camera.IsGrabbing())  {m_camera.StopGrabbing();}
             if (m_camera.IsOpen())      {m_camera.Close();}
-            g_pSharedObject->GetParam(PARAM_ID_IMG_GRAB_FILE, &imageProc);
-            if (imageProc)
+            if (m_camparam.imgsource == GRAB_IMG_GRAB_FILE)
             {
                 LARGE_INTEGER   frequency;
                 LARGE_INTEGER   curPC;
@@ -374,13 +364,10 @@ void CComCamera::GrabImage(void)
                 span           = curPC.QuadPart - m_iGrabStartPC.QuadPart;
                 usec           = (span * 1000000L) / frequency.QuadPart;
                 m_iGrabStartPC = curPC;
-                m_stCameraInfo.cycleTime = (DOUBLE)usec / 1000.0;   // 画像取込み間隔[ms]
+                m_caminfo.cycleTime = (DOUBLE)usec / 1000.0;    // 画像取込み間隔[ms]
 
-                string  fileName;
                 Mat     fileData;
-                g_pSharedObject->GetParam(PARAM_ID_STR_PROC_FILENAME, &fileName);
-
-                fileData = imread(fileName);
+                fileData = imread(m_camparam.imgfname);
 
                 if (m_iBufferImg == IMAGE_ID_RAW_A)
                 {
@@ -392,21 +379,21 @@ void CComCamera::GrabImage(void)
                     g_pSharedObject->SetImage(IMAGE_ID_RAW_B, fileData);
                     m_iBufferImg = IMAGE_ID_RAW_A;
                 }
-                m_stCameraInfo.valid = TRUE;    // カメラ状態
+                m_caminfo.valid = TRUE;                 // カメラ状態
             }
             else
             {
-                m_stCameraInfo.valid     = FALSE;   // カメラ状態
-                m_stCameraInfo.cycleTime = 0.0;     // 画像取込み間隔[ms]
+                m_caminfo.valid     = FALSE;            // カメラ状態
+                m_caminfo.cycleTime = 0.0;              // 画像取込み間隔[ms]
             }
         }
     }
     catch (GenICam::GenericException)   // エラーハンドリング
     {
-        m_stCameraInfo.valid = FALSE;    // カメラ状態
+        m_caminfo.valid = FALSE;        // カメラ状態
     }
 
-    g_pSharedObject->SetCameraInfo(m_stCameraInfo);
+    g_pSharedObject->SetInfo(m_caminfo);
 }
 
 /// @brief 
