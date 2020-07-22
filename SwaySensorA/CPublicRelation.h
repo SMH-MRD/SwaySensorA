@@ -31,9 +31,12 @@ private:
     HWND OpenCameraPanel(); // メンテナンスパネル表示
     static LRESULT CALLBACK CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);   // メンテナンスパネルWnd用コールバック関数
 
-    static HWND     m_hCamDlg;
-    static cv::Mat  m_mtSaveImage;
-    static BOOL     m_bCursor;
-    static POINT    m_pntCursor;
-    static UINT     m_iSelImg;
+private:
+    static HWND                 m_hCamDlg;
+    static cv::Mat              m_mtSaveImage;
+    static BOOL                 m_bCursor;
+    static POINT                m_pntCursor;
+    static UINT                 m_iSelImg;
+    static stCameraParamData    m_camparam;         // カメラ設定データ
+    static stImgProcParamData   m_imgprocparam;     // 画像処理設定データ
 };

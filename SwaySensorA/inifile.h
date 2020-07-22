@@ -16,8 +16,7 @@
 
 // ------------------ カメラ設定 ---------------------------
 #define	INI_SCT_CAMERA              L"CAMERA"           // セクション名：カメラ
-#define	INI_KEY_CAM_WIDTH           L"Width"            // キー名：カメラ撮影横幅
-#define	INI_KEY_CAM_HEIGHT          L"Height"           // キー名：カメラ撮影高さ
+#define	INI_KEY_CAM_IMAGESIZE       L"ImageSize"        // キー名：カメラ撮影サイズ
 #define	INI_KEY_CAM_FRAMERATE       L"FrameRate"        // キー名：フレームレート
 #define	INI_KEY_CAM_EXPOSURE        L"ExposureTime"     // キー名：露光時間
 
@@ -45,38 +44,7 @@
 // ------------------ Iniファイル情報の構造体 ---------------------------
 typedef struct _stIniInf    //***** Iniファイル情報 *****
 {
-    INT     camWidth;           // カメラ取得横幅
-    INT     camHeight;          // カメラ取得高さ
-    INT     frameRate;          // フレームレート
-    INT     expTimeMin;         // 露光時間(最小値)
-    INT     expTimeMax;         // 露光時間(最大値)
-    INT     expTime;            // 露光時間
-
-    INT     roiEnable;          // ROI有効
-    INT     roiSize;            // ROIサイズ
-    INT     maskImage;          // マスク画像選択
-    INT     mask1HLow;          // 画像マスク1(H)下限
-    INT     mask1HUpp;          // 画像マスク1(H)上限
-    INT     mask1SLow;          // 画像マスク1(S)下限
-    INT     mask1SUpp;          // 画像マスク1(S)上限
-    INT     mask1VLow;          // 画像マスク1(V)下限
-    INT     mask1VUpp;          // 画像マスク1(V)上限
-    INT     mask2HLow;          // 画像マスク2(H)下限
-    INT     mask2HUpp;          // 画像マスク2(H)上限
-    INT     mask2SLow;          // 画像マスク2(S)下限
-    INT     mask2SUpp;          // 画像マスク2(S)上限
-    INT     mask2VLow;          // 画像マスク2(V)下限
-    INT     mask2VUpp;          // 画像マスク2(V)上限
-    INT     noiseFilter1;       // ゴマ塩ノイズフィルタ
-    INT     noiseFilterVal1;    // ゴマ塩ノイズフィルタ値
-    INT     noiseFilter2;       // 穴埋めノイズフィルタ
-    INT     noiseFilterVal2;    // 穴埋めノイズフィルタ値
-    INT     algorithm;          // ターゲット検出アルゴリズム
-
-    TCHAR   rioIpAddr[256];     // RIO IPアドレス
-    INT     rioTcpPortNum;      // RIO TCPポート番号
-    INT     rioSlaveAddr;       // RIOスレーブアドレス
-    INT     rioTimeOut;         // RIOタイムアウト
-    INT     rioXPortNum;        // RIO傾斜計X軸データ接続ポート番号
-    INT     rioYPortNum;        // RIO傾斜計Y軸データ接続ポート番号
+    stCameraParamData   m_camparam;                 // カメラ設定データ
+    stImgProcParamData  m_imgprocparam;             // 画像処理設定データ
+    stRIOParamData      m_rioparam;                 // RemoteIO設定データ
 } ST_INI_INF;

@@ -3,7 +3,6 @@
 
 #include "framework.h"
 #include "SwaySensorA.h"
-#include "inifile.h"
 #include "CHelper.h"
 
 #include "CTaskObj.h"	// タスククラス
@@ -17,37 +16,37 @@ using namespace std;
 #define MAX_LOADSTRING 100
 
 // グローバル変数:
-HINSTANCE   hInst;                          // 現在のインターフェイス
-WCHAR       szTitle[MAX_LOADSTRING];        // タイトル バーのテキスト
-WCHAR       szWindowClass[MAX_LOADSTRING];  // メイン ウィンドウ クラス名
+HINSTANCE hInst;                            // 現在のインターフェイス
+WCHAR     szTitle[MAX_LOADSTRING];          // タイトル バーのテキスト
+WCHAR     szWindowClass[MAX_LOADSTRING];    // メイン ウィンドウ クラス名
 
-vector<void*>   VectpCTaskObj;      // タスクオブジェクトのポインタ
-CSharedObject*  g_pSharedObject;    // タスク間共有データのポインタ
-ST_iTask        g_itask;            // タスクID参照用グローバル変数
+vector<void*>  VectpCTaskObj;               // タスクオブジェクトのポインタ
+CSharedObject* g_pSharedObject;             // タスク間共有データのポインタ
+ST_iTask       g_itask;                     // タスクID参照用グローバル変数
 
-SYSTEMTIME  gAppStartTime;  // アプリケーション開始時間
-LPWSTR      pszInifile;     // iniファイルのパス
-wstring     wstrPathExe;    // 実行ファイルのパス
+SYSTEMTIME gAppStartTime;                   // アプリケーション開始時間
+LPWSTR     pszInifile;                      // iniファイルのパス
+wstring    wstrPathExe;                     // 実行ファイルのパス
 
 // スタティック変数:
 // マルチタスク管理用
-static ST_KNL_MANAGE_SET    knl_manage_set; // マルチスレッド管理用構造体
-static vector<HANDLE>       VectHevent;     // マルチスレッド用イベントのハンドル
-static CSharedObject*       cSharedData;    // 共有オブジェクトインスタンス
+static ST_KNL_MANAGE_SET knl_manage_set;    // マルチスレッド管理用構造体
+static vector<HANDLE>    VectHevent;        // マルチスレッド用イベントのハンドル
+static CSharedObject*    cSharedData;       // 共有オブジェクトインスタンス
 // メインウィンドウパネル用
-static vector<HWND> VectTweetHandle;    // メインウィンドウのスレッドツイートメッセージ表示Staticハンドル
-static HIMAGELIST   hImgListTaskIcon;   // タスクアイコン用イメージリスト
-static HWND         hTabWnd;            // 操作パネル用タブコントロールウィンドウのハンドル
-static HWND         hWnd_status_bar;    // ステータスバーのウィンドウのハンドル
+static vector<HWND> VectTweetHandle;        // メインウィンドウのスレッドツイートメッセージ表示Staticハンドル
+static HIMAGELIST   hImgListTaskIcon;       // タスクアイコン用イメージリスト
+static HWND         hTabWnd;                // 操作パネル用タブコントロールウィンドウのハンドル
+static HWND         hWnd_status_bar;        // ステータスバーのウィンドウのハンドル
 
 // このコード モジュールに含まれる関数の宣言を転送します:
 // # アプリケーション専用関数:	************************************
 // コア関数
-VOID    CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2); // マルチメディアタイマ処理関数　スレッドのイベントオブジェクト処理
-int     Init_tasks(HWND hWnd, HINSTANCE hInstance);                                     // アプリケーション毎のタスクオブジェクトの初期設定
-DWORD   knlTaskStartUp();                                                               // 実行させるタスクの起動処理
-INT	    setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName);                           // iniファイルパラメータ設定処理
-void    CreateSharedData(void);                                                         // 共有メモリCreate処理
+VOID  CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);   // マルチメディアタイマ処理関数　スレッドのイベントオブジェクト処理
+int   Init_tasks(HWND hWnd, HINSTANCE hInstance);                                       // アプリケーション毎のタスクオブジェクトの初期設定
+DWORD knlTaskStartUp();                                                                 // 実行させるタスクの起動処理
+INT	  setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName);                             // iniファイルパラメータ設定処理
+void  CreateSharedData(void);                                                           // 共有メモリCreate処理
 static unsigned __stdcall thread_gate_func(void * pObj)                                 // スレッド実行のためのゲート関数
 {
     CTaskObj* pthread_obj = (CTaskObj*)pObj;
@@ -60,10 +59,10 @@ HWND    CreateStatusbarMain(HWND);                                              
 HWND    CreateTaskSettingWnd(HWND hWnd);
 
 // # Wizard Default関数:		************************************
-ATOM                MyRegisterClass(HINSTANCE hInstance);								// ウィンドウ クラスを登録します。
-BOOL                InitInstance(HINSTANCE, int);										// メインウィンドウクリエイト
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);								// ウィンドウプロシージャ
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+ATOM             MyRegisterClass(HINSTANCE hInstance);								    // ウィンドウ クラスを登録します。
+BOOL             InitInstance(HINSTANCE, int);										    // メインウィンドウクリエイト
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);								    // ウィンドウプロシージャ
+INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
 /// @brief 
 /// @param
@@ -301,9 +300,9 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 /// @note 
 int Init_tasks(HWND hWnd, HINSTANCE hInstance)
 {
-    HBITMAP     hBmp;
-    CTaskObj*   ptempobj;
-    int         task_index = 0;
+    HBITMAP   hBmp;
+    CTaskObj* ptempobj;
+    int       task_index = 0;
 
     // コモンコントロール初期化
     InitCommonControls();
@@ -618,7 +617,7 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
 /// @note 自プロセスのプライオリティ設定，カーネルの初期設定,タスク生成，基本周期設定
 DWORD knlTaskStartUp()
 {
-    HANDLE  myPrcsHndl; // 本プログラムのプロセスハンドル
+    HANDLE myPrcsHndl;  // 本プログラムのプロセスハンドル
     // #自プロセスプライオリティ設定処理
     // -プロセスハンドル取得
     if ((myPrcsHndl = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_SET_INFORMATION, FALSE, _getpid())) == NULL) { return(GetLastError()); }
@@ -626,7 +625,7 @@ DWORD knlTaskStartUp()
 
     // -自プロセスのプライオリティを最優先ランクに設定
     if (SetPriorityClass(myPrcsHndl, REALTIME_PRIORITY_CLASS) == 0) { return(GetLastError()); }
-    _RPT1(_CRT_WARN, "KNL Priority For NT(after) = %d \n", GetPriorityClass(myPrcsHndl));   // VisualStudio 出力
+    _RPT1(_CRT_WARN, "KNL Priority For NT(after) = %d \n", GetPriorityClass(myPrcsHndl));       // VisualStudio 出力
 
     // #アプリケーションタスク数が最大数を超えた場合は終了
     if (VectpCTaskObj.size() >= MAX_APL_TASK) { return((DWORD)ERROR_BAD_ENVIRONMENT); }
@@ -729,7 +728,7 @@ VOID CALLBACK alarmHandlar(UINT uID, UINT uMsg, DWORD	dwUser, DWORD dw1, DWORD d
 /// @note 
 INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 {
-    TCHAR   str[256];
+    TCHAR str[256];
 
     //--------------------------------------------------------------------------
     // 設定ファイル存在チェック
@@ -737,85 +736,112 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 
     //--------------------------------------------------------------------------
     // カメラ設定
-    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_WIDTH,     L"640",       INITYPE_INT, &(pInf->camWidth));     // カメラ撮影横幅
-    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_HEIGHT,    L"480",       INITYPE_INT, &(pInf->camHeight));    // カメラ撮影高さ
-    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_FRAMERATE, L"30",        INITYPE_INT, &(pInf->frameRate));    // フレームレート
-    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_EXPOSURE,  L"1,1000,10", INITYPE_CHAR, str);  // 露光時間
-    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->expTimeMin, &pInf->expTimeMax, &pInf->expTime))
+    pInf->m_camparam.imgsource = GRAB_IMG_GRAB_CAMERA;  // 画像取込み元(0:停止 1:カメラ 2:画像ファイル) 
+    pInf->m_camparam.imgfname  = "";                    // 取込み画像ファイル名
+    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_IMAGESIZE, L"640, 480", INITYPE_CHAR, str);   // カメラ画像サイズ
+    if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->m_camparam.width, &pInf->m_camparam.height))
     {
-        pInf->expTimeMin = 1;
-        pInf->expTimeMax = 1000;
-        pInf->expTime    = 10;
+        pInf->m_camparam.width  = 640;          // カメラ画像サイズ(幅)
+        pInf->m_camparam.height = 480;          // カメラ画像サイズ(高さ)
+    }
+    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_FRAMERATE, L"30.0",            INITYPE_DOUBLE, &(pInf->m_camparam.fps));  // フレームレート
+    CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_EXPOSURE,  L"1.0,1000.0,10.0", INITYPE_CHAR,   str);                      // 露光時間
+    if (3 != _stscanf_s(str, _T("%lf,%lf,%lf"), &pInf->m_camparam.exptimemin, &pInf->m_camparam.exptimemax, &pInf->m_camparam.exptime))
+    {
+        pInf->m_camparam.exptime    = 10;       // 露光時間(usec)(初期値)
+        pInf->m_camparam.exptimemin = 1;        // 露光時間(usec)(最小値)
+        pInf->m_camparam.exptimemax = 1000;     // 露光時間(usec)(最大値)
     }
 
     //--------------------------------------------------------------------------
     // 画像処理設定
-    // ROI有効
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ROI, L"1,100", INITYPE_CHAR, str);                   // ROI設定
+    // ROI設定
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ROI, L"0,0.0", INITYPE_CHAR, str);  // ROI設定
+    if (2 != _stscanf_s(str, _T("%d,%lf"), &pInf->m_imgprocparam.roi.valid, &pInf->m_imgprocparam.roi.scale))
+    {
+        pInf->m_imgprocparam.roi.valid = 0;
+        pInf->m_imgprocparam.roi.scale = 0.0;
+    }
+
     // マスク画像選択
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK_IMAGE, L"0", INITYPE_INT, &(pInf->maskImage));  // マスク画像選択
-    if ((pInf->maskImage < MASK_IMG_ALL) || (pInf->maskImage > MASK_IMG_MAX)) {pInf->maskImage = MASK_IMG_ALL;}
-    // 画像1設定
-    if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->roiEnable, &pInf->roiSize))
+    int tmp;
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK_IMAGE, L"0", INITYPE_INT, &tmp);  // マスク画像選択
+    switch (tmp)
     {
-        pInf->roiEnable = 0;
-        pInf->roiSize   = 10;
+    case MASK_IMG_IMAGE1:
+        pInf->m_imgprocparam.maskvalid[IMGPROC_ID_IMG_1] = 1;
+        pInf->m_imgprocparam.maskvalid[IMGPROC_ID_IMG_2] = 0;
+        break;
+    case MASK_IMG_IMAGE2:
+        pInf->m_imgprocparam.maskvalid[IMGPROC_ID_IMG_1] = 0;
+        pInf->m_imgprocparam.maskvalid[IMGPROC_ID_IMG_2] = 1;
+        break;
+    default:
+        pInf->m_imgprocparam.maskvalid[IMGPROC_ID_IMG_1] = 1;
+        pInf->m_imgprocparam.maskvalid[IMGPROC_ID_IMG_2] = 1;
+        break;
     }
+
+    // HSVマスク判定値(画像1)
     CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK1_LOW, L"0,0,0", INITYPE_CHAR, str);               // 画像1マスク下限(H,S,V)
-    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask1HLow, &pInf->mask1SLow, &pInf->mask1VLow))
+    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_1].h, &pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_1].s, &pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_1].v))
     {
-        pInf->mask1HLow = 0;
-        pInf->mask1SLow = 0;
-        pInf->mask1VLow = 0;
+        pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_1].h = 0;
+        pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_1].s = 0;
+        pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_1].v = 0;
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK1_UPP, L"0,0,0", INITYPE_CHAR, str);               // 画像1マスク上限(H,S,V)
-    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask1HUpp, &pInf->mask1SUpp, &pInf->mask1VUpp))
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK1_UPP, L"255,255,255", INITYPE_CHAR, str);               // 画像1マスク上限(H,S,V)
+    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_1].h, &pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_1].s, &pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_1].v))
     {
-        pInf->mask1HUpp = 0;
-        pInf->mask1SUpp = 0;
-        pInf->mask1VUpp = 0;
+        pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_1].h = 255;
+        pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_1].s = 255;
+        pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_1].v = 255;
     }
-    // 画像2設定
+
+    // HSVマスク判定値(画像2)
     CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK2_LOW, L"0,0,0", INITYPE_CHAR, str);               // 画像2マスク下限(H,S,V)
-    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask2HLow, &pInf->mask2SLow, &pInf->mask2VLow))
+    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_2].h, &pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_2].s, &pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_2].v))
     {
-        pInf->mask2HLow = 0;
-        pInf->mask2SLow = 0;
-        pInf->mask2VLow = 0;
+        pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_2].h = 0;
+        pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_2].s = 0;
+        pInf->m_imgprocparam.hsvl[IMGPROC_ID_IMG_2].v = 0;
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK2_UPP, L"0,0,0", INITYPE_CHAR, str);               // 画像2マスク上限(H,S,V)
-    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->mask2HUpp, &pInf->mask2SUpp, &pInf->mask2VUpp))
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_MASK2_UPP, L"255,255,255", INITYPE_CHAR, str);               // 画像2マスク上限(H,S,V)
+    if (3 != _stscanf_s(str, _T("%d,%d,%d"), &pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_2].h, &pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_2].s, &pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_2].v))
     {
-        pInf->mask2HUpp = 0;
-        pInf->mask2SUpp = 0;
-        pInf->mask2VUpp = 0;
+        pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_2].h = 255;
+        pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_2].s = 255;
+        pInf->m_imgprocparam.hsvu[IMGPROC_ID_IMG_2].v = 255;
     }
+
     // ノイズフィルタ(ゴマ塩)
     CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_NOISEFILTER1,  L"0,1", INITYPE_CHAR, str);  // ノイズフィルタ
-    if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->noiseFilter1, &pInf->noiseFilterVal1))
+    if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->m_imgprocparam.filter1.type, &pInf->m_imgprocparam.filter1.val))
     {
-        pInf->noiseFilter1    = NOISEFILTER1_NONE;
-        pInf->noiseFilterVal1 = 1;
+        pInf->m_imgprocparam.filter1.type = NOISEFILTER1_NONE;
+        pInf->m_imgprocparam.filter1.val  = 1;
     }
+
     // ノイズフィルタ(穴埋め)
     CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_NOISEFILTER2,  L"0,1", INITYPE_CHAR, str);  // ノイズフィルタ
-    if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->noiseFilter2, &pInf->noiseFilterVal2))
+    if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->m_imgprocparam.filter2.type, &pInf->m_imgprocparam.filter2.val))
     {
-        pInf->noiseFilter1    = NOISEFILTER2_NONE;
-        pInf->noiseFilterVal1 = 1;
+        pInf->m_imgprocparam.filter2.type = NOISEFILTER2_NONE;
+        pInf->m_imgprocparam.filter2.val  = 1;
     }
+
     // ターゲット検出アルゴリズム
-    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ALGORITHM, L"1", INITYPE_INT, &(pInf->algorithm)); // ターゲット検出アルゴリズム
-    if ((pInf->algorithm < COG_ALGORITHM_ALL) || (pInf->algorithm > COG_ALGORITHM_MAX)) {pInf->algorithm = COG_ALGORITHM_ALL;}
+    CHelper::GetIniInf(pFileName, INI_SCT_OPENCV, INI_KEY_IMG_ALGORITHM, L"0", INITYPE_INT, &(pInf->m_imgprocparam.algorithm)); // ターゲット検出アルゴリズム
+    if ((pInf->m_imgprocparam.algorithm < COG_ALGORITHM_ALL) || (pInf->m_imgprocparam.algorithm > COG_ALGORITHM_MAX)) {pInf->m_imgprocparam.algorithm = COG_ALGORITHM_ALL;}
 
     //--------------------------------------------------------------------------
     // RIO設定
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_IPADDR,     L"192.168.0.1", INITYPE_CHAR, &(pInf->rioIpAddr));       // RIO IPアドレス
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TCPPORTNUM, L"502",         INITYPE_INT,  &(pInf->rioTcpPortNum));   // RIO TCPポート番号
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_SLAVEADDR,  L"1",           INITYPE_INT,  &(pInf->rioSlaveAddr));    // RIOスレーブアドレス
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TIMEOUT,    L"2000",        INITYPE_INT,  &(pInf->rioTimeOut));      // RIOタイムアウト
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_XPORTNUM,   L"1",           INITYPE_INT,  &(pInf->rioXPortNum));     // RIO傾斜計Xデータ接続ポート番号
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_YPORTNUM,   L"2",           INITYPE_INT,  &(pInf->rioYPortNum));     // RIO傾斜計Yデータ接続ポート番号
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_IPADDR,     L"192.168.0.1", INITYPE_CHAR, &(pInf->m_rioparam.ipaddrs));      // RIO IPアドレス
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TCPPORTNUM, L"502",         INITYPE_INT,  &(pInf->m_rioparam.tcpport));      // RIO TCPポート番号
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_SLAVEADDR,  L"1",           INITYPE_INT,  &(pInf->m_rioparam.slaveaddrs));   // RIOスレーブアドレス
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TIMEOUT,    L"2000",        INITYPE_INT,  &(pInf->m_rioparam.timeout));      // RIOタイムアウト
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_XPORTNUM,   L"1",           INITYPE_INT,  &(pInf->m_rioparam.portx));        // RIO傾斜計Xデータ接続ポート番号
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_YPORTNUM,   L"2",           INITYPE_INT,  &(pInf->m_rioparam.porty));        // RIO傾斜計Yデータ接続ポート番号
 
     return S_OK;
 }
@@ -841,56 +867,18 @@ void CreateSharedData(void)
     setIniParameter(&ini, dstpath);
 
 //  cSharedData = new CSharedObject();
-    g_pSharedObject->InitSharedObject();
 
     //--------------------------------------------------------------------------
     // カメラ設定
-    g_pSharedObject->SetParam(PARAM_ID_CAM_WIDTH,             (UINT32)ini.camWidth);
-    g_pSharedObject->SetParam(PARAM_ID_CAM_HEIGHT,            (UINT32)ini.camHeight);
-    g_pSharedObject->SetParam(PARAM_ID_CAM_FRAMERATE,         (UINT32)ini.frameRate);
-    g_pSharedObject->SetParam(PARAM_ID_CAM_EXPOSURE_TIME_MIN, (UINT32)ini.expTimeMin);
-    g_pSharedObject->SetParam(PARAM_ID_CAM_EXPOSURE_TIME_MAX, (UINT32)ini.expTimeMax);
-    g_pSharedObject->SetParam(PARAM_ID_CAM_EXPOSURE_TIME,     (UINT32)ini.expTime);
+    g_pSharedObject->SetParam(ini.m_camparam);
 
     //--------------------------------------------------------------------------
     // 画像処理設定
-    g_pSharedObject->SetParam(PARAM_ID_IMG_ROI_ENABLE,      (UINT32)ini.roiEnable);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_ROI_SIZE,        (UINT32)ini.roiSize);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK_TYPE,       (UINT32)ini.maskImage);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_HLOW,      (UINT32)ini.mask1HLow);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_HUPP,      (UINT32)ini.mask1HUpp);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_SLOW,      (UINT32)ini.mask1SLow);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_SUPP,      (UINT32)ini.mask1SUpp);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_VLOW,      (UINT32)ini.mask1VLow);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK1_VUPP,      (UINT32)ini.mask1VUpp);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_HLOW,      (UINT32)ini.mask2HLow);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_HUPP,      (UINT32)ini.mask2HUpp);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_SLOW,      (UINT32)ini.mask2SLow);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_SUPP,      (UINT32)ini.mask2SUpp);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_VLOW,      (UINT32)ini.mask2VLow);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_MASK2_VUPP,      (UINT32)ini.mask2VUpp);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTER1,    (UINT32)ini.noiseFilter1);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTERVAL1, (UINT32)ini.noiseFilterVal1);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTER2,    (UINT32)ini.noiseFilter2);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_NOISEFILTERVAL2, (UINT32)ini.noiseFilterVal2);
-    g_pSharedObject->SetParam(PARAM_ID_IMG_ALGORITHM,       (UINT32)ini.algorithm);
+    g_pSharedObject->SetParam(ini.m_imgprocparam);
 
     //--------------------------------------------------------------------------
     // RIO設定
-    char* cstr = (char*)malloc(sizeof(ini.rioIpAddr));
-    if (cstr != NULL)
-    {
-        size_t size;
-        wcstombs_s(&size, cstr, sizeof(ini.rioIpAddr), ini.rioIpAddr, sizeof(ini.rioIpAddr));
-        string str = cstr;
-        g_pSharedObject->SetParam(PARAM_ID_STR_RIO_IPADDR, str);
-        free(cstr);
-    }
-    g_pSharedObject->SetParam(PARAM_ID_RIO_TCPPORT,   (UINT32)ini.rioTcpPortNum);
-    g_pSharedObject->SetParam(PARAM_ID_RIO_SLAVEADDR, (UINT32)ini.rioSlaveAddr);
-    g_pSharedObject->SetParam(PARAM_ID_RIO_TIMEOUT,   (UINT32)ini.rioTimeOut);
-    g_pSharedObject->SetParam(PARAM_ID_RIO_XPORT,     (UINT32)ini.rioXPortNum);
-    g_pSharedObject->SetParam(PARAM_ID_RIO_YPORT,     (UINT32)ini.rioYPortNum);
+    g_pSharedObject->SetParam(ini.m_rioparam);
 }
 
 /// @brief ステータスバー作成

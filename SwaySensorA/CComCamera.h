@@ -43,16 +43,17 @@ public:
     virtual void OnCameraDeviceRemoved(Pylon::CInstantCamera& camera);
 
 private:
-    Pylon::CBaslerUniversalInstantCamera    m_camera;
-    Pylon::CAcquireContinuousConfiguration  m_continousConfiguration;
-    Pylon::CDeviceInfo                      m_info;
-    Pylon::CGrabResultPtr                   m_ptrGrabResult;
+    Pylon::CBaslerUniversalInstantCamera   m_camera;
+    Pylon::CAcquireContinuousConfiguration m_continousConfiguration;
+    Pylon::CDeviceInfo                     m_info;
+    Pylon::CGrabResultPtr                  m_ptrGrabResult;
 
-    stCameraInfo        m_stCameraInfo;
-    UINT8               m_iBufferImg;
-    CRITICAL_SECTION    m_csImageGrab;
+    stCameraParamData m_camparam;           // カメラ設定データ
+    stCameraInfoData  m_caminfo;            // カメラ情報データ
+    UINT8             m_iBufferImg;
+    CRITICAL_SECTION  m_csImageGrab;
 
-    LARGE_INTEGER    m_iGrabStartPC;
+    LARGE_INTEGER     m_iGrabStartPC;
 
 private:
     void Initialize(void);
