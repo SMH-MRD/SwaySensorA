@@ -59,14 +59,20 @@ void CSharedObject::Initialize(void)
             m_procinfo.data.imgprocdata[ii].roi.height = 0;
             m_procinfo.data.imgprocdata[ii].valid      = FALSE;
         }
-        for (UINT ii = 0; ii < SWAY_MAX; ii++)
+        for (UINT ii = 0; ii < AXIS_MAX; ii++)
         {
-            m_procinfo.data.sway[ii]    = 0.0;  // 振れ角
-            m_procinfo.data.swaySpd[ii] = 0.0;  // 振れ角速度
+            m_procinfo.data.swaydata[ii].pos = 0.0;  // 振れ位置
+            m_procinfo.data.swaydata[ii].deg = 0.0;  // 振れ角[deg]
+            m_procinfo.data.swaydata[ii].rad = 0.0;  // 振れ角[rad]
+            m_procinfo.data.swaydata[ii].spd = 0.0;  // 振れ角速度
         }
         m_procinfo.data.valid        = FALSE;   // 検出状態
         m_procinfo.data.exposureTime = 0.0;     // 露光時間[us]
         m_procinfo.data.procTime     = 0.0;     // 画処理時間[ms]
+    }
+    // 処理情報
+    {
+        m_extninfo.data.ropelen = EXTN_ROPELEN_MIN; // ロープ長
     }
 
     //--------------------------------------------------------------------------
@@ -100,6 +106,52 @@ void CSharedObject::Initialize(void)
     {
         InitializeCriticalSection(&m_procinfo.cs);
     }
+    // 外部入力
+    {
+        InitializeCriticalSection(&m_extninfo.cs);
+    }
+}
+
+/// @brief 構造設定データ書込み
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::SetParam(stConfigParamData data)
+{
+    EnterCriticalSection(&m_camparam.cs);
+    for (int ii = 0; ii < AXIS_MAX; ii++)
+    {
+        m_cnfgparam.data.camboxoffsetD0[ii]  = data.camboxoffsetD0[ii];     // 吊具吊点～カメラBOX吊点距離D0[mm]
+        m_cnfgparam.data.camboxoffsetLH0[ii] = data.camboxoffsetLH0[ii];    // 吊具吊点～カメラBOX吊点距離LH0[mm]
+        m_cnfgparam.data.camoffsetL0[ii]     = data.camoffsetL0[ii];        // カメラBOX内吊点～カメラ中心距離l0[mm]
+        m_cnfgparam.data.camoffsetTHC[ii]    = data.camoffsetTHC[ii];       // カメラBOX内吊点～カメラ中心角度θc[deg]
+        m_cnfgparam.data.camoffsetTH0[ii]    = data.camoffsetTH0[ii];       // カメラBOX内カメラ傾きθ0[deg]
+        m_cnfgparam.data.camviewAngle[ii]    = data.camviewAngle[ii];       // カメラ視野角[deg]
+    }
+    LeaveCriticalSection(&m_camparam.cs);
+
+    return RESULT_OK;
+}
+
+/// @brief 構造設定データ読出し
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::GetParam(stConfigParamData* data)
+{
+    EnterCriticalSection(&m_cnfgparam.cs);
+    for (int ii = 0; ii < AXIS_MAX; ii++)
+    {
+        data->camboxoffsetD0[ii]  = m_cnfgparam.data.camboxoffsetD0[ii];    // 吊具吊点～カメラBOX吊点距離D0[mm]
+        data->camboxoffsetLH0[ii] = m_cnfgparam.data.camboxoffsetLH0[ii];   // 吊具吊点～カメラBOX吊点距離LH0[mm]
+        data->camoffsetL0[ii]     = m_cnfgparam.data.camoffsetL0[ii];       // カメラBOX内吊点～カメラ中心距離l0[mm]
+        data->camoffsetTHC[ii]    = m_cnfgparam.data.camoffsetTHC[ii];      // カメラBOX内吊点～カメラ中心角度θc[deg]
+        data->camoffsetTH0[ii]    = m_cnfgparam.data.camoffsetTH0[ii];      // カメラBOX内カメラ傾きθ0[deg]
+        data->camviewAngle[ii]    = m_cnfgparam.data.camviewAngle[ii];      // カメラ視野角[deg]
+    }
+    LeaveCriticalSection(&m_cnfgparam.cs);
+
+    return RESULT_OK;
 }
 
 /// @brief カメラ設定データ書込み
@@ -109,14 +161,14 @@ void CSharedObject::Initialize(void)
 INT CSharedObject::SetParam(stCameraParamData data)
 {
     EnterCriticalSection(&m_camparam.cs);
-    m_camparam.data.imgsource  = data.imgsource;    // 画像取込み元(0:停止 1:カメラ 2:画像ファイル) 
-    m_camparam.data.imgfname   = data.imgfname;     // 取込み画像ファイル名
-    m_camparam.data.width      = data.width;        // カメラ画像サイズ横幅(32の倍数, 2592以下)
-    m_camparam.data.height     = data.height;       // カメラ画像サイズ高さ(2の倍数, 2048以下)
-    m_camparam.data.fps        = data.fps;          // フレームレート
-    m_camparam.data.exptime    = data.exptime;      // 露光時間(usec)(初期値)
-    m_camparam.data.exptimemin = data.exptimemin;   // 露光時間(usec)(最小値)
-    m_camparam.data.exptimemax = data.exptimemax;   // 露光時間(usec)(最大値)
+    m_camparam.data.imgsource    = data.imgsource;      // 画像取込み元(0:停止 1:カメラ 2:画像ファイル) 
+    m_camparam.data.imgfname     = data.imgfname;       // 取込み画像ファイル名
+    m_camparam.data.size[AXIS_X] = data.size[AXIS_X];   // カメラ画像サイズ横幅(32の倍数, 2592以下)
+    m_camparam.data.size[AXIS_Y] = data.size[AXIS_Y];   // カメラ画像サイズ高さ(2の倍数, 2048以下)
+    m_camparam.data.fps          = data.fps;            // フレームレート
+    m_camparam.data.exptime      = data.exptime;        // 露光時間(usec)(初期値)
+    m_camparam.data.exptimemin   = data.exptimemin;     // 露光時間(usec)(最小値)
+    m_camparam.data.exptimemax   = data.exptimemax;     // 露光時間(usec)(最大値)
     LeaveCriticalSection(&m_camparam.cs);
 
     return RESULT_OK;
@@ -129,14 +181,14 @@ INT CSharedObject::SetParam(stCameraParamData data)
 INT CSharedObject::GetParam(stCameraParamData* data)
 {
     EnterCriticalSection(&m_camparam.cs);
-    data->imgsource  = m_camparam.data.imgsource;   // 画像取込み元(0:停止 1:カメラ 2:画像ファイル) 
-    data->imgfname   = m_camparam.data.imgfname;    // 取込み画像ファイル名
-    data->width      = m_camparam.data.width;       // カメラ画像サイズ横幅(32の倍数, 2592以下)
-    data->height     = m_camparam.data.height;      // カメラ画像サイズ高さ(2の倍数, 2048以下)
-    data->fps        = m_camparam.data.fps;         // フレームレート
-    data->exptime    = m_camparam.data.exptime;     // 露光時間(usec)(初期値)
-    data->exptimemin = m_camparam.data.exptimemin;  // 露光時間(usec)(最小値)
-    data->exptimemax = m_camparam.data.exptimemax;  // 露光時間(usec)(最大値)
+    data->imgsource    = m_camparam.data.imgsource;     // 画像取込み元(0:停止 1:カメラ 2:画像ファイル) 
+    data->imgfname     = m_camparam.data.imgfname;      // 取込み画像ファイル名
+    data->size[AXIS_X] = m_camparam.data.size[AXIS_X];  // カメラ画像サイズ横幅(32の倍数, 2592以下)
+    data->size[AXIS_Y] = m_camparam.data.size[AXIS_Y];  // カメラ画像サイズ高さ(2の倍数, 2048以下)
+    data->fps          = m_camparam.data.fps;           // フレームレート
+    data->exptime      = m_camparam.data.exptime;       // 露光時間(usec)(初期値)
+    data->exptimemin   = m_camparam.data.exptimemin;    // 露光時間(usec)(最小値)
+    data->exptimemax   = m_camparam.data.exptimemax;    // 露光時間(usec)(最大値)
     LeaveCriticalSection(&m_camparam.cs);
 
     return RESULT_OK;
@@ -361,10 +413,12 @@ INT CSharedObject::SetInfo(stProcInfoData data)
         m_procinfo.data.imgprocdata[ii].roi.height = data.imgprocdata[ii].roi.height;
         m_procinfo.data.imgprocdata[ii].valid      = data.imgprocdata[ii].valid;
     }
-    for (UINT ii = 0; ii < SWAY_MAX; ii++)
+    for (UINT ii = 0; ii < AXIS_MAX; ii++)
     {
-        m_procinfo.data.sway[ii]    = data.sway[ii];    // 振れ角
-        m_procinfo.data.swaySpd[ii] = data.swaySpd[ii]; // 振れ角速度
+        m_procinfo.data.swaydata[ii].pos = data.swaydata[ii].pos;   // 振れ位置
+        m_procinfo.data.swaydata[ii].deg = data.swaydata[ii].deg;   // 振れ角[deg]
+        m_procinfo.data.swaydata[ii].rad = data.swaydata[ii].rad;   // 振れ角[rad]
+        m_procinfo.data.swaydata[ii].spd = data.swaydata[ii].spd;   // 振れ角速度
     }
     m_procinfo.data.exposureTime = data.exposureTime;   // 露光時間[us]
     m_procinfo.data.valid        = data.valid;          // 検出状態
@@ -393,15 +447,44 @@ INT CSharedObject::GetInfo(stProcInfoData* data)
         data->imgprocdata[ii].roi.height = m_procinfo.data.imgprocdata[ii].roi.height;
         data->imgprocdata[ii].valid      = m_procinfo.data.imgprocdata[ii].valid;
     }
-    for (UINT ii = 0; ii < SWAY_MAX; ii++)
+    for (UINT ii = 0; ii < AXIS_MAX; ii++)
     {
-        data->sway[ii]    = m_procinfo.data.sway[ii];       // 振れ角
-        data->swaySpd[ii] = m_procinfo.data.swaySpd[ii];    // 振れ角速度
+        data->swaydata[ii].pos = m_procinfo.data.swaydata[ii].pos;  // 振れ位置
+        data->swaydata[ii].deg = m_procinfo.data.swaydata[ii].deg;  // 振れ角[deg]
+        data->swaydata[ii].rad = m_procinfo.data.swaydata[ii].rad;  // 振れ角[rad]
+        data->swaydata[ii].spd = m_procinfo.data.swaydata[ii].spd;  // 振れ角速度
     }
     data->exposureTime = m_procinfo.data.exposureTime;      // 露光時間[us]
     data->valid        = m_procinfo.data.valid;             // 検出状態
     data->procTime     = m_procinfo.data.procTime;          // 画処理時間[ms]
     LeaveCriticalSection(&m_procinfo.cs);
+
+    return RESULT_OK;
+}
+
+/// @brief 外部入力データ書込み
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::SetInfo(stExtnInfoData data)
+{
+    EnterCriticalSection(&m_extninfo.cs);
+    m_extninfo.data.ropelen = data.ropelen;     // ロープ長
+    LeaveCriticalSection(&m_extninfo.cs);
+
+    return RESULT_OK;
+}
+
+/// @brief 外部入力データ読出し
+/// @param
+/// @return 
+/// @note
+INT CSharedObject::GetInfo(stExtnInfoData* data)
+{
+    if (data == NULL) {return RESULT_NG_INVALID;}
+    EnterCriticalSection(&m_extninfo.cs);
+    data->ropelen = m_extninfo.data.ropelen;    // ロープ長
+    LeaveCriticalSection(&m_extninfo.cs);
 
     return RESULT_OK;
 }

@@ -735,22 +735,61 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
     if (!(PathFileExists(pFileName)) || PathIsDirectory(pFileName)) { return RESULT_NG_INVALID; }
 
     //--------------------------------------------------------------------------
+    // 構造設定
+    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMBOXOFSTD0,  L"0.0, 0.0", INITYPE_CHAR, str);  // 吊具吊点～カメラBOX吊点距離D0[mm]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camboxoffsetD0[AXIS_X], &pInf->m_cnfgparam.camboxoffsetD0[AXIS_Y]))
+    {
+        pInf->m_cnfgparam.camboxoffsetD0[AXIS_X] = 0.0;    // 吊具吊点～カメラBOX吊点距離D0[mm](X)
+        pInf->m_cnfgparam.camboxoffsetD0[AXIS_Y] = 0.0;    // 吊具吊点～カメラBOX吊点距離D0[mm](Y)
+    }
+    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMBOXOFSTLH0, L"0.0, 0.0", INITYPE_CHAR, str);  // 吊具吊点～カメラBOX吊点距離LH0[mm]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camboxoffsetLH0[AXIS_X], &pInf->m_cnfgparam.camboxoffsetLH0[AXIS_Y]))
+    {
+        pInf->m_cnfgparam.camboxoffsetLH0[AXIS_X] = 0.0;    // 吊具吊点～カメラBOX吊点距離LH0[mm](X)
+        pInf->m_cnfgparam.camboxoffsetLH0[AXIS_Y] = 0.0;    // 吊具吊点～カメラBOX吊点距離LH0[mm](Y)
+    }
+    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMOFSTL0,     L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内吊点～カメラ中心距離l0[mm]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camoffsetL0[AXIS_X], &pInf->m_cnfgparam.camoffsetL0[AXIS_Y]))
+    {
+        pInf->m_cnfgparam.camoffsetL0[AXIS_X] = 0.0;    // カメラBOX内吊点～カメラ中心距離l0[mm](X)
+        pInf->m_cnfgparam.camoffsetL0[AXIS_Y] = 0.0;    // カメラBOX内吊点～カメラ中心距離l0[mm](Y)
+    }
+    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMOFSTTHC,    L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内吊点～カメラ中心角度θc[deg]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camoffsetTHC[AXIS_X], &pInf->m_cnfgparam.camoffsetTHC[AXIS_Y]))
+    {
+        pInf->m_cnfgparam.camoffsetTHC[AXIS_X] = 0.0;    // カメラBOX内吊点～カメラ中心角度θc[deg](X)
+        pInf->m_cnfgparam.camoffsetTHC[AXIS_Y] = 0.0;    // カメラBOX内吊点～カメラ中心角度θc[deg](Y)
+    }
+    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMOFSTTH0,    L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内カメラ傾きθ0[deg]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camoffsetTH0[AXIS_X], &pInf->m_cnfgparam.camoffsetTH0[AXIS_Y]))
+    {
+        pInf->m_cnfgparam.camoffsetTH0[AXIS_X] = 0.0;    // カメラBOX内カメラ傾きθ0[deg](X)
+        pInf->m_cnfgparam.camoffsetTH0[AXIS_Y] = 0.0;    // カメラBOX内カメラ傾きθ0[deg](Y)
+    }
+    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMVIEWANGLE,  L"0.0, 0.0", INITYPE_CHAR, str);  // カメラ視野角[deg]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camviewAngle[AXIS_X], &pInf->m_cnfgparam.camviewAngle[AXIS_Y]))
+    {
+        pInf->m_cnfgparam.camviewAngle[AXIS_X] = 0.0;    // カメラ視野角[deg](X)
+        pInf->m_cnfgparam.camviewAngle[AXIS_Y] = 0.0;    // カメラ視野角[deg](Y)
+    }
+
+    //--------------------------------------------------------------------------
     // カメラ設定
     pInf->m_camparam.imgsource = GRAB_IMG_GRAB_CAMERA;  // 画像取込み元(0:停止 1:カメラ 2:画像ファイル) 
     pInf->m_camparam.imgfname  = "";                    // 取込み画像ファイル名
     CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_IMAGESIZE, L"640, 480", INITYPE_CHAR, str);   // カメラ画像サイズ
-    if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->m_camparam.width, &pInf->m_camparam.height))
+    if (2 != _stscanf_s(str, _T("%d,%d"), &pInf->m_camparam.size[AXIS_X], &pInf->m_camparam.size[AXIS_Y]))
     {
-        pInf->m_camparam.width  = 640;          // カメラ画像サイズ(幅)
-        pInf->m_camparam.height = 480;          // カメラ画像サイズ(高さ)
+        pInf->m_camparam.size[AXIS_X] = 640;            // カメラ画像サイズ(幅)
+        pInf->m_camparam.size[AXIS_Y] = 480;            // カメラ画像サイズ(高さ)
     }
     CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_FRAMERATE, L"30.0",            INITYPE_DOUBLE, &(pInf->m_camparam.fps));  // フレームレート
     CHelper::GetIniInf(pFileName, INI_SCT_CAMERA, INI_KEY_CAM_EXPOSURE,  L"1.0,1000.0,10.0", INITYPE_CHAR,   str);                      // 露光時間
     if (3 != _stscanf_s(str, _T("%lf,%lf,%lf"), &pInf->m_camparam.exptimemin, &pInf->m_camparam.exptimemax, &pInf->m_camparam.exptime))
     {
-        pInf->m_camparam.exptime    = 10;       // 露光時間(usec)(初期値)
-        pInf->m_camparam.exptimemin = 1;        // 露光時間(usec)(最小値)
-        pInf->m_camparam.exptimemax = 1000;     // 露光時間(usec)(最大値)
+        pInf->m_camparam.exptime    = 10.0;     // 露光時間(usec)(初期値)
+        pInf->m_camparam.exptimemin = 1.0;      // 露光時間(usec)(最小値)
+        pInf->m_camparam.exptimemax = 1000.0;   // 露光時間(usec)(最大値)
     }
 
     //--------------------------------------------------------------------------
@@ -867,6 +906,10 @@ void CreateSharedData(void)
     setIniParameter(&ini, dstpath);
 
 //  cSharedData = new CSharedObject();
+
+    //--------------------------------------------------------------------------
+    // 構造設定
+    g_pSharedObject->SetParam(ini.m_cnfgparam);
 
     //--------------------------------------------------------------------------
     // カメラ設定

@@ -22,6 +22,10 @@
 #define S7CMPTBL_FORMAT_UNDERRANGE      0x8000  // Open circuit/short circuit/underrange
 #define S7CMPTBL_FORMAT_SIGNBIT         0x8000  // Sign bit
 
+// 外部入力
+#define EXTN_ROPELEN_MIN                1000.0      // ロープ長(最小)
+#define EXTN_ROPELEN_MAX                50000.0     // ロープ長(最大)
+
 // カメラ画像配列　INDEX
 enum
 {
@@ -92,20 +96,34 @@ enum
 
 enum
 {
-    SWAY_X = 0,                                 // 振れX
-    SWAY_Y,                                     // 振れY
-    SWAY_MAX
+    AXIS_X = 0,                                 // X軸
+    AXIS_Y,                                     // Y軸
+    AXIS_MAX
 };
 
 // 構造体定義
+// 構造設定
+typedef struct _stConfigParamData               // 構造設定データ
+{
+    double camboxoffsetD0[AXIS_MAX];            // 吊具吊点～カメラBOX吊点距離D0[mm]
+    double camboxoffsetLH0[AXIS_MAX];           // 吊具吊点～カメラBOX吊点距離LH0[mm]
+    double camoffsetL0[AXIS_MAX];               // カメラBOX内吊点～カメラ中心距離l0[mm]
+    double camoffsetTHC[AXIS_MAX];              // カメラBOX内吊点～カメラ中心角度θc[deg]
+    double camoffsetTH0[AXIS_MAX];              // カメラBOX内カメラ傾きθ0[deg]
+    double camviewAngle[AXIS_MAX];              // カメラ視野角[deg]
+} stConfigParamData;
+typedef struct _stConfigParam                   // 構造設定
+{
+    CRITICAL_SECTION    cs;
+    stConfigParamData   data;                   // 構造設定データ
+} stConfigParam;
 // カメラ設定
 typedef struct _stCameraParamData               // カメラ設定データ
 {
     int     imgsource;                          // 画像取込み元(0:停止 1:カメラ 2:画像ファイル) 
     string  imgfname;                           // 取込み画像ファイル名
 
-    int     width;                              // カメラ画像サイズ横幅(32の倍数, 2592以下)
-    int     height;                             // カメラ画像サイズ高さ(2の倍数, 2048以下)
+    int     size[AXIS_MAX];                     // カメラ画像サイズ(X(32の倍数, 2592以下), Y(2の倍数, 2048以下))
     double  fps;                                // フレームレート
     double  exptime;                            // 露光時間(usec)(初期値)
     double  exptimemin;                         // 露光時間(usec)(最小値)
@@ -200,7 +218,7 @@ typedef struct _stInclinometerData              // 傾斜計データ
 typedef struct _stRIOInfoData                   // RIOデータ
 {
     int32_t             error;                  // エラー情報
-    stInclinometerData  incldata[RIO_PORT_MAX]; // 傾斜計データ
+    stInclinometerData  incldata[AXIS_MAX];     // 傾斜計データ
 } stRIOInfoData;
 typedef struct _stRIOInfo
 {
@@ -215,23 +233,39 @@ typedef struct _stImageProcData
     double      posy;                           // 検出位置Y
     int         tgtsize;                        // 検出サイズ
     cv::Rect    roi;                            // ROI
-    double      expTime;                        // 露光時間
     BOOL        valid;                          // 検出状態
 } stImageProcData;
+typedef struct _stSwayData                      // 振れ検出データ
+{
+    double  pos;                                // 振れ位置
+    double  deg;                                // 振れ角[deg]
+    double  rad;                                // 振れ角[rad]
+    double  spd;                                // 振れ角速度
+} stSwayData;
 typedef struct _stProcInfoData
 {
     stImageProcData imgprocdata[IMGPROC_ID_MAX];    // 画像処理結果
-    DOUBLE          exposureTime;                   // 露光時間[us](@@@画像を評価してコントロールするようにする)
-    DOUBLE          sway[SWAY_MAX];                 // 振れ角
-    DOUBLE          swaySpd[SWAY_MAX];              // 振れ角速度
+    stSwayData      swaydata[AXIS_MAX];             // 振れ検出データ 
     BOOL            valid;                          // 検出状態
-    DOUBLE          procTime;                       // 処理時間[ms]
+    double          exposureTime;                   // 露光時間[us](@@@画像を評価してコントロールするようにする)
+    double          procTime;                       // 処理時間[ms]
 } stProcInfoData;
 typedef struct _stProcInfo
 {
     CRITICAL_SECTION    cs;
     stProcInfoData      data;
 } stProcInfo;
+
+// 外部入力
+typedef struct _stExtnInfoData                      // 外部入力データ
+{
+    double  ropelen;                                // ロープ長
+} stExtnInfoData;
+typedef struct _stExtnInfo
+{
+    CRITICAL_SECTION    cs;
+    stExtnInfoData      data;                       // 外部入力データ
+} stExtnInfo;
 
 ///
 class CSharedObject
@@ -240,6 +274,8 @@ public:
     CSharedObject();
     ~CSharedObject();
 
+    INT SetParam(stConfigParamData data);
+    INT GetParam(stConfigParamData* data);
     INT SetParam(stCameraParamData data);
     INT GetParam(stCameraParamData* data);
     INT SetParam(stImgProcParamData data);
@@ -256,8 +292,11 @@ public:
     INT GetInfo(stRIOInfoData* data);
     INT SetInfo(stProcInfoData data);
     INT GetInfo(stProcInfoData* data);
+    INT SetInfo(stExtnInfoData data);
+    INT GetInfo(stExtnInfoData* data);
 
 private:
+    stConfigParam       m_cnfgparam;                // 構造設定
     stCameraParam       m_camparam;                 // カメラ設定
     stImgProcParam      m_imgprocparam;             // 画像処理設定
     stRIOParam          m_rioparam;                 // RemoteIO設定
@@ -266,6 +305,7 @@ private:
     stCameraInfo        m_caminfo;
     stRIOInfo           m_rioinfo;
     stProcInfo          m_procinfo;
+    stExtnInfo          m_extninfo;
 
 private:
     void Initialize(void);
