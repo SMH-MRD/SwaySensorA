@@ -39,4 +39,5 @@ private:
     static UINT                 m_iSelImg;
     static stCameraParamData    m_camparam;         // カメラ設定データ
     static stImgProcParamData   m_imgprocparam;     // 画像処理設定データ
+    static stExtnInfoData       m_extninfo;         // 外部入力データ
 };

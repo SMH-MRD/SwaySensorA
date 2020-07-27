@@ -43,7 +43,9 @@ void CAnalyst::init_task(void* pobj)
     m_proninfo.procTime     = 0.0;              // 画処理時間[ms]
     g_pSharedObject->SetInfo(m_proninfo);
 
-    g_pSharedObject->GetParam(&m_imgprocparam); // 画像処理設定
+    g_pSharedObject->GetParam(&m_camparam);     // カメラ設定データ
+    g_pSharedObject->GetParam(&m_cnfgparam);    // 構造設定データ
+    g_pSharedObject->GetParam(&m_imgprocparam); // 画像処理設定データ
 }
 
 /// @brief 
@@ -360,6 +362,12 @@ void CAnalyst::ImageProc(void)
         }
     }
 #pragma endregion ProcTarget
+
+    //----------------------------------------------------------------------------
+    // 振れ検出処理
+#pragma region SwayProc
+    SwayProc();
+#pragma endregion SwayProc
 }
 
 /// @brief 重心検出
@@ -369,8 +377,8 @@ void CAnalyst::ImageProc(void)
 BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPosX, DOUBLE* outPosY, int* outTgtSize, UINT32 sel)
 {
     BOOL    ret     = FALSE;
-    double  posX    = 0.0;
-    double  posY    = 0.0;
+    double  posx    = 0.0;
+    double  posy    = 0.0;
     int     tgtsize = 0;
 
     switch (sel)
@@ -391,8 +399,8 @@ BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPo
                 {
                     x = contours.at(ii).at(jj).x;
                     y = contours.at(ii).at(jj).y;
-                    posX += x;
-                    posY += y;
+                    posx += x;
+                    posy += y;
                     if      (xmin > x) {xmin = x;}
                     else if (xmax < x) {xmax = x;}
                     else ;
@@ -403,8 +411,8 @@ BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPo
             }
             if (count > 0)
             {
-                posX /= count;
-                posY /= count;
+                posx /= count;
+                posy /= count;
                 width  = (xmax - xmin);
                 height = (ymax - ymin);
                 if (width > height) {tgtsize = (int)width  + 1;}
@@ -439,13 +447,13 @@ BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPo
                 count = contours.at(max_area_contour).size();
                 for(UINT ii = 0; ii < count; ii++)
                 {
-                    posX += contours.at(max_area_contour).at(ii).x;
-                    posY += contours.at(max_area_contour).at(ii).y;
+                    posx += contours.at(max_area_contour).at(ii).x;
+                    posy += contours.at(max_area_contour).at(ii).y;
                 }
                 if (count > 0)
                 {
-                    posX /= count;
-                    posY /= count;
+                    posx /= count;
+                    posy /= count;
                     roi = cv::boundingRect(contours[max_area_contour]);
                     if (roi.width > roi.height) {tgtsize = roi.width  + 1;}
                     else                        {tgtsize = roi.height + 1;}
@@ -479,8 +487,8 @@ BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPo
 	                Moments mu = moments(contours[max_id]);
                     if(mu.m00 > 0.0)
                     {
-	                    posX = mu.m10 / mu.m00;
-	                    posY = mu.m01 / mu.m00;
+	                    posx = mu.m10 / mu.m00;
+	                    posy = mu.m01 / mu.m00;
                         roi = cv::boundingRect(contours[max_id]);
                         if (roi.width > roi.height) {tgtsize = roi.width  + 1;}
                         else                        {tgtsize = roi.height + 1;}
@@ -496,15 +504,113 @@ BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPo
         break;
     }   // switch (sel)
 
-    if (isnan(posX) || isnan(posY))
+    if (isnan(posx) || isnan(posy))
     {
-        posX = 0.0;
-        posY = 0.0;
+        posx = 0.0;
+        posy = 0.0;
         ret  = FALSE;
     }
-    *outPosX    = posX;
-    *outPosY    = posY;
+    *outPosX    = posx;
+    *outPosY    = posy;
     *outTgtSize = tgtsize;
 
     return ret;
+}
+
+/// @brief 振れ検出処理
+/// @param
+/// @return 
+/// @note
+void CAnalyst::SwayProc(void)
+{
+    stRIOInfoData rioinfo;
+
+    g_pSharedObject->GetInfo(&rioinfo);
+
+    //----------------------------------------------------------------------------
+    // 振れ位置検出
+#pragma region SWAY_POS
+    if ((m_imgprocparam.maskvalid[IMGPROC_ID_IMG_1]) && (m_imgprocparam.maskvalid[IMGPROC_ID_IMG_2]))
+    {
+        if ((m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].valid) && (m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].valid))
+        {
+            m_proninfo.swaydata[AXIS_X].pos = (m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].posx + m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].posx) * 0.5;
+            m_proninfo.swaydata[AXIS_Y].pos = (m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].posy + m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].posy) * 0.5;
+            m_proninfo.valid = TRUE;
+        }
+        else
+        {
+            m_proninfo.swaydata[AXIS_X].pos = 0.0;
+            m_proninfo.swaydata[AXIS_Y].pos = 0.0;
+            m_proninfo.valid = FALSE;
+        }
+    }
+    else
+    {
+        if (m_imgprocparam.maskvalid[IMGPROC_ID_IMG_1])
+        {
+            if (m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].valid)
+            {
+                m_proninfo.swaydata[AXIS_X].pos = m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].posx;
+                m_proninfo.swaydata[AXIS_Y].pos = m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].posy;
+                m_proninfo.valid = TRUE;
+            }
+            else
+            {
+                m_proninfo.swaydata[AXIS_X].pos = 0.0;
+                m_proninfo.swaydata[AXIS_Y].pos = 0.0;
+                m_proninfo.valid = FALSE;
+            }
+        }
+        else if (m_imgprocparam.maskvalid[IMGPROC_ID_IMG_2])
+        {
+            if (m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].valid)
+            {
+                m_proninfo.swaydata[AXIS_X].pos = m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].posx;
+                m_proninfo.swaydata[AXIS_Y].pos = m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].posy;
+                m_proninfo.valid = TRUE;
+            }
+            else
+            {
+                m_proninfo.swaydata[AXIS_X].pos = 0.0;
+                m_proninfo.swaydata[AXIS_Y].pos = 0.0;
+                m_proninfo.valid = FALSE;
+            }
+        }
+        else
+        {
+            m_proninfo.swaydata[AXIS_X].pos = 0.0;
+            m_proninfo.swaydata[AXIS_Y].pos = 0.0;
+            m_proninfo.valid = FALSE;
+        }
+    }
+#pragma endregion SWAY_POS
+    
+    //----------------------------------------------------------------------------
+    // 振れ角検出
+#pragma region SWAY_ANG
+    double l0;                      // ロープ長@@@仮
+    double th00;                    // Box吊点～カメラ中心角度
+    double lc;                      // カメラ中心～ターゲット距離
+    double fi0;                     // φ0
+    double fisnensor;               // φsensor
+
+    l0 = 10000.0;                   //@@@仮
+    for (UINT ii = 0; ii < AXIS_MAX; ii++)
+    {
+        th00 = m_cnfgparam.camoffsetTHC[ii] + rioinfo.incldata[ii].deg;                                         // θc + θ1
+        lc   = l0 - m_cnfgparam.camboxoffsetLH0[ii] - (m_cnfgparam.camoffsetL0[ii] * cos(th00 * CONV_DEG_RAD)); // L0 - lh0 - l0 * cosθ00
+        fi0  = ((m_cnfgparam.camboxoffsetD0[ii] - m_cnfgparam.camoffsetL0[ii] * sin(th00 * CONV_DEG_RAD)) / lc / CONV_DEG_RAD)
+             - (rioinfo.incldata[ii].deg + m_cnfgparam.camoffsetTH0[ii]);                                       // (D0 - l0 * sinθ00) / Lc - (θ1 + θ0)
+
+        fisnensor = (m_proninfo.swaydata[AXIS_X].pos - (double)m_camparam.size[ii] * 0.5) * (m_cnfgparam.camviewAngle[ii] / (double)m_camparam.size[ii]);
+        m_proninfo.swaydata[ii].deg = fisnensor - fi0;
+        m_proninfo.swaydata[ii].rad = m_proninfo.swaydata[ii].deg * CONV_DEG_RAD;
+    }
+#pragma endregion SWAY_ANG
+
+    //----------------------------------------------------------------------------
+    // 振れ角速度検出
+#pragma region SWAY_SPD
+#pragma endregion SWAY_SPD
 }

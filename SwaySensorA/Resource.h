@@ -122,6 +122,7 @@
 #define IDC_STATIC_TITLE_RIO_STAT       1058
 #define IDC_SLIDER_CAMERA_EXPOSURE      1059
 #define IDC_STATIC_VAL_CAMERA_EXPOSURE  1060
+#define IDC_SLIDER_ROPELEN              1061
 #define IDC_STATIC_GRV_X1               1062
 #define IDC_STATIC_GRV_X2               1063
 #define IDC_STATIC_GRV_Y1               1064
@@ -133,6 +134,7 @@
 #define IDC_STATIC_RIO_P1_VAL_CUR       1070
 #define IDC_STATIC_PROC_TIME            1071
 #define IDC_STATIC_IMG_GRAB_TIME        1072
+#define IDC_STATIC_VAL_ROPELEN          1073
 #define IDC_STATIC_CAMERA_STAT          1074
 #define IDC_STATIC_RIO_STAT             1075
 #define IDC_STATIC_RIO_P2_VAL_CUR       1076
@@ -142,6 +144,8 @@
 #define IDC_STATIC_TITLE_SWAY_SPD       1080
 #define IDC_STATIC_SWAY_SPD_X           1081
 #define IDC_STATIC_SWAY_SPD_Y           1082
+#define IDC_STATIC_GBX_ROPE_LEN         1083
+#define IDC_STATIC_GBX_ROPELEN          1083
 #define IDC_BUTTON_CAM_START            2002
 #define IDC_BUTTON_CURSOR_L             2028
 #define IDC_BUTTON_CAM_STOP             2031

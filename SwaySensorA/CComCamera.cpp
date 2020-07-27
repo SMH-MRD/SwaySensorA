@@ -320,8 +320,8 @@ void CComCamera::GrabImage(void)
                 m_ptrGrabResult.Release();
 
                 // Width, Height
-                m_camera.Width.SetValue(m_camparam.width);
-                m_camera.Height.SetValue(m_camparam.height);
+                m_camera.Width.SetValue(m_camparam.size[AXIS_X]);
+                m_camera.Height.SetValue(m_camparam.size[AXIS_Y]);
 
                 // Set the pixel data format.
                 m_camera.PixelFormat.SetValue(PixelFormat_BGR8);

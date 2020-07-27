@@ -12,6 +12,7 @@ POINT               CPublicRelation::m_pntCursor;
 UINT                CPublicRelation::m_iSelImg;
 stCameraParamData   CPublicRelation::m_camparam;
 stImgProcParamData  CPublicRelation::m_imgprocparam;
+stExtnInfoData      CPublicRelation::m_extninfo;
 
 /// @brief コンストラクタ
 /// @param
@@ -82,6 +83,7 @@ void CPublicRelation::routine_work(void *param)
     // 共有データ書き込み
     g_pSharedObject->SetParam(m_camparam);      // カメラ設定データ
     g_pSharedObject->SetParam(m_imgprocparam);  // 画像処理設定データ
+    g_pSharedObject->SetInfo(m_extninfo);       // 外部入力データ
 
     //----------------------------------------------------------------------------
     // カメラ情報
@@ -105,11 +107,11 @@ void CPublicRelation::routine_work(void *param)
     // 傾斜計データ
     if (rioinfo.error == RIO_ERR_NONE)
     {
-        _stprintf_s(msg, TEXT("%d"),   rioinfo.incldata[RIO_PORT_1].dig); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_RIO_P1_VAL),     msg);
+        _stprintf_s(msg, TEXT("%d"),   rioinfo.incldata[AXIS_X].dig); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_RIO_P1_VAL),     msg);
         _stprintf_s(msg, TEXT("%d"),   rioinfo.incldata[RIO_PORT_2].dig); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_RIO_P2_VAL),     msg);
-        _stprintf_s(msg, TEXT("%.1f"), rioinfo.incldata[RIO_PORT_1].cur); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_RIO_P1_VAL_CUR), msg);
+        _stprintf_s(msg, TEXT("%.1f"), rioinfo.incldata[AXIS_X].cur); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_RIO_P1_VAL_CUR), msg);
         _stprintf_s(msg, TEXT("%.1f"), rioinfo.incldata[RIO_PORT_2].cur); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_RIO_P2_VAL_CUR), msg);
-        _stprintf_s(msg, TEXT("%.1f"), rioinfo.incldata[RIO_PORT_1].deg); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_RIO_P1_VAL_DEG), msg);
+        _stprintf_s(msg, TEXT("%.1f"), rioinfo.incldata[AXIS_X].deg); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_RIO_P1_VAL_DEG), msg);
         _stprintf_s(msg, TEXT("%.1f"), rioinfo.incldata[RIO_PORT_2].deg); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_RIO_P2_VAL_DEG), msg);
     }
     else
@@ -149,10 +151,10 @@ void CPublicRelation::routine_work(void *param)
     // 振れ
     if (prcinfo.valid)
     {
-        _stprintf_s(msg, TEXT("%.1f"), prcinfo.sway[SWAY_X]);    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_X),     msg);
-        _stprintf_s(msg, TEXT("%.1f"), prcinfo.sway[SWAY_Y]);    SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_Y),     msg);
-        _stprintf_s(msg, TEXT("%.1f"), prcinfo.swaySpd[SWAY_X]); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_X), msg);
-        _stprintf_s(msg, TEXT("%.1f"), prcinfo.swaySpd[SWAY_Y]); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_Y), msg);
+        _stprintf_s(msg, TEXT("%.1f"), prcinfo.swaydata[AXIS_X].deg); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_X),     msg);
+        _stprintf_s(msg, TEXT("%.1f"), prcinfo.swaydata[AXIS_Y].deg); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_Y),     msg);
+        _stprintf_s(msg, TEXT("%.1f"), prcinfo.swaydata[AXIS_X].spd); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_X), msg);
+        _stprintf_s(msg, TEXT("%.1f"), prcinfo.swaydata[AXIS_Y].spd); SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_SWAY_SPD_Y), msg);
     }
     else
     {
@@ -214,6 +216,16 @@ void CPublicRelation::routine_work(void *param)
             x0 = (INT)prcinfo.imgprocdata[IMGPROC_ID_IMG_2].posx;  y0 = (INT)prcinfo.imgprocdata[IMGPROC_ID_IMG_2].posy - 10 * (INT)(imgproc.rows / DISP_IMG_HEIGHT);
             x1 = (INT)prcinfo.imgprocdata[IMGPROC_ID_IMG_2].posx;  y1 = (INT)prcinfo.imgprocdata[IMGPROC_ID_IMG_2].posy + 10 * (INT)(imgproc.rows / DISP_IMG_HEIGHT);
             cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 255, 255), 2 * (INT)(imgproc.cols / DISP_IMG_WIDTH), cv::LINE_4);   // 縦線
+        }
+        if (prcinfo.valid)
+        {
+            x0 = (INT)prcinfo.swaydata[AXIS_X].pos - 10 * (INT)(imgproc.cols / DISP_IMG_WIDTH);  y0 = (INT)prcinfo.swaydata[AXIS_Y].pos;
+            x1 = (INT)prcinfo.swaydata[AXIS_X].pos + 10 * (INT)(imgproc.cols / DISP_IMG_WIDTH);  y1 = (INT)prcinfo.swaydata[AXIS_Y].pos;
+            cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 0, 255), 2 * (INT)(imgproc.rows / DISP_IMG_HEIGHT), cv::LINE_4);    // 横線
+
+            x0 = (INT)prcinfo.swaydata[AXIS_X].pos;  y0 = (INT)prcinfo.swaydata[AXIS_Y].pos - 10 * (INT)(imgproc.rows / DISP_IMG_HEIGHT);
+            x1 = (INT)prcinfo.swaydata[AXIS_X].pos;  y1 = (INT)prcinfo.swaydata[AXIS_Y].pos + 10 * (INT)(imgproc.rows / DISP_IMG_HEIGHT);
+            cv::line(m_mtSaveImage, Point(x0, y0), Point(x1, y1), Scalar(0, 0, 255), 2 * (INT)(imgproc.cols / DISP_IMG_WIDTH), cv::LINE_4);     // 縦線
         }
         cv::resize(m_mtSaveImage, imgdisp, cv::Size(), DISP_IMG_WIDTH / imgproc.cols, DISP_IMG_HEIGHT / imgproc.rows);
 
@@ -886,6 +898,23 @@ HWND CPublicRelation::OpenCameraPanel()
         }
 
         //----------------------------------------------------------------------------
+        // ロープ長
+        {
+            HWND    wndhdl;
+            TCHAR   msg[10];
+
+            m_extninfo.ropelen = EXTN_ROPELEN_MIN;
+            wndhdl = GetDlgItem(m_hCamDlg, IDC_SLIDER_ROPELEN);
+            SendMessage(wndhdl, TBM_SETRANGEMIN, TRUE, (UINT)EXTN_ROPELEN_MIN);             // レンジを指定
+            SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, (UINT)EXTN_ROPELEN_MAX);             // レンジを指定
+            SendMessage(wndhdl, TBM_SETTICFREQ, 1000, 0);                                   // 目盛りの増分
+            SendMessage(wndhdl, TBM_SETPOS, TRUE, (UINT)m_extninfo.ropelen);                // 位置の設定
+            SendMessage(wndhdl, TBM_SETPAGESIZE, 0, 1);                                     // クリック時の移動量
+            wndhdl = GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_ROPELEN);
+            _stprintf_s(msg, 10, TEXT("%d"), (UINT)m_extninfo.ropelen);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        }
+
+        //----------------------------------------------------------------------------
         // カメラ情報
         {
             TCHAR   msg[10];
@@ -1060,6 +1089,15 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
                 _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_CAMERA_EXPOSURE), (LPCTSTR)str);
                 m_camparam.exptime = (double)pos;
             }
+
+            //----------------------------------------------------------------------------
+            // ロープ長
+            if (GetDlgItem(m_hCamDlg, IDC_SLIDER_ROPELEN) == (HWND)lp)
+            {
+                pos = SendMessage(GetDlgItem(m_hCamDlg, IDC_SLIDER_ROPELEN), TBM_GETPOS, 0, 0);
+                _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(m_hCamDlg, IDC_STATIC_VAL_ROPELEN), (LPCTSTR)str);
+                m_extninfo.ropelen = (double)pos;
+            }
         }
         break;
     case WM_COMMAND:
@@ -1136,7 +1174,7 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
                 if      (GetAsyncKeyState(VK_SHIFT)   & 0x8000) {pos -= 50;}
                 else if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {pos -= 10;}
                 else                                            {pos -= 1;}
-                if (pos < 0) {pos = m_camparam.width - 1;}
+                if (pos < 0) {pos = m_camparam.size[AXIS_X] - 1;}
                 m_pntCursor.x = pos;
             }
             break;
@@ -1147,7 +1185,7 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
                 if      (GetAsyncKeyState(VK_SHIFT)   & 0x8000) {pos += 50;}
                 else if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {pos += 10;}
                 else                                            {pos += 1;}
-                if (pos >= (LONG)m_camparam.width) {pos = 0;}
+                if (pos >= (LONG)m_camparam.size[AXIS_X]) {pos = 0;}
                 m_pntCursor.x = pos;
             }
             break;
@@ -1158,7 +1196,7 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
                 if      (GetAsyncKeyState(VK_SHIFT)   & 0x8000) {pos -= 50;}
                 else if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {pos -= 10;}
                 else                                            {pos -= 1;}
-                if (pos < 0) {pos = m_camparam.height - 1;}
+                if (pos < 0) {pos = m_camparam.size[AXIS_Y] - 1;}
                 m_pntCursor.y = pos;
             }
             break;
@@ -1169,7 +1207,7 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
                 if      (GetAsyncKeyState(VK_SHIFT)   & 0x8000) {pos += 50;}
                 else if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {pos += 10;}
                 else                                            {pos += 1;}
-                if (pos >= (LONG)m_camparam.height) {pos = 0;}
+                if (pos >= (LONG)m_camparam.size[AXIS_Y]) {pos = 0;}
                 m_pntCursor.y = pos;
             }
             break;
