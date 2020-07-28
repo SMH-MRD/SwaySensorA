@@ -111,6 +111,7 @@ typedef struct _stConfigParamData               // 構造設定データ
     double camoffsetTHC[AXIS_MAX];              // カメラBOX内吊点～カメラ中心角度θc[deg]
     double camoffsetTH0[AXIS_MAX];              // カメラBOX内カメラ傾きθ0[deg]
     double camviewAngle[AXIS_MAX];              // カメラ視野角[deg]
+    double filter;                              // フィルタ時定数
 } stConfigParamData;
 typedef struct _stConfigParam                   // 構造設定
 {

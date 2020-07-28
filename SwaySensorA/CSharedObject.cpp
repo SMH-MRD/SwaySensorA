@@ -128,6 +128,7 @@ INT CSharedObject::SetParam(stConfigParamData data)
         m_cnfgparam.data.camoffsetTH0[ii]    = data.camoffsetTH0[ii];       // カメラBOX内カメラ傾きθ0[deg]
         m_cnfgparam.data.camviewAngle[ii]    = data.camviewAngle[ii];       // カメラ視野角[deg]
     }
+    m_cnfgparam.data.filter = data.filter;                                  // フィルタ時定数
     LeaveCriticalSection(&m_camparam.cs);
 
     return RESULT_OK;
@@ -149,6 +150,7 @@ INT CSharedObject::GetParam(stConfigParamData* data)
         data->camoffsetTH0[ii]    = m_cnfgparam.data.camoffsetTH0[ii];      // カメラBOX内カメラ傾きθ0[deg]
         data->camviewAngle[ii]    = m_cnfgparam.data.camviewAngle[ii];      // カメラ視野角[deg]
     }
+    data->filter = m_cnfgparam.data.filter;                                 // フィルタ時定数
     LeaveCriticalSection(&m_cnfgparam.cs);
 
     return RESULT_OK;

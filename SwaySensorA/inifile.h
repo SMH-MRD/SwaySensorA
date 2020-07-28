@@ -22,6 +22,7 @@
 #define INI_KEY_CNFG_CAMOFSTTHC     L"CameraOffsetTHC"      // キー名：カメラBOX内吊点～カメラ中心角度θc[deg]
 #define INI_KEY_CNFG_CAMOFSTTH0     L"CameraOffsetTH0"      // キー名：カメラBOX内カメラ傾きθ0[deg]
 #define INI_KEY_CNFG_CAMVIEWANGLE   L"CameraViewAngle"      // キー名：カメラ視野角[deg]
+#define INI_KEY_CNFG_FILTER         L"Filter"               // キー名：フィルタ時定数
 
 // ------------------ カメラ設定 ---------------------------
 #define	INI_SCT_CAMERA              L"CAMERA"               // セクション名：カメラ設定

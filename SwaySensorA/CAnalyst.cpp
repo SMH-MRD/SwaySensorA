@@ -523,8 +523,10 @@ BOOL CAnalyst::CalcCenterOfGravity(vector<vector<Point>> contours, DOUBLE* outPo
 /// @note
 void CAnalyst::SwayProc(void)
 {
-    stRIOInfoData rioinfo;
+    stExtnInfoData  extninfo;
+    stRIOInfoData   rioinfo;
 
+    g_pSharedObject->GetInfo(&extninfo);
     g_pSharedObject->GetInfo(&rioinfo);
 
     //----------------------------------------------------------------------------
@@ -587,30 +589,41 @@ void CAnalyst::SwayProc(void)
 #pragma endregion SWAY_POS
     
     //----------------------------------------------------------------------------
-    // 振れ角検出
+    // 振れ角, 振れ角速度検出
 #pragma region SWAY_ANG
-    double l0;                      // ロープ長@@@仮
     double th00;                    // Box吊点～カメラ中心角度
     double lc;                      // カメラ中心～ターゲット距離
     double fi0;                     // φ0
     double fisnensor;               // φsensor
+    double deg, rad, spd;
+    double dt;
 
-    l0 = 10000.0;                   //@@@仮
+    dt = inf.cycle_ms * 0.001;
     for (UINT ii = 0; ii < AXIS_MAX; ii++)
     {
-        th00 = m_cnfgparam.camoffsetTHC[ii] + rioinfo.incldata[ii].deg;                                         // θc + θ1
-        lc   = l0 - m_cnfgparam.camboxoffsetLH0[ii] - (m_cnfgparam.camoffsetL0[ii] * cos(th00 * CONV_DEG_RAD)); // L0 - lh0 - l0 * cosθ00
-        fi0  = ((m_cnfgparam.camboxoffsetD0[ii] - m_cnfgparam.camoffsetL0[ii] * sin(th00 * CONV_DEG_RAD)) / lc / CONV_DEG_RAD)
-             - (rioinfo.incldata[ii].deg + m_cnfgparam.camoffsetTH0[ii]);                                       // (D0 - l0 * sinθ00) / Lc - (θ1 + θ0)
+        if (m_proninfo.valid)
+        {
+            th00 = m_cnfgparam.camoffsetTHC[ii] + rioinfo.incldata[ii].deg;                                         // θc + θ1
+            lc   = extninfo.ropelen - m_cnfgparam.camboxoffsetLH0[ii] - (m_cnfgparam.camoffsetL0[ii] * cos(th00 * CONV_DEG_RAD)); // L0 - lh0 - l0 * cosθ00
+            fi0  = ((m_cnfgparam.camboxoffsetD0[ii] - m_cnfgparam.camoffsetL0[ii] * sin(th00 * CONV_DEG_RAD)) / lc / CONV_DEG_RAD)
+                 - (rioinfo.incldata[ii].deg + m_cnfgparam.camoffsetTH0[ii]);                                       // (D0 - l0 * sinθ00) / Lc - (θ1 + θ0)
 
-        fisnensor = (m_proninfo.swaydata[AXIS_X].pos - (double)m_camparam.size[ii] * 0.5) * (m_cnfgparam.camviewAngle[ii] / (double)m_camparam.size[ii]);
-        m_proninfo.swaydata[ii].deg = fisnensor - fi0;
-        m_proninfo.swaydata[ii].rad = m_proninfo.swaydata[ii].deg * CONV_DEG_RAD;
+            fisnensor = (m_proninfo.swaydata[AXIS_X].pos - (double)m_camparam.size[ii] * 0.5) * (m_cnfgparam.camviewAngle[ii] / (double)m_camparam.size[ii]);
+            deg       = fisnensor - fi0;
+            rad       = deg * CONV_DEG_RAD;
+            spd       = (rad - m_proninfo.swaydata[ii].rad) / dt;
+            spd       = ((dt * spd) + (m_cnfgparam.filter * m_proninfo.swaydata[ii].spd)) / (m_cnfgparam.filter + dt);
+
+            m_proninfo.swaydata[ii].deg = deg;
+            m_proninfo.swaydata[ii].rad = rad;
+            m_proninfo.swaydata[ii].spd = spd;
+        }
+        else
+        {
+            m_proninfo.swaydata[ii].deg = 0.0;
+            m_proninfo.swaydata[ii].rad = 0.0;
+            m_proninfo.swaydata[ii].spd = 0.0;
+        }
     }
 #pragma endregion SWAY_ANG
-
-    //----------------------------------------------------------------------------
-    // 振れ角速度検出
-#pragma region SWAY_SPD
-#pragma endregion SWAY_SPD
 }

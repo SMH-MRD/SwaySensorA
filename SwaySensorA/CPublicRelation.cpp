@@ -46,6 +46,8 @@ void CPublicRelation::init_task(void *pobj)
     m_pntCursor.x = 0;
     m_pntCursor.y = 0;
 
+    m_extninfo.ropelen = EXTN_ROPELEN_MIN;
+
     g_pSharedObject->GetParam(&m_camparam);     // カメラ設定データ
     g_pSharedObject->GetParam(&m_imgprocparam); // 画像処理設定データ
 

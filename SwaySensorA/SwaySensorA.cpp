@@ -772,6 +772,7 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
         pInf->m_cnfgparam.camviewAngle[AXIS_X] = 0.0;    // カメラ視野角[deg](X)
         pInf->m_cnfgparam.camviewAngle[AXIS_Y] = 0.0;    // カメラ視野角[deg](Y)
     }
+    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_FILTER, L"1.0", INITYPE_DOUBLE, &pInf->m_cnfgparam.filter);  // フィルタ時定数
 
     //--------------------------------------------------------------------------
     // カメラ設定
