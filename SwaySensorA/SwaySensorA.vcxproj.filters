@@ -165,5 +165,11 @@
     <Image Include="..\bmp\BitmapYellow.bmp">
       <Filter>リソース ファイル</Filter>
     </Image>
+    <Image Include="..\bmp\bitmap1.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\bmp\無題.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
 </Project>

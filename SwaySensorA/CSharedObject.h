@@ -102,21 +102,28 @@ enum
 };
 
 // 構造体定義
-// 構造設定
-typedef struct _stConfigParamData               // 構造設定データ
+// 共通設定
+typedef struct _stConfigParamData               // 構造定義データ
 {
-    double camboxoffsetD0[AXIS_MAX];            // 吊具吊点～カメラBOX吊点距離D0[mm]
-    double camboxoffsetLH0[AXIS_MAX];           // 吊具吊点～カメラBOX吊点距離LH0[mm]
-    double camoffsetL0[AXIS_MAX];               // カメラBOX内吊点～カメラ中心距離l0[mm]
-    double camoffsetTHC[AXIS_MAX];              // カメラBOX内吊点～カメラ中心角度θc[deg]
-    double camoffsetTH0[AXIS_MAX];              // カメラBOX内カメラ傾きθ0[deg]
-    double camviewAngle[AXIS_MAX];              // カメラ視野角[deg]
+    double offsetD0;                            // 吊具吊点～カメラBOX吊点距離D0[mm]
+    double offsetLH0;                           // 吊具吊点～カメラBOX吊点距離LH0[mm]
+    double offsetL0;                            // カメラBOX内吊点～カメラ中心距離l0[mm]
+    double offsetTHC;                           // カメラBOX内吊点～カメラ中心角度θc[deg]
+    double offsetTH0;                           // カメラBOX内カメラ傾きθ0[deg]
+    double camviewangl;                         // カメラ視野角[deg]
 } stConfigParamData;
-typedef struct _stConfigParam                   // 構造設定
+typedef struct _stCommonParamData               // 共通設定データ
+{
+    stConfigParamData   cnfg[AXIS_MAX];         // 構造定義データ
+    double              filter;                 // フィルタ時定数
+    string              imgsavefname;           // 画像保存ファイル名
+} stCommonParamData;
+typedef struct _stCommonParam                   // 共通設定
 {
     CRITICAL_SECTION    cs;
-    stConfigParamData   data;                   // 構造設定データ
-} stConfigParam;
+    stCommonParamData   data;                   // 共通設定データ
+} stCommonParam;
+
 // カメラ設定
 typedef struct _stCameraParamData               // カメラ設定データ
 {
@@ -171,7 +178,7 @@ typedef struct _stImgProcParam                  // 画像処理設定
 // RemoteIO設定
 typedef struct _stRIOParamData                  // RemoteIO設定データ
 {
-    TCHAR   ipaddrs[256];                       // RIO IPアドレス
+    string  ipaddrs;                            // RIO IPアドレス
     int     tcpport;                            // TCPポート番号
     int     slaveaddrs;                         // スレーブアドレス
     int     timeout;                            // 通信タイムアウト(msec)
@@ -274,8 +281,8 @@ public:
     CSharedObject();
     ~CSharedObject();
 
-    INT SetParam(stConfigParamData data);
-    INT GetParam(stConfigParamData* data);
+    INT SetParam(stCommonParamData data);
+    INT GetParam(stCommonParamData* data);
     INT SetParam(stCameraParamData data);
     INT GetParam(stCameraParamData* data);
     INT SetParam(stImgProcParamData data);
@@ -296,7 +303,7 @@ public:
     INT GetInfo(stExtnInfoData* data);
 
 private:
-    stConfigParam       m_cnfgparam;                // 構造設定
+    stCommonParam       m_cmmnparam;                // 共通設定
     stCameraParam       m_camparam;                 // カメラ設定
     stImgProcParam      m_imgprocparam;             // 画像処理設定
     stRIOParam          m_rioparam;                 // RemoteIO設定
