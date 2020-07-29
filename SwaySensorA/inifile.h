@@ -14,15 +14,16 @@
 #define PLAYER_KEY_OF_INIFILE       L"PLAYER"
 #define PR_KEY_OF_INIFILE           L"PR"
 
-// ------------------ 構造設定 ---------------------------
-#define	INI_SCT_CONFIG              L"CONFIG"               // セクション名：構造設定
-#define INI_KEY_CNFG_CAMBOXOFSTD0   L"CameraBoxOffsetD0"    // キー名：吊具吊点～カメラBOX吊点距離D0[mm]
-#define INI_KEY_CNFG_CAMBOXOFSTLH0  L"CameraBoxOffsetLH0"   // キー名：吊具吊点～カメラBOX吊点距離LH0[mm]
-#define INI_KEY_CNFG_CAMOFSTL0      L"CameraOffsetL0"       // キー名：カメラBOX内吊点～カメラ中心距離l0[mm]
-#define INI_KEY_CNFG_CAMOFSTTHC     L"CameraOffsetTHC"      // キー名：カメラBOX内吊点～カメラ中心角度θc[deg]
-#define INI_KEY_CNFG_CAMOFSTTH0     L"CameraOffsetTH0"      // キー名：カメラBOX内カメラ傾きθ0[deg]
-#define INI_KEY_CNFG_CAMVIEWANGLE   L"CameraViewAngle"      // キー名：カメラ視野角[deg]
-#define INI_KEY_CNFG_FILTER         L"Filter"               // キー名：フィルタ時定数
+// ------------------ 共通設定 ---------------------------
+#define	INI_SCT_COMMON              L"COMMON"               // セクション名：共通設定
+#define INI_KEY_CMMN_CAMBOXOFSTD0   L"CameraBoxOffsetD0"    // キー名：吊具吊点～カメラBOX吊点距離D0[mm]
+#define INI_KEY_CMMN_CAMBOXOFSTLH0  L"CameraBoxOffsetLH0"   // キー名：吊具吊点～カメラBOX吊点距離LH0[mm]
+#define INI_KEY_CMMN_CAMOFSTL0      L"CameraOffsetL0"       // キー名：カメラBOX内吊点～カメラ中心距離l0[mm]
+#define INI_KEY_CMMN_CAMOFSTTHC     L"CameraOffsetTHC"      // キー名：カメラBOX内吊点～カメラ中心角度θc[deg]
+#define INI_KEY_CMMN_CAMOFSTTH0     L"CameraOffsetTH0"      // キー名：カメラBOX内カメラ傾きθ0[deg]
+#define INI_KEY_CMMN_CAMVIEWANGLE   L"CameraViewAngle"      // キー名：カメラ視野角[deg]
+#define INI_KEY_CMMN_FILTER         L"Filter"               // キー名：フィルタ時定数
+#define INI_KEY_CMMN_IMGSAVEFNAME   L"ImageSaveFileName"    // キー名：画像保存ファイル名
 
 // ------------------ カメラ設定 ---------------------------
 #define	INI_SCT_CAMERA              L"CAMERA"               // セクション名：カメラ設定
@@ -54,7 +55,7 @@
 // ------------------ Iniファイル情報の構造体 ---------------------------
 typedef struct _stIniInf    //***** Iniファイル情報 *****
 {
-    stConfigParamData   m_cnfgparam;                // 構造設定
+    stCommonParamData   m_cmmnparam;                // 共通設定
     stCameraParamData   m_camparam;                 // カメラ設定データ
     stImgProcParamData  m_imgprocparam;             // 画像処理設定データ
     stRIOParamData      m_rioparam;                 // RemoteIO設定データ

@@ -735,44 +735,55 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
     if (!(PathFileExists(pFileName)) || PathIsDirectory(pFileName)) { return RESULT_NG_INVALID; }
 
     //--------------------------------------------------------------------------
-    // 構造設定
-    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMBOXOFSTD0,  L"0.0, 0.0", INITYPE_CHAR, str);  // 吊具吊点～カメラBOX吊点距離D0[mm]
-    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camboxoffsetD0[AXIS_X], &pInf->m_cnfgparam.camboxoffsetD0[AXIS_Y]))
+    // 共通設定
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMBOXOFSTD0,  L"0.0, 0.0", INITYPE_CHAR, str);  // 吊具吊点～カメラBOX吊点距離D0[mm]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].offsetD0, &pInf->m_cmmnparam.cnfg[AXIS_Y].offsetD0))
     {
-        pInf->m_cnfgparam.camboxoffsetD0[AXIS_X] = 0.0;    // 吊具吊点～カメラBOX吊点距離D0[mm](X)
-        pInf->m_cnfgparam.camboxoffsetD0[AXIS_Y] = 0.0;    // 吊具吊点～カメラBOX吊点距離D0[mm](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].offsetD0 = 0.0;      // 吊具吊点～カメラBOX吊点距離D0[mm](X)
+        pInf->m_cmmnparam.cnfg[AXIS_Y].offsetD0 = 0.0;      // 吊具吊点～カメラBOX吊点距離D0[mm](Y)
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMBOXOFSTLH0, L"0.0, 0.0", INITYPE_CHAR, str);  // 吊具吊点～カメラBOX吊点距離LH0[mm]
-    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camboxoffsetLH0[AXIS_X], &pInf->m_cnfgparam.camboxoffsetLH0[AXIS_Y]))
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMBOXOFSTLH0, L"0.0, 0.0", INITYPE_CHAR, str);  // 吊具吊点～カメラBOX吊点距離LH0[mm]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].offsetLH0, &pInf->m_cmmnparam.cnfg[AXIS_Y].offsetLH0))
     {
-        pInf->m_cnfgparam.camboxoffsetLH0[AXIS_X] = 0.0;    // 吊具吊点～カメラBOX吊点距離LH0[mm](X)
-        pInf->m_cnfgparam.camboxoffsetLH0[AXIS_Y] = 0.0;    // 吊具吊点～カメラBOX吊点距離LH0[mm](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].offsetLH0 = 0.0;     // 吊具吊点～カメラBOX吊点距離LH0[mm](X)
+        pInf->m_cmmnparam.cnfg[AXIS_Y].offsetLH0 = 0.0;     // 吊具吊点～カメラBOX吊点距離LH0[mm](Y)
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMOFSTL0,     L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内吊点～カメラ中心距離l0[mm]
-    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camoffsetL0[AXIS_X], &pInf->m_cnfgparam.camoffsetL0[AXIS_Y]))
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFSTL0,     L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内吊点～カメラ中心距離l0[mm]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].offsetL0, &pInf->m_cmmnparam.cnfg[AXIS_Y].offsetL0))
     {
-        pInf->m_cnfgparam.camoffsetL0[AXIS_X] = 0.0;    // カメラBOX内吊点～カメラ中心距離l0[mm](X)
-        pInf->m_cnfgparam.camoffsetL0[AXIS_Y] = 0.0;    // カメラBOX内吊点～カメラ中心距離l0[mm](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].offsetL0 = 0.0;      // カメラBOX内吊点～カメラ中心距離l0[mm](X)
+        pInf->m_cmmnparam.cnfg[AXIS_Y].offsetL0 = 0.0;      // カメラBOX内吊点～カメラ中心距離l0[mm](Y)
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMOFSTTHC,    L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内吊点～カメラ中心角度θc[deg]
-    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camoffsetTHC[AXIS_X], &pInf->m_cnfgparam.camoffsetTHC[AXIS_Y]))
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFSTTHC,    L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内吊点～カメラ中心角度θc[deg]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].offsetTHC, &pInf->m_cmmnparam.cnfg[AXIS_Y].offsetTHC))
     {
-        pInf->m_cnfgparam.camoffsetTHC[AXIS_X] = 0.0;    // カメラBOX内吊点～カメラ中心角度θc[deg](X)
-        pInf->m_cnfgparam.camoffsetTHC[AXIS_Y] = 0.0;    // カメラBOX内吊点～カメラ中心角度θc[deg](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].offsetTHC = 0.0;     // カメラBOX内吊点～カメラ中心角度θc[deg](X)
+        pInf->m_cmmnparam.cnfg[AXIS_X].offsetTHC = 0.0;     // カメラBOX内吊点～カメラ中心角度θc[deg](Y)
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMOFSTTH0,    L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内カメラ傾きθ0[deg]
-    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camoffsetTH0[AXIS_X], &pInf->m_cnfgparam.camoffsetTH0[AXIS_Y]))
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFSTTH0,    L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内カメラ傾きθ0[deg]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].offsetTH0, &pInf->m_cmmnparam.cnfg[AXIS_Y].offsetTH0))
     {
-        pInf->m_cnfgparam.camoffsetTH0[AXIS_X] = 0.0;    // カメラBOX内カメラ傾きθ0[deg](X)
-        pInf->m_cnfgparam.camoffsetTH0[AXIS_Y] = 0.0;    // カメラBOX内カメラ傾きθ0[deg](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].offsetTH0 = 0.0;     // カメラBOX内カメラ傾きθ0[deg](X)
+        pInf->m_cmmnparam.cnfg[AXIS_X].offsetTH0 = 0.0;     // カメラBOX内カメラ傾きθ0[deg](Y)
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_CAMVIEWANGLE,  L"0.0, 0.0", INITYPE_CHAR, str);  // カメラ視野角[deg]
-    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cnfgparam.camviewAngle[AXIS_X], &pInf->m_cnfgparam.camviewAngle[AXIS_Y]))
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMVIEWANGLE,  L"0.0, 0.0", INITYPE_CHAR, str);  // カメラ視野角[deg]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].camviewangl, &pInf->m_cmmnparam.cnfg[AXIS_Y].camviewangl))
     {
-        pInf->m_cnfgparam.camviewAngle[AXIS_X] = 0.0;    // カメラ視野角[deg](X)
-        pInf->m_cnfgparam.camviewAngle[AXIS_Y] = 0.0;    // カメラ視野角[deg](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].camviewangl = 0.0;   // カメラ視野角[deg](X)
+        pInf->m_cmmnparam.cnfg[AXIS_X].camviewangl = 0.0;   // カメラ視野角[deg](Y)
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_CONFIG, INI_KEY_CNFG_FILTER, L"1.0", INITYPE_DOUBLE, &pInf->m_cnfgparam.filter);  // フィルタ時定数
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_FILTER,       L"1.0", INITYPE_DOUBLE, &pInf->m_cmmnparam.filter);    // フィルタ時定数
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_IMGSAVEFNAME, L"",    INITYPE_CHAR,   str);                          // 画像保存ファイル名
+    {
+        char* cstr = (char*)malloc(sizeof(str));
+	    if (cstr != NULL)
+        {
+		    size_t size;
+		    wcstombs_s(&size, cstr, sizeof(str), str, sizeof(str));
+		    pInf->m_cmmnparam.imgsavefname = cstr;
+		    free(cstr);
+	    }
+    }
 
     //--------------------------------------------------------------------------
     // カメラ設定
@@ -876,12 +887,22 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 
     //--------------------------------------------------------------------------
     // RIO設定
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_IPADDR,     L"192.168.0.1", INITYPE_CHAR, &(pInf->m_rioparam.ipaddrs));      // RIO IPアドレス
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TCPPORTNUM, L"502",         INITYPE_INT,  &(pInf->m_rioparam.tcpport));      // RIO TCPポート番号
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_SLAVEADDR,  L"1",           INITYPE_INT,  &(pInf->m_rioparam.slaveaddrs));   // RIOスレーブアドレス
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TIMEOUT,    L"2000",        INITYPE_INT,  &(pInf->m_rioparam.timeout));      // RIOタイムアウト
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_XPORTNUM,   L"1",           INITYPE_INT,  &(pInf->m_rioparam.portx));        // RIO傾斜計Xデータ接続ポート番号
-    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_YPORTNUM,   L"2",           INITYPE_INT,  &(pInf->m_rioparam.porty));        // RIO傾斜計Yデータ接続ポート番号
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_IPADDR, L"192.168.0.1", INITYPE_CHAR, str);                      // RIO IPアドレス
+    {
+        char* cstr = (char*)malloc(sizeof(str));
+        if (cstr != NULL)
+        {
+            size_t size;
+            wcstombs_s(&size, cstr, sizeof(str), str, sizeof(str));
+            pInf->m_rioparam.ipaddrs = cstr;
+            free(cstr);
+        }
+    }
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TCPPORTNUM, L"502",  INITYPE_INT, &pInf->m_rioparam.tcpport);    // RIO TCPポート番号
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_SLAVEADDR,  L"1",    INITYPE_INT, &pInf->m_rioparam.slaveaddrs); // RIOスレーブアドレス
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_TIMEOUT,    L"2000", INITYPE_INT, &pInf->m_rioparam.timeout);    // RIOタイムアウト
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_XPORTNUM,   L"1",    INITYPE_INT, &pInf->m_rioparam.portx);      // RIO傾斜計Xデータ接続ポート番号
+    CHelper::GetIniInf(pFileName, INI_SCT_RIO, INI_KEY_RIO_YPORTNUM,   L"2",    INITYPE_INT, &pInf->m_rioparam.porty);      // RIO傾斜計Yデータ接続ポート番号
 
     return S_OK;
 }
@@ -909,8 +930,8 @@ void CreateSharedData(void)
 //  cSharedData = new CSharedObject();
 
     //--------------------------------------------------------------------------
-    // 構造設定
-    g_pSharedObject->SetParam(ini.m_cnfgparam);
+    // 共通設定
+    g_pSharedObject->SetParam(ini.m_cmmnparam);
 
     //--------------------------------------------------------------------------
     // カメラ設定

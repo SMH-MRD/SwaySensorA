@@ -53,20 +53,7 @@ void CComRIO::Initialize(void)
     // ModbusTCP設定値
     stRIOParamData  param;
     g_pSharedObject->GetParam(&param);
-
-	char* cstr = (char*)malloc(sizeof(param.ipaddrs));
-	if (cstr != NULL)
-    {
-		size_t size;
-		wcstombs_s(&size, cstr, sizeof(param.ipaddrs), param.ipaddrs, sizeof(param.ipaddrs));
-		string str = cstr;
-	    memcpy(m_riocnfg.modbusInitCnfg.ipaddrs, str.c_str(), sizeof(m_riocnfg.modbusInitCnfg.ipaddrs));
-		free(cstr);
-	}
-    else
-    {
-        memcpy(m_riocnfg.modbusInitCnfg.ipaddrs, "192.168.0.1", sizeof(m_riocnfg.modbusInitCnfg.ipaddrs));
-    }
+	memcpy(m_riocnfg.modbusInitCnfg.ipaddrs, param.ipaddrs.c_str(), sizeof(m_riocnfg.modbusInitCnfg.ipaddrs));  // IPアドレス
     m_riocnfg.modbusInitCnfg.portnum = param.tcpport;   // ポート番号
     m_riocnfg.modbusInitCnfg.timeout = param.timeout;   // 通信タイムアウト
 

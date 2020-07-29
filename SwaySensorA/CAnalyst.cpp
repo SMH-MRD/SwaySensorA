@@ -44,7 +44,7 @@ void CAnalyst::init_task(void* pobj)
     g_pSharedObject->SetInfo(m_proninfo);
 
     g_pSharedObject->GetParam(&m_camparam);     // カメラ設定データ
-    g_pSharedObject->GetParam(&m_cnfgparam);    // 構造設定データ
+    g_pSharedObject->GetParam(&m_cmmnparam);    // 共通設定データ
     g_pSharedObject->GetParam(&m_imgprocparam); // 画像処理設定データ
 }
 
@@ -88,18 +88,18 @@ void CAnalyst::routine_work(void* param)
 /// @note
 void CAnalyst::ImageProc(void)
 {
-    cv::Mat         imgSrc;
-    cv::Mat         imgHSV;
-    cv::Mat         imgHSVBin;
-    cv::Mat         imgROI; // 切抜き画像
-    cv::Mat         imgMask[IMGPROC_ID_MAX];
-    cv::Mat         lut;
-    BOOL            bImgEnable = FALSE;
-    UINT32          width = 0, height = 0;
-    UINT            maskLow[3], maskUpp[3];
+    cv::Mat imgSrc;
+    cv::Mat imgHSV;
+    cv::Mat imgHSVBin;
+    cv::Mat imgROI; // 切抜き画像
+    cv::Mat imgMask[IMGPROC_ID_MAX];
+    cv::Mat lut;
+    BOOL    bImgEnable = FALSE;
+    UINT32  width = 0, height = 0;
+    UINT    maskLow[3], maskUpp[3];
     std::vector<cv::Mat> planes;
     std::vector<std::vector<cv::Point>> contours;
-    BOOL            ret = FALSE;
+    BOOL    ret = FALSE;
 
     //----------------------------------------------------------------------------
    // 画像処理設定読込み
@@ -205,7 +205,7 @@ void CAnalyst::ImageProc(void)
                 cv::bitwise_and(planes[0],   planes[1], imgMask[ii]);
                 cv::bitwise_and(imgMask[ii], planes[2], imgMask[ii]);
             }   // if (m_imgprocparam.maskvalid[ii])
-        }
+        }   // for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
 #pragma endregion CreateMaskImage
 
         //----------------------------------------------------------------------------
@@ -232,7 +232,7 @@ void CAnalyst::ImageProc(void)
         case NOISEFILTER1_MEDIAN:    // 中央値フィルタ
             for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
             {
-                if (m_imgprocparam.maskvalid[ii]) {cv::medianBlur(imgMask[ii], imgMask[IMGPROC_ID_IMG_1], m_imgprocparam.filter1.val);}
+                if (m_imgprocparam.maskvalid[ii]) {cv::medianBlur(imgMask[ii], imgMask[ii], m_imgprocparam.filter1.val);}
             }
             break;
         case NOISEFILTER1_OPENNING:  // オープニング処理(縮小→拡大)
@@ -300,7 +300,7 @@ void CAnalyst::ImageProc(void)
                 m_proninfo.imgprocdata[ii].tgtsize = 0;
                 m_proninfo.imgprocdata[ii].valid   = FALSE;
             }
-        }
+        }   // for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
 #pragma endregion ImageProc
 
         //----------------------------------------------------------------------------
@@ -603,16 +603,17 @@ void CAnalyst::SwayProc(void)
     {
         if (m_proninfo.valid)
         {
-            th00 = m_cnfgparam.camoffsetTHC[ii] + rioinfo.incldata[ii].deg;                                         // θc + θ1
-            lc   = extninfo.ropelen - m_cnfgparam.camboxoffsetLH0[ii] - (m_cnfgparam.camoffsetL0[ii] * cos(th00 * CONV_DEG_RAD)); // L0 - lh0 - l0 * cosθ00
-            fi0  = ((m_cnfgparam.camboxoffsetD0[ii] - m_cnfgparam.camoffsetL0[ii] * sin(th00 * CONV_DEG_RAD)) / lc / CONV_DEG_RAD)
-                 - (rioinfo.incldata[ii].deg + m_cnfgparam.camoffsetTH0[ii]);                                       // (D0 - l0 * sinθ00) / Lc - (θ1 + θ0)
+            th00 = m_cmmnparam.cnfg[ii].offsetTHC + rioinfo.incldata[ii].deg;   // θc + θ1
+            lc   = extninfo.ropelen - m_cmmnparam.cnfg[ii].offsetLH0 
+                 - (m_cmmnparam.cnfg[ii].offsetL0 * cos(th00 * CONV_DEG_RAD));  // L0 - lh0 - l0 * cosθ00
+            fi0  = ((m_cmmnparam.cnfg[ii].offsetD0 - m_cmmnparam.cnfg[ii].offsetL0 * sin(th00 * CONV_DEG_RAD)) / lc / CONV_DEG_RAD)
+                 - (rioinfo.incldata[ii].deg + m_cmmnparam.cnfg[ii].offsetTH0); // (D0 - l0 * sinθ00) / Lc - (θ1 + θ0)
 
-            fisnensor = (m_proninfo.swaydata[AXIS_X].pos - (double)m_camparam.size[ii] * 0.5) * (m_cnfgparam.camviewAngle[ii] / (double)m_camparam.size[ii]);
+            fisnensor = (m_proninfo.swaydata[AXIS_X].pos - (double)m_camparam.size[ii] * 0.5) * (m_cmmnparam.cnfg[ii].camviewangl / (double)m_camparam.size[ii]);
             deg       = fisnensor - fi0;
             rad       = deg * CONV_DEG_RAD;
             spd       = (rad - m_proninfo.swaydata[ii].rad) / dt;
-            spd       = ((dt * spd) + (m_cnfgparam.filter * m_proninfo.swaydata[ii].spd)) / (m_cnfgparam.filter + dt);
+            spd       = ((dt * spd) + (m_cmmnparam.filter * m_proninfo.swaydata[ii].spd)) / (m_cmmnparam.filter + dt);
 
             m_proninfo.swaydata[ii].deg = deg;
             m_proninfo.swaydata[ii].rad = rad;

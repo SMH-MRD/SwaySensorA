@@ -112,46 +112,48 @@ void CSharedObject::Initialize(void)
     }
 }
 
-/// @brief 構造設定データ書込み
+/// @brief 共通設定データ書込み
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::SetParam(stConfigParamData data)
+INT CSharedObject::SetParam(stCommonParamData data)
 {
     EnterCriticalSection(&m_camparam.cs);
     for (int ii = 0; ii < AXIS_MAX; ii++)
     {
-        m_cnfgparam.data.camboxoffsetD0[ii]  = data.camboxoffsetD0[ii];     // 吊具吊点～カメラBOX吊点距離D0[mm]
-        m_cnfgparam.data.camboxoffsetLH0[ii] = data.camboxoffsetLH0[ii];    // 吊具吊点～カメラBOX吊点距離LH0[mm]
-        m_cnfgparam.data.camoffsetL0[ii]     = data.camoffsetL0[ii];        // カメラBOX内吊点～カメラ中心距離l0[mm]
-        m_cnfgparam.data.camoffsetTHC[ii]    = data.camoffsetTHC[ii];       // カメラBOX内吊点～カメラ中心角度θc[deg]
-        m_cnfgparam.data.camoffsetTH0[ii]    = data.camoffsetTH0[ii];       // カメラBOX内カメラ傾きθ0[deg]
-        m_cnfgparam.data.camviewAngle[ii]    = data.camviewAngle[ii];       // カメラ視野角[deg]
+        m_cmmnparam.data.cnfg[ii].offsetD0    = data.cnfg[ii].offsetD0;     // 吊具吊点～カメラBOX吊点距離D0[mm]
+        m_cmmnparam.data.cnfg[ii].offsetLH0   = data.cnfg[ii].offsetLH0;    // 吊具吊点～カメラBOX吊点距離LH0[mm]
+        m_cmmnparam.data.cnfg[ii].offsetL0    = data.cnfg[ii].offsetL0;     // カメラBOX内吊点～カメラ中心距離l0[mm]
+        m_cmmnparam.data.cnfg[ii].offsetTHC   = data.cnfg[ii].offsetTHC;    // カメラBOX内吊点～カメラ中心角度θc[deg]
+        m_cmmnparam.data.cnfg[ii].offsetTH0   = data.cnfg[ii].offsetTH0;    // カメラBOX内カメラ傾きθ0[deg]
+        m_cmmnparam.data.cnfg[ii].camviewangl = data.cnfg[ii].camviewangl;  // カメラ視野角[deg]
     }
-    m_cnfgparam.data.filter = data.filter;                                  // フィルタ時定数
+    m_cmmnparam.data.filter       = data.filter;        // フィルタ時定数
+    m_cmmnparam.data.imgsavefname = data.imgsavefname;  // 画像保存ファイル名
     LeaveCriticalSection(&m_camparam.cs);
 
     return RESULT_OK;
 }
 
-/// @brief 構造設定データ読出し
+/// @brief 共通設定データ読出し
 /// @param
 /// @return 
 /// @note
-INT CSharedObject::GetParam(stConfigParamData* data)
+INT CSharedObject::GetParam(stCommonParamData* data)
 {
-    EnterCriticalSection(&m_cnfgparam.cs);
+    EnterCriticalSection(&m_cmmnparam.cs);
     for (int ii = 0; ii < AXIS_MAX; ii++)
     {
-        data->camboxoffsetD0[ii]  = m_cnfgparam.data.camboxoffsetD0[ii];    // 吊具吊点～カメラBOX吊点距離D0[mm]
-        data->camboxoffsetLH0[ii] = m_cnfgparam.data.camboxoffsetLH0[ii];   // 吊具吊点～カメラBOX吊点距離LH0[mm]
-        data->camoffsetL0[ii]     = m_cnfgparam.data.camoffsetL0[ii];       // カメラBOX内吊点～カメラ中心距離l0[mm]
-        data->camoffsetTHC[ii]    = m_cnfgparam.data.camoffsetTHC[ii];      // カメラBOX内吊点～カメラ中心角度θc[deg]
-        data->camoffsetTH0[ii]    = m_cnfgparam.data.camoffsetTH0[ii];      // カメラBOX内カメラ傾きθ0[deg]
-        data->camviewAngle[ii]    = m_cnfgparam.data.camviewAngle[ii];      // カメラ視野角[deg]
+        data->cnfg[ii].offsetD0    = m_cmmnparam.data.cnfg[ii].offsetD0;    // 吊具吊点～カメラBOX吊点距離D0[mm]
+        data->cnfg[ii].offsetLH0   = m_cmmnparam.data.cnfg[ii].offsetLH0;   // 吊具吊点～カメラBOX吊点距離LH0[mm]
+        data->cnfg[ii].offsetL0    = m_cmmnparam.data.cnfg[ii].offsetL0;    // カメラBOX内吊点～カメラ中心距離l0[mm]
+        data->cnfg[ii].offsetTHC   = m_cmmnparam.data.cnfg[ii].offsetTHC;   // カメラBOX内吊点～カメラ中心角度θc[deg]
+        data->cnfg[ii].offsetTH0   = m_cmmnparam.data.cnfg[ii].offsetTH0;   // カメラBOX内カメラ傾きθ0[deg]
+        data->cnfg[ii].camviewangl = m_cmmnparam.data.cnfg[ii].camviewangl; // カメラ視野角[deg]
     }
-    data->filter = m_cnfgparam.data.filter;                                 // フィルタ時定数
-    LeaveCriticalSection(&m_cnfgparam.cs);
+    data->filter       = m_cmmnparam.data.filter;       // フィルタ時定数
+    data->imgsavefname = m_cmmnparam.data.imgsavefname; // 画像保存ファイル名
+    LeaveCriticalSection(&m_cmmnparam.cs);
 
     return RESULT_OK;
 }
@@ -267,7 +269,7 @@ INT CSharedObject::GetParam(stImgProcParamData* data)
 INT CSharedObject::SetParam(stRIOParamData data)
 {
     EnterCriticalSection(&m_rioparam.cs);
-    memcpy(m_rioparam.data.ipaddrs, data.ipaddrs, sizeof(m_rioparam.data.ipaddrs)); // RIO IPアドレス
+    m_rioparam.data.ipaddrs    = data.ipaddrs;                                      // RIO IPアドレス
     m_rioparam.data.tcpport    = data.tcpport;                                      // TCPポート番号
     m_rioparam.data.slaveaddrs = data.slaveaddrs;                                   // スレーブアドレス
     m_rioparam.data.timeout    = data.timeout;                                      // 通信タイムアウト(msec)
@@ -285,7 +287,7 @@ INT CSharedObject::SetParam(stRIOParamData data)
 INT CSharedObject::GetParam(stRIOParamData* data)
 {
     EnterCriticalSection(&m_rioparam.cs);
-    memcpy(data->ipaddrs, m_rioparam.data.ipaddrs, sizeof(data->ipaddrs));  // RIO IPアドレス    
+    data->ipaddrs    = m_rioparam.data.ipaddrs;                             // RIO IPアドレス    
     data->tcpport    = m_rioparam.data.tcpport;                             // TCPポート番号
     data->slaveaddrs = m_rioparam.data.slaveaddrs;                          // スレーブアドレス
     data->timeout    = m_rioparam.data.timeout;                             // 通信タイムアウト(msec)

@@ -22,7 +22,7 @@ private:
     UINT8 m_iBufferImgProc;
 
     stCameraParamData   m_camparam;         // カメラ設定データ
-    stConfigParamData   m_cnfgparam;        // 構造設定データ
+    stCommonParamData   m_cmmnparam;        // 構造設定データ
     stImgProcParamData  m_imgprocparam;     // 画像処理設定データ
     stProcInfoData      m_proninfo;         // 画像処理結果
 

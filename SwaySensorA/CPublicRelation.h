@@ -5,12 +5,19 @@
 extern vector<void*>    VectpCTaskObj;  // タスクオブジェクトのポインタ
 extern ST_iTask         g_itask;
 
-#define DISP_IMG_RAW_X0     15      // 表示画像原点座標X
-#define DISP_IMG_RAW_Y0     50      // 表示画像原点座標Y
-#define DISP_IMG_MSK_X0     360     // 表示画像原点座標X
-#define DISP_IMG_MSK_Y0     50      // 表示画像原点座標Y
-#define DISP_IMG_WIDTH      320.0   // 表示画像サイズ横幅
-#define DISP_IMG_HEIGHT     240.0   // 表示画像サイズ高さ
+#define DISP_IMG_WIDTH      450                                     // 表示画像サイズ横幅
+#define DISP_IMG_HEIGHT     360                                     // 表示画像サイズ高さ
+#define DISP_IMG_RAW_X0     15                                      // 表示画像原点座標X
+#define DISP_IMG_RAW_Y0     50                                      // 表示画像原点座標Y
+#define DISP_IMG_MSK_X0     DISP_IMG_RAW_X0 + DISP_IMG_WIDTH + 40   // 表示画像原点座標X
+#define DISP_IMG_MSK_Y0     DISP_IMG_RAW_Y0                         // 表示画像原点座標Y
+
+#define SCALAR_WHITE        cv::Scalar(255, 255, 255)
+#define SCALAR_BLUE         cv::Scalar(255, 0, 0)
+#define SCALAR_GREEN        cv::Scalar(0, 255, 0)
+#define SCALAR_RED          cv::Scalar(0, 0, 255)
+#define SCALAR_YELLOW       cv::Scalar(0, 255, 255)
+#define SCALAR_MAGENTA      cv::Scalar(255, 0, 255)
 
 class CPublicRelation : public CTaskObj
 {
@@ -33,11 +40,18 @@ private:
 
 private:
     static HWND                 m_hCamDlg;
-    static cv::Mat              m_mtSaveImage;
-    static BOOL                 m_bCursor;
-    static POINT                m_pntCursor;
-    static UINT                 m_iSelImg;
+    static cv::Mat              m_imgsrc;
+    static BOOL                 m_cursor;
+    static POINT                m_cursorpt;
+    static UINT                 m_selimg;
+    static stCommonParamData    m_cmmnparam;        // 構造設定データ
     static stCameraParamData    m_camparam;         // カメラ設定データ
     static stImgProcParamData   m_imgprocparam;     // 画像処理設定データ
     static stExtnInfoData       m_extninfo;         // 外部入力データ
+    static BOOL                 m_scaleImgsrc;
+    static SCROLLINFO           m_scrinfImgsrcH;
+    static SCROLLINFO           m_scrinfImgsrcV;
+    static BOOL                 m_scaleImgmask;
+    static SCROLLINFO           m_scrinfImgmaskH;
+    static SCROLLINFO           m_scrinfImgmaskV;
 };

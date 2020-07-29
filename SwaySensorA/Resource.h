@@ -144,8 +144,14 @@
 #define IDC_STATIC_TITLE_SWAY_SPD       1080
 #define IDC_STATIC_SWAY_SPD_X           1081
 #define IDC_STATIC_SWAY_SPD_Y           1082
-#define IDC_STATIC_GBX_ROPE_LEN         1083
 #define IDC_STATIC_GBX_ROPELEN          1083
+#define IDC_SCROLLBAR_IMAGE_RAW_H       1084
+#define IDC_SCROLLBAR_IMAGE_RAW_V       1085
+#define IDC_SCROLLBAR_IMAGE_MASK_H      1086
+#define IDC_SCROLLBAR_IMAGE_MASK_V      1087
+#define IDC_CHECK_SCALE_IMG_SRC         1088
+#define IDC_CHECK_SCALE_IMG_SRC2        1089
+#define IDC_CHECK_SCALE_IMG_MASK        1089
 #define IDC_BUTTON_CAM_START            2002
 #define IDC_BUTTON_CURSOR_L             2028
 #define IDC_BUTTON_CAM_STOP             2031
@@ -164,9 +170,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        156
+#define _APS_NEXT_RESOURCE_VALUE        158
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1063
+#define _APS_NEXT_CONTROL_VALUE         1086
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
