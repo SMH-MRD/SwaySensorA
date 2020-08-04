@@ -105,11 +105,12 @@ enum
 // 共通設定
 typedef struct _stConfigParamData               // 構造定義データ
 {
-    double offsetD0;                            // 吊具吊点～カメラBOX吊点距離D0[mm]
-    double offsetLH0;                           // 吊具吊点～カメラBOX吊点距離LH0[mm]
-    double offsetL0;                            // カメラBOX内吊点～カメラ中心距離l0[mm]
-    double offsetTHC;                           // カメラBOX内吊点～カメラ中心角度θc[deg]
-    double offsetTH0;                           // カメラBOX内カメラ傾きθ0[deg]
+    double camoffsetLX0;                        // 吊具吊点～BOX吊点距離LX0[mm]
+    double camoffsetLY0;                        // 吊具吊点～BOX吊点距離LY0[mm]
+    double camoffsetL0;                         // BOX吊点～BOX可動部中心距離L0[mm]
+    double camoffsetLC;                         // BOX可動部中心～カメラ中心距離LC[mm]
+    double camoffsetA0;                         // BOX内カメラ取付角度θ0[deg]
+    double camoffsetAC;                         // BOX可動部中心～カメラ中心角度θc[deg]
     double camviewangl;                         // カメラ視野角[deg]
 } stConfigParamData;
 typedef struct _stCommonParamData               // 共通設定データ
@@ -267,6 +268,7 @@ typedef struct _stProcInfo
 typedef struct _stExtnInfoData                      // 外部入力データ
 {
     double  ropelen;                                // ロープ長
+    double  boxangle;                               // BOX傾き
 } stExtnInfoData;
 typedef struct _stExtnInfo
 {

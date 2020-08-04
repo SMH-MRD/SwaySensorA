@@ -16,11 +16,12 @@
 
 // ------------------ 共通設定 ---------------------------
 #define	INI_SCT_COMMON              L"COMMON"               // セクション名：共通設定
-#define INI_KEY_CMMN_CAMBOXOFSTD0   L"CameraBoxOffsetD0"    // キー名：吊具吊点～カメラBOX吊点距離D0[mm]
-#define INI_KEY_CMMN_CAMBOXOFSTLH0  L"CameraBoxOffsetLH0"   // キー名：吊具吊点～カメラBOX吊点距離LH0[mm]
-#define INI_KEY_CMMN_CAMOFSTL0      L"CameraOffsetL0"       // キー名：カメラBOX内吊点～カメラ中心距離l0[mm]
-#define INI_KEY_CMMN_CAMOFSTTHC     L"CameraOffsetTHC"      // キー名：カメラBOX内吊点～カメラ中心角度θc[deg]
-#define INI_KEY_CMMN_CAMOFSTTH0     L"CameraOffsetTH0"      // キー名：カメラBOX内カメラ傾きθ0[deg]
+#define INI_KEY_CMMN_CAMOFFSET_LX0  L"CameraOffsetLX0"      // キー名：吊具吊点～BOX吊点距離LX0[mm]
+#define INI_KEY_CMMN_CAMOFFSET_LY0  L"CameraOffsetLY0"      // キー名：吊具吊点～BOX吊点距離LY0[mm]
+#define INI_KEY_CMMN_CAMOFFSET_L0   L"CameraOffsetL0"       // キー名：BOX吊点～BOX可動部中心距離L0[mm]
+#define INI_KEY_CMMN_CAMOFFSET_LC   L"CameraOffsetLC"       // キー名：BOX可動部中心～カメラ中心距離LC[mm]
+#define INI_KEY_CMMN_CAMOFFSET_A0   L"CameraOffsetA0"       // キー名：BOX内カメラ取付角度θ0[deg]
+#define INI_KEY_CMMN_CAMOFFSET_AC   L"CameraOffsetAC"       // キー名：BOX可動部中心～カメラ中心角度θc[deg]
 #define INI_KEY_CMMN_CAMVIEWANGLE   L"CameraViewAngle"      // キー名：カメラ視野角[deg]
 #define INI_KEY_CMMN_FILTER         L"Filter"               // キー名：フィルタ時定数
 #define INI_KEY_CMMN_IMGSAVEFNAME   L"ImageSaveFileName"    // キー名：画像保存ファイル名

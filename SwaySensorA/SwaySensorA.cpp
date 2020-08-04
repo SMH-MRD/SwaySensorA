@@ -736,41 +736,47 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
 
     //--------------------------------------------------------------------------
     // 共通設定
-    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMBOXOFSTD0,  L"0.0, 0.0", INITYPE_CHAR, str);  // 吊具吊点～カメラBOX吊点距離D0[mm]
-    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].offsetD0, &pInf->m_cmmnparam.cnfg[AXIS_Y].offsetD0))
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFFSET_LX0, L"0.0, 0.0", INITYPE_CHAR, str);  // 吊具吊点～BOX吊点距離LX0[mm]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetLX0, &pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetLX0))
     {
-        pInf->m_cmmnparam.cnfg[AXIS_X].offsetD0 = 0.0;      // 吊具吊点～カメラBOX吊点距離D0[mm](X)
-        pInf->m_cmmnparam.cnfg[AXIS_Y].offsetD0 = 0.0;      // 吊具吊点～カメラBOX吊点距離D0[mm](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetLX0 = 0.0;  // 吊具吊点～BOX吊点距離LX0[mm](水平方向)
+        pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetLX0 = 0.0;  // 吊具吊点～BOX吊点距離LX0[mm](垂直方向)
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMBOXOFSTLH0, L"0.0, 0.0", INITYPE_CHAR, str);  // 吊具吊点～カメラBOX吊点距離LH0[mm]
-    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].offsetLH0, &pInf->m_cmmnparam.cnfg[AXIS_Y].offsetLH0))
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFFSET_LY0, L"0.0, 0.0", INITYPE_CHAR, str);  // 吊具吊点～BOX吊点距離LY0[mm]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetLY0, &pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetLY0))
     {
-        pInf->m_cmmnparam.cnfg[AXIS_X].offsetLH0 = 0.0;     // 吊具吊点～カメラBOX吊点距離LH0[mm](X)
-        pInf->m_cmmnparam.cnfg[AXIS_Y].offsetLH0 = 0.0;     // 吊具吊点～カメラBOX吊点距離LH0[mm](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetLY0 = 0.0;  // 吊具吊点～BOX吊点距離LY0[mm](水平方向)
+        pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetLY0 = 0.0;  // 吊具吊点～BOX吊点距離LY0[mm](垂直方向)
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFSTL0,     L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内吊点～カメラ中心距離l0[mm]
-    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].offsetL0, &pInf->m_cmmnparam.cnfg[AXIS_Y].offsetL0))
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFFSET_L0,  L"0.0, 0.0", INITYPE_CHAR, str);  // BOX吊点～BOX可動部中心距離L0[mm]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetL0, &pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetL0))
     {
-        pInf->m_cmmnparam.cnfg[AXIS_X].offsetL0 = 0.0;      // カメラBOX内吊点～カメラ中心距離l0[mm](X)
-        pInf->m_cmmnparam.cnfg[AXIS_Y].offsetL0 = 0.0;      // カメラBOX内吊点～カメラ中心距離l0[mm](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetL0 = 0.0;   // BOX吊点～BOX可動部中心距離L0[mm](水平方向)
+        pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetL0 = 0.0;   // BOX吊点～BOX可動部中心距離L0[mm](垂直方向)
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFSTTHC,    L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内吊点～カメラ中心角度θc[deg]
-    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].offsetTHC, &pInf->m_cmmnparam.cnfg[AXIS_Y].offsetTHC))
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFFSET_LC,  L"0.0, 0.0", INITYPE_CHAR, str);  // BOX可動部中心～カメラ中心距離LC[mm]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetLC, &pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetLC))
     {
-        pInf->m_cmmnparam.cnfg[AXIS_X].offsetTHC = 0.0;     // カメラBOX内吊点～カメラ中心角度θc[deg](X)
-        pInf->m_cmmnparam.cnfg[AXIS_X].offsetTHC = 0.0;     // カメラBOX内吊点～カメラ中心角度θc[deg](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetLC = 0.0;   // BOX可動部中心～カメラ中心距離LC[mm](水平方向)
+        pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetLC = 0.0;   // BOX可動部中心～カメラ中心距離LC[mm](垂直方向)
     }
-    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFSTTH0,    L"0.0, 0.0", INITYPE_CHAR, str);  // カメラBOX内カメラ傾きθ0[deg]
-    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].offsetTH0, &pInf->m_cmmnparam.cnfg[AXIS_Y].offsetTH0))
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFFSET_A0,  L"0.0, 0.0", INITYPE_CHAR, str);  // BOX内カメラ取付角度θ0[deg]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetA0, &pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetA0))
     {
-        pInf->m_cmmnparam.cnfg[AXIS_X].offsetTH0 = 0.0;     // カメラBOX内カメラ傾きθ0[deg](X)
-        pInf->m_cmmnparam.cnfg[AXIS_X].offsetTH0 = 0.0;     // カメラBOX内カメラ傾きθ0[deg](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetA0 = 0.0;   // BOX内カメラ取付角度θ0[deg](水平方向)
+        pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetA0 = 0.0;   // BOX内カメラ取付角度θ0[deg](垂直方向)
+    }
+    CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFFSET_AC,  L"0.0, 0.0", INITYPE_CHAR, str);  // BOX可動部中心～カメラ中心角度θc[deg]
+    if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetAC, &pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetAC))
+    {
+        pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetAC = 0.0;   // BOX可動部中心～カメラ中心角度θc[deg](水平方向)
+        pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetAC = 0.0;   // BOX可動部中心～カメラ中心角度θc[deg](垂直方向)
     }
     CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMVIEWANGLE,  L"0.0, 0.0", INITYPE_CHAR, str);  // カメラ視野角[deg]
     if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].camviewangl, &pInf->m_cmmnparam.cnfg[AXIS_Y].camviewangl))
     {
-        pInf->m_cmmnparam.cnfg[AXIS_X].camviewangl = 0.0;   // カメラ視野角[deg](X)
-        pInf->m_cmmnparam.cnfg[AXIS_X].camviewangl = 0.0;   // カメラ視野角[deg](Y)
+        pInf->m_cmmnparam.cnfg[AXIS_X].camviewangl = 0.0;   // カメラ視野角[deg](水平方向)
+        pInf->m_cmmnparam.cnfg[AXIS_Y].camviewangl = 0.0;   // カメラ視野角[deg](垂直方向)
     }
     CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_FILTER,       L"1.0", INITYPE_DOUBLE, &pInf->m_cmmnparam.filter);    // フィルタ時定数
     CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_IMGSAVEFNAME, L"",    INITYPE_CHAR,   str);                          // 画像保存ファイル名

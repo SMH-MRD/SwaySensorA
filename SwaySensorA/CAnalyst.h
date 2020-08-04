@@ -6,7 +6,7 @@ extern vector<void*>    VectpCTaskObj;  // タスクオブジェクトのポインタ
 extern ST_iTask         g_itask;
 
 #define PI              3.14159                 // π
-#define CONV_DEG_RAD    PI/180.0                // deg→rad
+#define CONV_DEG_RAD    (PI/180.0)              // deg→rad
 
 class CAnalyst : public CTaskObj
 {

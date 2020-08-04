@@ -591,10 +591,11 @@ void CAnalyst::SwayProc(void)
     //----------------------------------------------------------------------------
     // 振れ角, 振れ角速度検出
 #pragma region SWAY_ANG
-    double th00;                    // Box吊点～カメラ中心角度
-    double lc;                      // カメラ中心～ターゲット距離
-    double fi0;                     // φ0
-    double fisnensor;               // φsensor
+    double anglci;                  // BOX吊点～カメラ中心角度θci
+    double lx, ly;                  // 吊具吊点～カメラ中心距離Lx,Ly
+    double l;                       // カメラ中心～ターゲット間距離L
+    double anglsensor;              // θsensor
+    double angl;                    // θsensor + θinc + θ0
     double deg, rad, spd;
     double dt;
 
@@ -603,17 +604,22 @@ void CAnalyst::SwayProc(void)
     {
         if (m_proninfo.valid)
         {
-            th00 = m_cmmnparam.cnfg[ii].offsetTHC + rioinfo.incldata[ii].deg;   // θc + θ1
-            lc   = extninfo.ropelen - m_cmmnparam.cnfg[ii].offsetLH0 
-                 - (m_cmmnparam.cnfg[ii].offsetL0 * cos(th00 * CONV_DEG_RAD));  // L0 - lh0 - l0 * cosθ00
-            fi0  = ((m_cmmnparam.cnfg[ii].offsetD0 - m_cmmnparam.cnfg[ii].offsetL0 * sin(th00 * CONV_DEG_RAD)) / lc / CONV_DEG_RAD)
-                 - (rioinfo.incldata[ii].deg + m_cmmnparam.cnfg[ii].offsetTH0); // (D0 - l0 * sinθ00) / Lc - (θ1 + θ0)
+            anglci = m_cmmnparam.cnfg[ii].camoffsetAC + rioinfo.incldata[ii].deg;       // BOX吊点～カメラ中心角度θci:θc + θinc
+            lx     = m_cmmnparam.cnfg[ii].camoffsetLX0
+                   - ((m_cmmnparam.cnfg[ii].camoffsetL0 * sin(extninfo.boxangle * CONV_DEG_RAD))
+                   +  (m_cmmnparam.cnfg[ii].camoffsetLC * sin(anglci * CONV_DEG_RAD))); // 吊具吊点～カメラ中心距離Lx:Lx0 - (l0sinθ + lcsinθ)
+            ly     = m_cmmnparam.cnfg[ii].camoffsetLY0
+                   - ((m_cmmnparam.cnfg[ii].camoffsetL0 * cos(extninfo.boxangle * CONV_DEG_RAD))
+                   +  (m_cmmnparam.cnfg[ii].camoffsetLC * cos(anglci * CONV_DEG_RAD))); // 吊具吊点～カメラ中心距離Ly:Ly0 - (l0cosθ + lccosθ)
+            l      = extninfo.ropelen - ly;                                             // カメラ中心～ターゲット間距離L:Lr - Ly
 
-            fisnensor = (m_proninfo.swaydata[AXIS_X].pos - (double)m_camparam.size[ii] * 0.5) * (m_cmmnparam.cnfg[ii].camviewangl / (double)m_camparam.size[ii]);
-            deg       = fisnensor - fi0;
-            rad       = deg * CONV_DEG_RAD;
-            spd       = (rad - m_proninfo.swaydata[ii].rad) / dt;
-            spd       = ((dt * spd) + (m_cmmnparam.filter * m_proninfo.swaydata[ii].spd)) / (m_cmmnparam.filter + dt);
+            anglsensor = (m_proninfo.swaydata[AXIS_X].pos - (double)m_camparam.size[ii] * 0.5) * (m_cmmnparam.cnfg[ii].camviewangl / (double)m_camparam.size[ii]);  // θsensor
+            angl       = anglsensor + rioinfo.incldata[ii].deg + m_cmmnparam.cnfg[ii].camoffsetA0;  // θsensor + θinc + θ0
+
+            rad = atan((l * tan(angl * CONV_DEG_RAD) - lx) / extninfo.ropelen);
+            deg = rad / CONV_DEG_RAD;
+            spd = (rad - m_proninfo.swaydata[ii].rad) / dt;
+            spd = ((dt * spd) + (m_cmmnparam.filter * m_proninfo.swaydata[ii].spd)) / (m_cmmnparam.filter + dt);
 
             m_proninfo.swaydata[ii].deg = deg;
             m_proninfo.swaydata[ii].rad = rad;
