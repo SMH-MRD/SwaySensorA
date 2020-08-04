@@ -72,7 +72,8 @@ void CSharedObject::Initialize(void)
     }
     // 処理情報
     {
-        m_extninfo.data.ropelen = EXTN_ROPELEN_MIN; // ロープ長
+        m_extninfo.data.ropelen  = EXTN_ROPELEN_MIN;    // ロープ長
+        m_extninfo.data.boxangle = 0.0;                 // BOX傾き
     }
 
     //--------------------------------------------------------------------------
@@ -121,12 +122,13 @@ INT CSharedObject::SetParam(stCommonParamData data)
     EnterCriticalSection(&m_camparam.cs);
     for (int ii = 0; ii < AXIS_MAX; ii++)
     {
-        m_cmmnparam.data.cnfg[ii].offsetD0    = data.cnfg[ii].offsetD0;     // 吊具吊点～カメラBOX吊点距離D0[mm]
-        m_cmmnparam.data.cnfg[ii].offsetLH0   = data.cnfg[ii].offsetLH0;    // 吊具吊点～カメラBOX吊点距離LH0[mm]
-        m_cmmnparam.data.cnfg[ii].offsetL0    = data.cnfg[ii].offsetL0;     // カメラBOX内吊点～カメラ中心距離l0[mm]
-        m_cmmnparam.data.cnfg[ii].offsetTHC   = data.cnfg[ii].offsetTHC;    // カメラBOX内吊点～カメラ中心角度θc[deg]
-        m_cmmnparam.data.cnfg[ii].offsetTH0   = data.cnfg[ii].offsetTH0;    // カメラBOX内カメラ傾きθ0[deg]
-        m_cmmnparam.data.cnfg[ii].camviewangl = data.cnfg[ii].camviewangl;  // カメラ視野角[deg]
+        m_cmmnparam.data.cnfg[ii].camoffsetLX0 = data.cnfg[ii].camoffsetLX0; // 吊具吊点～BOX吊点距離LX0[mm]
+        m_cmmnparam.data.cnfg[ii].camoffsetLY0 = data.cnfg[ii].camoffsetLY0; // 吊具吊点～BOX吊点距離LY0[mm]
+        m_cmmnparam.data.cnfg[ii].camoffsetL0  = data.cnfg[ii].camoffsetL0;  // BOX吊点～BOX可動部中心距離L0[mm]
+        m_cmmnparam.data.cnfg[ii].camoffsetLC  = data.cnfg[ii].camoffsetLC;  // BOX可動部中心～カメラ中心距離LC[mm]
+        m_cmmnparam.data.cnfg[ii].camoffsetA0  = data.cnfg[ii].camoffsetA0;  // BOX内カメラ取付角度θ0[deg]
+        m_cmmnparam.data.cnfg[ii].camoffsetAC  = data.cnfg[ii].camoffsetAC;  // BOX可動部中心～カメラ中心角度θc[deg]
+        m_cmmnparam.data.cnfg[ii].camviewangl  = data.cnfg[ii].camviewangl;  // カメラ視野角[deg]
     }
     m_cmmnparam.data.filter       = data.filter;        // フィルタ時定数
     m_cmmnparam.data.imgsavefname = data.imgsavefname;  // 画像保存ファイル名
@@ -144,12 +146,13 @@ INT CSharedObject::GetParam(stCommonParamData* data)
     EnterCriticalSection(&m_cmmnparam.cs);
     for (int ii = 0; ii < AXIS_MAX; ii++)
     {
-        data->cnfg[ii].offsetD0    = m_cmmnparam.data.cnfg[ii].offsetD0;    // 吊具吊点～カメラBOX吊点距離D0[mm]
-        data->cnfg[ii].offsetLH0   = m_cmmnparam.data.cnfg[ii].offsetLH0;   // 吊具吊点～カメラBOX吊点距離LH0[mm]
-        data->cnfg[ii].offsetL0    = m_cmmnparam.data.cnfg[ii].offsetL0;    // カメラBOX内吊点～カメラ中心距離l0[mm]
-        data->cnfg[ii].offsetTHC   = m_cmmnparam.data.cnfg[ii].offsetTHC;   // カメラBOX内吊点～カメラ中心角度θc[deg]
-        data->cnfg[ii].offsetTH0   = m_cmmnparam.data.cnfg[ii].offsetTH0;   // カメラBOX内カメラ傾きθ0[deg]
-        data->cnfg[ii].camviewangl = m_cmmnparam.data.cnfg[ii].camviewangl; // カメラ視野角[deg]
+        data->cnfg[ii].camoffsetLX0 = m_cmmnparam.data.cnfg[ii].camoffsetLX0;   // 吊具吊点～BOX吊点距離LX0[mm]
+        data->cnfg[ii].camoffsetLY0 = m_cmmnparam.data.cnfg[ii].camoffsetLY0;   // 吊具吊点～BOX吊点距離LY0[mm]
+        data->cnfg[ii].camoffsetL0  = m_cmmnparam.data.cnfg[ii].camoffsetL0;    // BOX吊点～BOX可動部中心距離L0[mm]
+        data->cnfg[ii].camoffsetLC  = m_cmmnparam.data.cnfg[ii].camoffsetLC;    // BOX可動部中心～カメラ中心距離LC[mm]
+        data->cnfg[ii].camoffsetA0  = m_cmmnparam.data.cnfg[ii].camoffsetA0;    // BOX内カメラ取付角度θ0[deg]
+        data->cnfg[ii].camoffsetAC  = m_cmmnparam.data.cnfg[ii].camoffsetAC;    // BOX可動部中心～カメラ中心角度θc[deg]
+        data->cnfg[ii].camviewangl  = m_cmmnparam.data.cnfg[ii].camviewangl;    // カメラ視野角[deg]
     }
     data->filter       = m_cmmnparam.data.filter;       // フィルタ時定数
     data->imgsavefname = m_cmmnparam.data.imgsavefname; // 画像保存ファイル名
@@ -473,7 +476,8 @@ INT CSharedObject::GetInfo(stProcInfoData* data)
 INT CSharedObject::SetInfo(stExtnInfoData data)
 {
     EnterCriticalSection(&m_extninfo.cs);
-    m_extninfo.data.ropelen = data.ropelen;     // ロープ長
+    m_extninfo.data.ropelen  = data.ropelen;    // ロープ長
+    m_extninfo.data.boxangle = data.boxangle;   // BOX傾き
     LeaveCriticalSection(&m_extninfo.cs);
 
     return RESULT_OK;
@@ -487,7 +491,8 @@ INT CSharedObject::GetInfo(stExtnInfoData* data)
 {
     if (data == NULL) {return RESULT_NG_INVALID;}
     EnterCriticalSection(&m_extninfo.cs);
-    data->ropelen = m_extninfo.data.ropelen;    // ロープ長
+    data->ropelen  = m_extninfo.data.ropelen;   // ロープ長
+    data->boxangle = m_extninfo.data.boxangle;  // BOX傾き
     LeaveCriticalSection(&m_extninfo.cs);
 
     return RESULT_OK;
