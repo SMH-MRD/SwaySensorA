@@ -381,7 +381,7 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     // スレッド起動に使うイベント数（定周期タイマーのみの場合１）
     ptempobj->inf.n_active_events = 1;
 #pragma endregion Task2
-
+*/
     // ###Task3 設定 COMCLIENT
 #pragma region Task3
     // -タスクインスタンス作成->リスト登録
@@ -497,6 +497,7 @@ int Init_tasks(HWND hWnd, HINSTANCE hInstance)
     // -スレッド起動周期セット
     CHelper::GetIniInf(PATH_OF_INIFILE, OBJ_CYCLE_SECT_OF_INIFILE, CLERK_KEY_OF_INIFILE, L"100", INITYPE_INT, &val);
     ptempobj->inf.cycle_ms = val;
+
 
     // -ツイートメッセージ用iconセット
     hBmp = (HBITMAP)LoadBitmap(hInst, MAKEINTRESOURCE(IDB_CLERK));  // ビットマップ割り当て

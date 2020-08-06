@@ -98,7 +98,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\Modbus;..\lib;..\lib\opencv;..\lib\pylon\Win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>comctl32.lib;winmm.lib;shlwapi.lib;ModbusTCP.lib;modbus.lib;opencv_world420d.lib;MKChartLib.lib;MKlog.lib;Ws2_32.lib;GCBase_MD_VC141_v3_1_Basler_pylon.lib;GenApi_MD_VC141_v3_1_Basler_pylon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;winmm.lib;shlwapi.lib;ModbusTCP.lib;modbus.lib;opencv_world420d.lib;MKChartLibd.lib;MKlogd.lib;Ws2_32.lib;GCBase_MD_VC141_v3_1_Basler_pylon.lib;GenApi_MD_VC141_v3_1_Basler_pylon.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

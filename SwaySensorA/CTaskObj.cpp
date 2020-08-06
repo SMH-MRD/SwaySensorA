@@ -27,7 +27,8 @@ CTaskObj::CTaskObj()
 /// @note
 CTaskObj::~CTaskObj()
 {
-    delete inf.hBmp;
+	inf.thread_com = TERMINATE_THREAD;
+	delete inf.hBmp;
 }
 
 /// @brief 

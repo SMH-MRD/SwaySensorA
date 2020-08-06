@@ -1,8 +1,8 @@
 #include "CComRIO.h"
 
-extern CSharedObject* g_pSharedObject;  // ƒ^ƒXƒNŠÔ‹¤—Lƒf[ƒ^‚Ìƒ|ƒCƒ“ƒ^
+extern CSharedObject* g_pSharedObject;  // ã‚¿ã‚¹ã‚¯é–“å…±æœ‰ãƒ‡ãƒ¼ã‚¿ã®ãƒã‚¤ãƒ³ã‚¿
 
-/// @brief ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+/// @brief ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 /// @param
 /// @return 
 /// @note
@@ -10,7 +10,7 @@ CComRIO::CComRIO()
 {
 }
 
-/// @brief ƒfƒXƒgƒ‰ƒNƒ^
+/// @brief ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 /// @param
 /// @return 
 /// @note
@@ -27,7 +27,7 @@ void CComRIO::init_task(void *pobj)
     Initialize();
 }
 
-/// @brief ƒ^ƒXƒNƒXƒŒƒbƒh‚Å‚Ìˆ—ŠÖ”
+/// @brief ã‚¿ã‚¹ã‚¯ã‚¹ãƒ¬ãƒƒãƒ‰ã§ã®å‡¦ç†é–¢æ•°
 /// @param
 /// @return 
 /// @note
@@ -37,8 +37,43 @@ void CComRIO::routine_work(void *param)
     ws << L"Act: " << std::setw(2) << *(inf.psys_counter) % 100;
     tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
+
     //----------------------------------------------------------------------------
     ProcRIO();
+    if (!stRIO_ph.bRIO_init_ok)
+    {
+		if (inf.act_count % 100){ //åˆæœŸåŒ–æœªå®Œæ™‚ã®åˆæœŸåŒ–å‘¨æœŸ100ã‚¹ã‚­ãƒ£ãƒ³æ¯
+			if (Initialize() >= 0)
+			{
+				stRIO_ph.bRIO_init_ok = true;
+				stRIO_ph.error_status = 0x0000;
+			}
+		}
+    }
+    else
+    {
+        // PORT1ãƒ‡ãƒ¼ã‚¿èª­ã¿è¾¼ã¿
+        stRIO_ph.error_code = modtGetdata(stRIO_ph.modbusDesc, stRIO_ph.stModbusTcpReq_p1read, (uint8_t *)stRIO_ph.RIO_ai_port1.uint8);
+
+        if (stRIO_ph.error_code)
+        {
+            stRIO_ph.error_status = RIO_ERR_TYPE_AI_READ1;
+            stRIO_ph.bRIO_init_ok = false;
+            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANALOG, (DOUBLE)NAN);
+            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_MA,     (DOUBLE)NAN);
+        }
+        else
+        {
+            UINT temp = (stRIO_ph.RIO_ai_port1.uint8[0] << 8) | stRIO_ph.RIO_ai_port1.uint8[1];
+            // PORT1èª­ã¿è¾¼ã¿ãƒ‡ãƒ¼ã‚¿ mAå¤‰æ›
+            if      (temp == 0x7FFF) {stRIO_ph.RIO_ai_p1_mA = 22.81;}
+            else if (temp == 0x8000) {stRIO_ph.RIO_ai_p1_mA = 1.186;}
+			else if (temp |  0x8000) {stRIO_ph.RIO_ai_p1_mA = 0.0;} //ERROR
+            else                     {stRIO_ph.RIO_ai_p1_mA = 4.0 + 16.0 / 30000.0 * (double)(temp);}
+            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANALOG, (double)temp);
+            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_MA,     stRIO_ph.RIO_ai_p1_mA);
+        }
+
 
     return;
 }
@@ -50,21 +85,21 @@ void CComRIO::routine_work(void *param)
 void CComRIO::Initialize(void)
 {
     //--------------------------------------------------------------------------
-    // ModbusTCPİ’è’l
+    // ModbusTCPè¨­å®šå€¤
     stRIOParamData  param;
     g_pSharedObject->GetParam(&param);
-	memcpy(m_riocnfg.modbusInitCnfg.ipaddrs, param.ipaddrs.c_str(), sizeof(m_riocnfg.modbusInitCnfg.ipaddrs));  // IPƒAƒhƒŒƒX
-    m_riocnfg.modbusInitCnfg.portnum = param.tcpport;   // ƒ|[ƒg”Ô†
-    m_riocnfg.modbusInitCnfg.timeout = param.timeout;   // ’ÊMƒ^ƒCƒ€ƒAƒEƒg
+	memcpy(m_riocnfg.modbusInitCnfg.ipaddrs, param.ipaddrs.c_str(), sizeof(m_riocnfg.modbusInitCnfg.ipaddrs));  // IPã‚¢ãƒ‰ãƒ¬ã‚¹
+    m_riocnfg.modbusInitCnfg.portnum = param.tcpport;   // ãƒãƒ¼ãƒˆç•ªå·
+    m_riocnfg.modbusInitCnfg.timeout = param.timeout;   // é€šä¿¡ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆ
 
 	int32_t slaveaddrs;
     UINT32  portx, porty;
-    slaveaddrs = param.slaveaddrs;                      // ƒXƒŒ[ƒuƒAƒhƒŒƒX
-    portx      = param.portx;                           // ŒXÎŒvXƒf[ƒ^Ú‘±ƒ|[ƒg”Ô†(1`8)
-    porty      = param.porty;                           // ŒXÎŒvYƒf[ƒ^Ú‘±ƒ|[ƒg”Ô†(1`8)
+    slaveaddrs = param.slaveaddrs;                      // ã‚¹ãƒ¬ãƒ¼ãƒ–ã‚¢ãƒ‰ãƒ¬ã‚¹
+    portx      = param.portx;                           // å‚¾æ–œè¨ˆXãƒ‡ãƒ¼ã‚¿æ¥ç¶šãƒãƒ¼ãƒˆç•ªå·(1ï½8)
+    porty      = param.porty;                           // å‚¾æ–œè¨ˆYãƒ‡ãƒ¼ã‚¿æ¥ç¶šãƒãƒ¼ãƒˆç•ªå·(1ï½8)
 
     //--------------------------------------------------------------------------
-    // Command‘‚«‚İ
+    // Commandæ›¸ãè¾¼ã¿
     m_riocnfg.stModbusTcpSetCmndReq.slaveAddr = slaveaddrs;
     m_riocnfg.stModbusTcpSetCmndReq.funcCode  = MODBUS_TCPLIB_FUNCCODE_WRITE_REGISTER;
     m_riocnfg.stModbusTcpSetCmndReq.regAddr   = RIO_COMMAND_REGISTER;
@@ -72,7 +107,7 @@ void CComRIO::Initialize(void)
     m_riocnfg.stModbusTcpSetCmndReq.option    = 0;
 
     //--------------------------------------------------------------------------
-    // IO-Link‘‚«‚İ
+    // IO-Linkæ›¸ãè¾¼ã¿
     // PORT1
     m_riocnfg.stModbusTcpSetIOLinkReq[RIO_PORT_1].slaveAddr = slaveaddrs;
     m_riocnfg.stModbusTcpSetIOLinkReq[RIO_PORT_1].funcCode  = MODBUS_TCPLIB_FUNCCODE_WRITE_REGISTER;
@@ -87,7 +122,7 @@ void CComRIO::Initialize(void)
     m_riocnfg.stModbusTcpSetIOLinkReq[RIO_PORT_2].option    = 0;
 
     //--------------------------------------------------------------------------
-    // ƒ|[ƒg‘‚«‚İ
+    // ãƒãƒ¼ãƒˆæ›¸ãè¾¼ã¿
     // PORT1
     m_riocnfg.stModbusTcpSetPortReq[RIO_PORT_1].slaveAddr = slaveaddrs;
     m_riocnfg.stModbusTcpSetPortReq[RIO_PORT_1].funcCode  = MODBUS_TCPLIB_FUNCCODE_WRITE_REGISTER;
@@ -102,7 +137,7 @@ void CComRIO::Initialize(void)
     m_riocnfg.stModbusTcpSetPortReq[RIO_PORT_2].option    = 0;
 
    //--------------------------------------------------------------------------
-    // ƒ|[ƒg“Ç‚İo‚µ
+    // ãƒãƒ¼ãƒˆèª­ã¿å‡ºã—
     // PORT1
     m_riocnfg.stModbusTcpGetPortReq[RIO_PORT_1].slaveAddr = slaveaddrs;
     m_riocnfg.stModbusTcpGetPortReq[RIO_PORT_1].funcCode  = MODBUS_TCPLIB_FUNCCODE_READ_REGISTER;
@@ -117,13 +152,13 @@ void CComRIO::Initialize(void)
     m_riocnfg.stModbusTcpGetPortReq[RIO_PORT_2].option    = 0;
 
     //--------------------------------------------------------------------------
-    // RIOî•ñ‰Šú‰»
-    m_rioinfo.error = RIO_ERR_INIT_INCOMPLETE;      // RIO‰Šú‰»–¢Š®—¹
+    // RIOæƒ…å ±åˆæœŸåŒ–
+    m_rioinfo.error = RIO_ERR_INIT_INCOMPLETE;      // RIOåˆæœŸåŒ–æœªå®Œäº†
     for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
     {
-        m_rioinfo.incldata[ii].dig = 0;             // “ü—Íƒf[ƒ^
-        m_rioinfo.incldata[ii].cur = 0.0;           // “ü—Íƒf[ƒ^•ÏŠ·’l(mA)
-        m_rioinfo.incldata[ii].deg = 0.0;           // “ü—Íƒf[ƒ^•ÏŠ·’l(deg.)    
+        m_rioinfo.incldata[ii].dig = 0;             // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿
+        m_rioinfo.incldata[ii].cur = 0.0;           // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿å¤‰æ›å€¤(mA)
+        m_rioinfo.incldata[ii].deg = 0.0;           // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿å¤‰æ›å€¤(deg.)    
     }
     g_pSharedObject->SetInfo(m_rioinfo);
 
@@ -148,12 +183,12 @@ int32_t CComRIO::InitializeRIO(void)
     int32_t err;
 
     //--------------------------------------------------------------------------
-    // ModbusTCP‰Šú‰»
+    // ModbusTCPåˆæœŸåŒ–
     m_riocnfg.modbusDesc = modtInit((const int8_t*)m_riocnfg.modbusInitCnfg.ipaddrs, m_riocnfg.modbusInitCnfg.portnum, m_riocnfg.modbusInitCnfg.timeout);
     if (m_riocnfg.modbusDesc == NULL) {return RIO_ERR_INIT_INCOMPLETE;}
 
     //--------------------------------------------------------------------------
-    // IO LINK MODEİ’è
+    // IO LINK MODEè¨­å®š
     m_riocnfg.setdata.uint16 = RIO_PORT_REGISTER_MODE_IOLINK;
     for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
     {
@@ -164,7 +199,7 @@ int32_t CComRIO::InitializeRIO(void)
     }
 
     //--------------------------------------------------------------------------
-    // ƒpƒ‰ƒ[ƒ^İ’è’l—LŒø‰»
+    // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿è¨­å®šå€¤æœ‰åŠ¹åŒ–
     m_riocnfg.setdata.uint16 = RIO_COMMAND_AI_PORT_ACTIVE;
     if ((err = modtSetdata(m_riocnfg.modbusDesc, m_riocnfg.stModbusTcpSetCmndReq, m_riocnfg.setdata.uint8)))
     {
@@ -172,7 +207,7 @@ int32_t CComRIO::InitializeRIO(void)
     }
 
     //--------------------------------------------------------------------------
-    // AIƒpƒ‰ƒ[ƒ^İ’è
+    // AIãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿è¨­å®š
     m_riocnfg.setdata.uint16 = RIO_COMMAND_AI_PARA_SET;
     for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
     {
@@ -185,51 +220,51 @@ int32_t CComRIO::InitializeRIO(void)
     return RIO_ERR_NONE;
 }
 
-/// @brief ŒXÎŒvƒf[ƒ^ˆ—
+/// @brief å‚¾æ–œè¨ˆãƒ‡ãƒ¼ã‚¿å‡¦ç†
 /// @param
 /// @return 
 /// @note
 void CComRIO::ProcRIO(void)
 {
     //--------------------------------------------------------------------------
-    // ‰Šú‰»
+    // åˆæœŸåŒ–
     if (m_rioinfo.error != RIO_ERR_NONE) {m_rioinfo.error = InitializeRIO();}
 
     //--------------------------------------------------------------------------
-    // ƒf[ƒ^“Ç‚İo‚µ
+    // ãƒ‡ãƒ¼ã‚¿èª­ã¿å‡ºã—
     if (m_rioinfo.error == RIO_ERR_NONE)
     {
         int32_t err = 0;
         for (UINT ii = 0; ii < RIO_PORT_MAX; ii++)
         {
-            // ƒf[ƒ^“Ç‚İo‚µ
+            // ãƒ‡ãƒ¼ã‚¿èª­ã¿å‡ºã—
             if ((err =  modtGetdata(m_riocnfg.modbusDesc, m_riocnfg.stModbusTcpGetPortReq[ii], (uint8_t *)m_riocnfg.getdata.uint8)))
             {
                 m_rioinfo.error |= (RIO_ERR_GET_AI_READ << ii);
-                m_rioinfo.incldata[ii].dig = 0;     // “ü—Íƒf[ƒ^
-                m_rioinfo.incldata[ii].cur = 0.0;   // “ü—Íƒf[ƒ^•ÏŠ·’l(mA)
-                m_rioinfo.incldata[ii].deg = 0.0;   // “ü—Íƒf[ƒ^•ÏŠ·’l(deg.)
+                m_rioinfo.incldata[ii].dig = 0;     // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿
+                m_rioinfo.incldata[ii].cur = 0.0;   // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿å¤‰æ›å€¤(mA)
+                m_rioinfo.incldata[ii].deg = 0.0;   // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿å¤‰æ›å€¤(deg.)
             }
             else
             {
                 int16_t val = (m_riocnfg.getdata.uint8[ADDR_LOW] << 8) | m_riocnfg.getdata.uint8[ADDR_HIGH];
 
-                // “ü—Íƒf[ƒ^
+                // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿
                 m_rioinfo.incldata[ii].dig = val;
-                // “ü—Íƒf[ƒ^•ÏŠ·’l(mA)
+                // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿å¤‰æ›å€¤(mA)
                 if      (m_rioinfo.incldata[ii].dig == S7CMPTBL_FORMAT_OVERRANGE)  {m_rioinfo.incldata[ii].cur = CUR_OVERRANGE;}
                 else if (m_rioinfo.incldata[ii].dig == S7CMPTBL_FORMAT_UNDERRANGE) {m_rioinfo.incldata[ii].cur = CUR_UNDERRANGE;}
                 else                                                               {m_rioinfo.incldata[ii].cur = CUR_MIN +  ((double)val * CONV_DIG_CUR);}
-                // “ü—Íƒf[ƒ^•ÏŠ·’l(deg.)
+                // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿å¤‰æ›å€¤(deg.)
                 m_rioinfo.incldata[ii].deg = ((m_rioinfo.incldata[ii].cur - CUR_MIN) * CONV_CUR_DEG) - (DEG_RANGE / 2.0);
             }
         }
     }
     else
     {
-        m_rioinfo.incldata[RIO_PORT_1].dig = 0;     // “ü—Íƒf[ƒ^
-        m_rioinfo.incldata[RIO_PORT_1].cur = 0.0;   // “ü—Íƒf[ƒ^•ÏŠ·’l(mA)
-        m_rioinfo.incldata[RIO_PORT_1].deg = 0.0;   // “ü—Íƒf[ƒ^•ÏŠ·’l(deg.)
+        m_rioinfo.incldata[RIO_PORT_1].dig = 0;     // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿
+        m_rioinfo.incldata[RIO_PORT_1].cur = 0.0;   // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿å¤‰æ›å€¤(mA)
+        m_rioinfo.incldata[RIO_PORT_1].deg = 0.0;   // å…¥åŠ›ãƒ‡ãƒ¼ã‚¿å¤‰æ›å€¤(deg.)
     }
     g_pSharedObject->SetInfo(m_rioinfo);
 

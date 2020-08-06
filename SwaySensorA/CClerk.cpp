@@ -4,11 +4,11 @@
 #include "CMKlog.h"
 #include "CMKChart.h"
 
-extern CSharedObject* g_pSharedObject;  // ƒ^ƒXƒNŠÔ‹¤—Lƒf[ƒ^‚Ìƒ|ƒCƒ“ƒ^
+extern CSharedObject* g_pSharedObject;  // ã‚¿ã‚¹ã‚¯é–“å…±æœ‰ãƒ‡ãƒ¼ã‚¿ã®ãƒã‚¤ãƒ³ã‚¿
 using namespace MKlog;
 static CMKlog* plogobj = nullptr;
 
-/// @brief ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+/// @brief ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 /// @param
 /// @return 
 /// @note
@@ -16,7 +16,7 @@ CClerk::CClerk()
 {
 }
 
-/// @brief ƒfƒXƒgƒ‰ƒNƒ^
+/// @brief ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 /// @param
 /// @return 
 /// @note
@@ -32,7 +32,7 @@ void CClerk::init_task(void *pobj)
 {
     set_panel_tip_txt();
 
-    // LOGŠÖ˜Aİ’è
+    // LOGé–¢é€£è¨­å®š
     plogobj = new CMKlog;
     plogobj->init_logfunc();
 /*
@@ -41,10 +41,11 @@ void CClerk::init_task(void *pobj)
 */
     for (int i = 0; i < CLERK_LOG_MAX; i++) {b_logact[i] = false;}
 
+
     return;
 };
 
-/// @brief ƒ^ƒXƒNƒXƒŒƒbƒh‚Å‚Ìˆ—ŠÖ”
+/// @brief ã‚¿ã‚¹ã‚¯ã‚¹ãƒ¬ãƒƒãƒ‰ã§ã®å‡¦ç†é–¢æ•°
 /// @param
 /// @return 
 /// @note
@@ -57,7 +58,7 @@ void CClerk::routine_work(void *param)
 	tweet2owner(ws.str()); ws.str(L""); ws.clear();
 };
 
-/// @brief ƒ^ƒXƒNƒpƒlƒ‹Wnd—pƒR[ƒ‹ƒoƒbƒNŠÖ”
+/// @brief ã‚¿ã‚¹ã‚¯ãƒ‘ãƒãƒ«Wndç”¨ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯é–¢æ•°
 /// @param
 /// @return 
 /// @note
@@ -97,10 +98,10 @@ LRESULT CALLBACK CClerk::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)
                             double          val;
                             stRIOInfoData   rioinfo;
                             g_pSharedObject->GetInfo(&rioinfo);
-                            // PORT1 ¶ƒf[ƒ^
+                            // PORT1 ç”Ÿãƒ‡ãƒ¼ã‚¿
                             val = (double)rioinfo.incldata[RIO_PORT_1].dig;
                             MKChart::CMKChart::set_double_data(&val, MK_CHART1, 0, 0, 20.0, false);
-                            // PORT2 ¶ƒf[ƒ^
+                            // PORT2 ç”Ÿãƒ‡ãƒ¼ã‚¿
                             val = (double)rioinfo.incldata[RIO_PORT_2].dig;
                             MKChart::CMKChart::set_double_data(&val, MK_CHART1, 0, 1, 20.0, false);
 
@@ -159,7 +160,7 @@ LRESULT CALLBACK CClerk::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)
             case IDC_BUTTON_SET:
                 {
                     wstring wstr, wstr_tmp;
-                    // ƒTƒ“ƒvƒ‹‚Æ‚µ‚Ä‚¢‚ë‚¢‚ë‚ÈŒ^‚Å“Ç‚İ‚ñ‚Å•\¦‚µ‚Ä‚¢‚é
+                    // ã‚µãƒ³ãƒ—ãƒ«ã¨ã—ã¦ã„ã‚ã„ã‚ãªå‹ã§èª­ã¿è¾¼ã‚“ã§è¡¨ç¤ºã—ã¦ã„ã‚‹
                     wstr += L"Param 1(d):";
                     int n = GetDlgItemText(hDlg, IDC_EDIT_TASK_VAL1, (LPTSTR)wstr_tmp.c_str(), 128);
                     if (n) {wstr_tmp = to_wstring(stod(wstr_tmp));}
