@@ -1,0 +1,51 @@
+diff a/SwaySensorA/CAnalyst.cpp b/SwaySensorA/CAnalyst.cpp	(rejected hunks)
+@@ -591,10 +591,11 @@
+     //----------------------------------------------------------------------------
+     // �U��p, �U��p���x���o
+ #pragma region SWAY_ANG
+-    double th00;                    // Box�ݓ_�`�J�������S�p�x
+-    double lc;                      // �J�������S�`�^�[�Q�b�g����
+-    double fi0;                     // ��0
+-    double fisnensor;               // ��sensor
++    double anglci;                  // BOX�ݓ_�`�J�������S�p�x��ci
++    double lx, ly;                  // �݋�ݓ_�`�J�������S����Lx,Ly
++    double l;                       // �J�������S�`�^�[�Q�b�g�ԋ���L
++    double anglsensor;              // ��sensor
++    double angl;                    // ��sensor + ��inc + ��0
+     double deg, rad, spd;
+     double dt;
+ 
+@@ -603,17 +604,22 @@
+     {
+         if (m_proninfo.valid)
+         {
+-            th00 = m_cmmnparam.cnfg[ii].offsetTHC + rioinfo.incldata[ii].deg;   // ��c + ��1
+-            lc   = extninfo.ropelen - m_cmmnparam.cnfg[ii].offsetLH0 
+-                 - (m_cmmnparam.cnfg[ii].offsetL0 * cos(th00 * CONV_DEG_RAD));  // L0 - lh0 - l0 * cos��00
+-            fi0  = ((m_cmmnparam.cnfg[ii].offsetD0 - m_cmmnparam.cnfg[ii].offsetL0 * sin(th00 * CONV_DEG_RAD)) / lc / CONV_DEG_RAD)
+-                 - (rioinfo.incldata[ii].deg + m_cmmnparam.cnfg[ii].offsetTH0); // (D0 - l0 * sin��00) / Lc - (��1 + ��0)
+-
+-            fisnensor = (m_proninfo.swaydata[AXIS_X].pos - (double)m_camparam.size[ii] * 0.5) * (m_cmmnparam.cnfg[ii].camviewangl / (double)m_camparam.size[ii]);
+-            deg       = fisnensor - fi0;
+-            rad       = deg * CONV_DEG_RAD;
+-            spd       = (rad - m_proninfo.swaydata[ii].rad) / dt;
+-            spd       = ((dt * spd) + (m_cmmnparam.filter * m_proninfo.swaydata[ii].spd)) / (m_cmmnparam.filter + dt);
++            anglci = m_cmmnparam.cnfg[ii].camoffsetAC + rioinfo.incldata[ii].deg;       // BOX�ݓ_�`�J�������S�p�x��ci:��c + ��inc
++            lx     = m_cmmnparam.cnfg[ii].camoffsetLX0
++                   - ((m_cmmnparam.cnfg[ii].camoffsetL0 * sin(extninfo.boxangle * CONV_DEG_RAD))
++                   +  (m_cmmnparam.cnfg[ii].camoffsetLC * sin(anglci * CONV_DEG_RAD))); // �݋�ݓ_�`�J�������S����Lx:Lx0 - (l0sin�� + lcsin��)
++            ly     = m_cmmnparam.cnfg[ii].camoffsetLY0
++                   - ((m_cmmnparam.cnfg[ii].camoffsetL0 * cos(extninfo.boxangle * CONV_DEG_RAD))
++                   +  (m_cmmnparam.cnfg[ii].camoffsetLC * cos(anglci * CONV_DEG_RAD))); // �݋�ݓ_�`�J�������S����Ly:Ly0 - (l0cos�� + lccos��)
++            l      = extninfo.ropelen - ly;                                             // �J�������S�`�^�[�Q�b�g�ԋ���L:Lr - Ly
++
++            anglsensor = (m_proninfo.swaydata[AXIS_X].pos - (double)m_camparam.size[ii] * 0.5) * (m_cmmnparam.cnfg[ii].camviewangl / (double)m_camparam.size[ii]);  // ��sensor
++            angl       = anglsensor + rioinfo.incldata[ii].deg + m_cmmnparam.cnfg[ii].camoffsetA0;  // ��sensor + ��inc + ��0
++
++            rad = atan((l * tan(angl * CONV_DEG_RAD) - lx) / extninfo.ropelen);
++            deg = rad / CONV_DEG_RAD;
++            spd = (rad - m_proninfo.swaydata[ii].rad) / dt;
++            spd = ((dt * spd) + (m_cmmnparam.filter * m_proninfo.swaydata[ii].spd)) / (m_cmmnparam.filter + dt);
+ 
+             m_proninfo.swaydata[ii].deg = deg;
+             m_proninfo.swaydata[ii].rad = rad;

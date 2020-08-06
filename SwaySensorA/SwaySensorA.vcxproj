@@ -201,6 +201,7 @@
   <ItemGroup>
     <Image Include="..\bmp\alube.bmp" />
     <Image Include="..\bmp\analy2.bmp" />
+    <Image Include="..\bmp\bitmap1.bmp" />
     <Image Include="..\bmp\BitmapBlue.bmp" />
     <Image Include="..\bmp\BitmapGray.bmp" />
     <Image Include="..\bmp\BitmapGreen.bmp" />
@@ -215,6 +216,7 @@
     <Image Include="..\bmp\comm3.bmp" />
     <Image Include="..\bmp\Ply1.bmp" />
     <Image Include="..\bmp\pr1.bmp" />
+    <Image Include="..\bmp\無題.bmp" />
     <Image Include="small.ico" />
     <Image Include="SwaySensorA.ico" />
   </ItemGroup>
