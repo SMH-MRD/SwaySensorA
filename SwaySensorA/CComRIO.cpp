@@ -33,49 +33,47 @@ void CComRIO::init_task(void *pobj)
 /// @note
 void CComRIO::routine_work(void *param)
 {
-//  if (g_pSharedObject == NULL) {return;}
-    ws << L"Act: " << std::setw(2) << *(inf.psys_counter) % 100;
-    tweet2owner(ws.str()); ws.str(L""); ws.clear();
+	ws << L"Act: " << std::setw(2) << *(inf.psys_counter) % 100;
+	tweet2owner(ws.str()); ws.str(L""); ws.clear();
 
 
-    //----------------------------------------------------------------------------
-    ProcRIO();
-    if (!stRIO_ph.bRIO_init_ok)
-    {
-		if (inf.act_count % 100){ //初期化未完時の初期化周期100スキャン毎
+	//----------------------------------------------------------------------------
+	ProcRIO();
+	if (!stRIO_ph.bRIO_init_ok)
+	{
+		if (inf.act_count % 100) { //初期化未完時の初期化周期100スキャン毎
 			if (Initialize() >= 0)
 			{
 				stRIO_ph.bRIO_init_ok = true;
 				stRIO_ph.error_status = 0x0000;
 			}
 		}
-    }
-    else
-    {
-        // PORT1データ読み込み
-        stRIO_ph.error_code = modtGetdata(stRIO_ph.modbusDesc, stRIO_ph.stModbusTcpReq_p1read, (uint8_t *)stRIO_ph.RIO_ai_port1.uint8);
+	}
+	else
+	{
+		// PORT1データ読み込み
+		stRIO_ph.error_code = modtGetdata(stRIO_ph.modbusDesc, stRIO_ph.stModbusTcpReq_p1read, (uint8_t *)stRIO_ph.RIO_ai_port1.uint8);
 
-        if (stRIO_ph.error_code)
-        {
-            stRIO_ph.error_status = RIO_ERR_TYPE_AI_READ1;
-            stRIO_ph.bRIO_init_ok = false;
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANALOG, (DOUBLE)NAN);
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_MA,     (DOUBLE)NAN);
-        }
-        else
-        {
-            UINT temp = (stRIO_ph.RIO_ai_port1.uint8[0] << 8) | stRIO_ph.RIO_ai_port1.uint8[1];
-            // PORT1読み込みデータ mA変換
-            if      (temp == 0x7FFF) {stRIO_ph.RIO_ai_p1_mA = 22.81;}
-            else if (temp == 0x8000) {stRIO_ph.RIO_ai_p1_mA = 1.186;}
-			else if (temp |  0x8000) {stRIO_ph.RIO_ai_p1_mA = 0.0;} //ERROR
-            else                     {stRIO_ph.RIO_ai_p1_mA = 4.0 + 16.0 / 30000.0 * (double)(temp);}
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANALOG, (double)temp);
-            g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_MA,     stRIO_ph.RIO_ai_p1_mA);
-        }
-
-
-    return;
+		if (stRIO_ph.error_code)
+		{
+			stRIO_ph.error_status = RIO_ERR_TYPE_AI_READ1;
+			stRIO_ph.bRIO_init_ok = false;
+			g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANALOG, (DOUBLE)NAN);
+			g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_MA, (DOUBLE)NAN);
+		}
+		else
+		{
+			UINT temp = (stRIO_ph.RIO_ai_port1.uint8[0] << 8) | stRIO_ph.RIO_ai_port1.uint8[1];
+			// PORT1読み込みデータ mA変換
+			if (temp == 0x7FFF) { stRIO_ph.RIO_ai_p1_mA = 22.81; }
+			else if (temp == 0x8000) { stRIO_ph.RIO_ai_p1_mA = 1.186; }
+			else if (temp | 0x8000) { stRIO_ph.RIO_ai_p1_mA = 0.0; } //ERROR
+			else { stRIO_ph.RIO_ai_p1_mA = 4.0 + 16.0 / 30000.0 * (double)(temp); }
+			g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_ANALOG, (double)temp);
+			g_pSharedObject->SetInclinoData(INCLINO_ID_PORT_1_MA, stRIO_ph.RIO_ai_p1_mA);
+		}
+		return;
+	}
 }
 
 /// @brief 
