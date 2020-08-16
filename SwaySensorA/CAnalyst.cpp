@@ -591,7 +591,7 @@ void CAnalyst::SwayProc(void)
     //----------------------------------------------------------------------------
     // 振れ角, 振れ角速度検出
 #pragma region SWAY_ANG
-    double anglci;                  // BOX吊点～カメラ中心角度θci
+    double anglci;                  // BOX吊点～カメラ中心角度θci 
     double lx, ly;                  // 吊具吊点～カメラ中心距離Lx,Ly
     double l;                       // カメラ中心～ターゲット間距離L
     double anglsensor;              // θsensor
