@@ -765,19 +765,19 @@ INT setIniParameter(ST_INI_INF* pInf, LPCWSTR pFileName)
     if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetA0, &pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetA0))
     {
         pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetA0 = 0.0;   // BOX内カメラ取付角度θ0[deg](水平方向)
-        pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetA0 = 0.0;   // BOX内カメラ取付角度θ0[deg](垂直方向)
+        pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetA0 = 0.0;   // BOX内カメラ取付角度θ0[deg](垂直方向)
     }
     CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMOFFSET_AC,  L"0.0, 0.0", INITYPE_CHAR, str);  // BOX可動部中心～カメラ中心角度θc[deg]
     if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetAC, &pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetAC))
     {
         pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetAC = 0.0;   // BOX可動部中心～カメラ中心角度θc[deg](水平方向)
-        pInf->m_cmmnparam.cnfg[AXIS_Y].camoffsetAC = 0.0;   // BOX可動部中心～カメラ中心角度θc[deg](垂直方向)
+        pInf->m_cmmnparam.cnfg[AXIS_X].camoffsetAC = 0.0;   // BOX可動部中心～カメラ中心角度θc[deg](垂直方向)
     }
     CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_CAMVIEWANGLE,  L"0.0, 0.0", INITYPE_CHAR, str);  // カメラ視野角[deg]
     if (2 != _stscanf_s(str, _T("%lf,%lf"), &pInf->m_cmmnparam.cnfg[AXIS_X].camviewangl, &pInf->m_cmmnparam.cnfg[AXIS_Y].camviewangl))
     {
         pInf->m_cmmnparam.cnfg[AXIS_X].camviewangl = 0.0;   // カメラ視野角[deg](水平方向)
-        pInf->m_cmmnparam.cnfg[AXIS_Y].camviewangl = 0.0;   // カメラ視野角[deg](垂直方向)
+        pInf->m_cmmnparam.cnfg[AXIS_X].camviewangl = 0.0;   // カメラ視野角[deg](垂直方向)
     }
     CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_FILTER,       L"1.0", INITYPE_DOUBLE, &pInf->m_cmmnparam.filter);    // フィルタ時定数
     CHelper::GetIniInf(pFileName, INI_SCT_COMMON, INI_KEY_CMMN_IMGSAVEFNAME, L"",    INITYPE_CHAR,   str);                          // 画像保存ファイル名
