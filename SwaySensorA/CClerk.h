@@ -1,5 +1,8 @@
 #pragma once
 #include "CTaskObj.h"
+#include "CSharedObject.h"
+#include "CMKlog.h"
+#include "CMKChart.h"
 
 extern vector<void*>    VectpCTaskObj;  // タスクオブジェクトのポインタ
 extern ST_iTask         g_itask;
@@ -25,4 +28,7 @@ public:
     BOOL InitWorkWnd(HINSTANCE hInst, WNDPROC WndProc, LPCTSTR lpzClassName);
 
     static LRESULT CALLBACK ChartWndProc(HWND, UINT, WPARAM, LPARAM);
+
+private:
+    stProcInfoData  m_procinfo;   // 画像処理結果
 };

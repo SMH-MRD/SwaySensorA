@@ -1,8 +1,5 @@
 #include "CClerk.h"
-#include "CSharedObject.h"
 #include "resource.h"
-#include "CMKlog.h"
-#include "CMKChart.h"
 
 extern CSharedObject* g_pSharedObject;  // タスク間共有データのポインタ
 using namespace MKlog;
@@ -41,6 +38,8 @@ void CClerk::init_task(void *pobj)
 */
     for (int i = 0; i < CLERK_LOG_MAX; i++) {b_logact[i] = false;}
 
+    g_pSharedObject->GetInfo(&m_procinfo);
+
     return;
 };
 
@@ -51,9 +50,8 @@ void CClerk::init_task(void *pobj)
 void CClerk::routine_work(void *param)
 {
 //  ws << L"Act:" << *(inf.psys_counter) % 100;
-    stRIOInfoData   rioinfo;
-    g_pSharedObject->GetInfo(&rioinfo);
-	ws << L"Port1:" << rioinfo.incldata[RIO_PORT_1].dig << L" Port2:" << rioinfo.incldata[RIO_PORT_2].dig;
+    g_pSharedObject->GetInfo(&m_procinfo);
+	ws << L"振れ角X[deg]:" << m_procinfo.swaydata[AXIS_X].deg << L" 振れ角Y[deg]:" << m_procinfo.swaydata[AXIS_Y].deg;
 	tweet2owner(ws.str()); ws.str(L""); ws.clear();
 };
 
@@ -94,16 +92,8 @@ LRESULT CALLBACK CClerk::PanelProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)
                         MKChart::CMKChart::init_chartfunc();
                         if (inf.panel_type_id == IDC_RADIO_TASK_ITEM1)
                         {
-                            double          val;
-                            stRIOInfoData   rioinfo;
-                            g_pSharedObject->GetInfo(&rioinfo);
-                            // PORT1 生データ
-                            val = (double)rioinfo.incldata[RIO_PORT_1].dig;
-                            MKChart::CMKChart::set_double_data(&val, MK_CHART1, 0, 0, 20.0, false);
-                            // PORT2 生データ
-                            val = (double)rioinfo.incldata[RIO_PORT_2].dig;
-                            MKChart::CMKChart::set_double_data(&val, MK_CHART1, 0, 1, 20.0, false);
-
+                            MKChart::CMKChart::set_double_data(&(m_procinfo.swaydata[AXIS_X].deg), MK_CHART1, 0, 0, 10.0, false);
+                            MKChart::CMKChart::set_double_data(&(m_procinfo.swaydata[AXIS_Y].deg), MK_CHART1, 1, 0, 10.0, false);
                             MKChart::CMKChart::open_chart(MK_CHART1, hDlg);
                             MKChart::CMKChart::set_chart_spd(MK_CHART1, 30000);
                         }

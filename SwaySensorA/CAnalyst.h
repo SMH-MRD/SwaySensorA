@@ -24,7 +24,7 @@ private:
     stCameraParamData   m_camparam;         // カメラ設定データ
     stCommonParamData   m_cmmnparam;        // 構造設定データ
     stImgProcParamData  m_imgprocparam;     // 画像処理設定データ
-    stProcInfoData      m_proninfo;         // 画像処理結果
+    stProcInfoData      m_procinfo;         // 画像処理結果
 
 private:
     void ImageProc(void);

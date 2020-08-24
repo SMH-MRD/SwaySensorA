@@ -73,7 +73,10 @@ void CSharedObject::Initialize(void)
     // 処理情報
     {
         m_extninfo.data.ropelen  = EXTN_ROPELEN_MIN;    // ロープ長
-        m_extninfo.data.boxangle = 0.0;                 // BOX傾き
+        for (UINT ii = 0; ii < AXIS_MAX; ii++)
+        {
+            m_extninfo.data.boxangle[ii] = 0.0;         // BOX傾き
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -476,8 +479,11 @@ INT CSharedObject::GetInfo(stProcInfoData* data)
 INT CSharedObject::SetInfo(stExtnInfoData data)
 {
     EnterCriticalSection(&m_extninfo.cs);
-    m_extninfo.data.ropelen  = data.ropelen;    // ロープ長
-    m_extninfo.data.boxangle = data.boxangle;   // BOX傾き
+    m_extninfo.data.ropelen  = data.ropelen;                // ロープ長
+    for (UINT ii = 0; ii < AXIS_MAX; ii++)
+    {
+        m_extninfo.data.boxangle[ii] = data.boxangle[ii];   // BOX傾き
+    }
     LeaveCriticalSection(&m_extninfo.cs);
 
     return RESULT_OK;
@@ -491,8 +497,11 @@ INT CSharedObject::GetInfo(stExtnInfoData* data)
 {
     if (data == NULL) {return RESULT_NG_INVALID;}
     EnterCriticalSection(&m_extninfo.cs);
-    data->ropelen  = m_extninfo.data.ropelen;   // ロープ長
-    data->boxangle = m_extninfo.data.boxangle;  // BOX傾き
+    data->ropelen  = m_extninfo.data.ropelen;               // ロープ長
+    for (UINT ii = 0; ii < AXIS_MAX; ii++)
+    {
+        data->boxangle[ii] = m_extninfo.data.boxangle[ii];  // BOX傾き
+    }
     LeaveCriticalSection(&m_extninfo.cs);
 
     return RESULT_OK;

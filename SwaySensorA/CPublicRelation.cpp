@@ -91,6 +91,10 @@ void CPublicRelation::init_task(void *pobj)
     m_scrinfImgmaskV.nTrackPos = 0;
 
     m_extninfo.ropelen = EXTN_ROPELEN_MIN;
+    for (UINT ii = 0; ii < AXIS_MAX; ii++)
+    {
+        m_extninfo.boxangle[ii] = 0.0;
+    }
 
     return;
 };
@@ -1073,6 +1077,33 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
         }
 
         //----------------------------------------------------------------------------
+        // カメラBOX傾き
+        {
+            HWND    wndhdl;
+            TCHAR   msg[10];
+
+            m_extninfo.boxangle[AXIS_X] = 0.0;
+            wndhdl = GetDlgItem(hwnd, IDC_SLIDER_CAMBOXANGL_X);
+            SendMessage(wndhdl, TBM_SETRANGEMIN, TRUE, (INT)EXTN_CAMBOXANGL_MIN);           // レンジを指定
+            SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, (INT)EXTN_CAMBOXANGL_MAX);           // レンジを指定
+            SendMessage(wndhdl, TBM_SETTICFREQ, 5, 0);                                      // 目盛りの増分
+            SendMessage(wndhdl, TBM_SETPOS, TRUE, (INT)m_extninfo.boxangle[AXIS_X]);        // 位置の設定
+            SendMessage(wndhdl, TBM_SETPAGESIZE, 0, 1);                                     // クリック時の移動量
+            wndhdl = GetDlgItem(hwnd, IDC_STATIC_VAL_CAMBOXANGL_X);
+            _stprintf_s(msg, 10, TEXT("%d"), (INT)m_extninfo.boxangle[AXIS_X]);  SetWindowText(wndhdl, (LPCTSTR)msg);
+
+            m_extninfo.boxangle[AXIS_Y] = 0.0;
+            wndhdl = GetDlgItem(hwnd, IDC_SLIDER_CAMBOXANGL_Y);
+            SendMessage(wndhdl, TBM_SETRANGEMIN, TRUE, (INT)EXTN_CAMBOXANGL_MIN);           // レンジを指定
+            SendMessage(wndhdl, TBM_SETRANGEMAX, TRUE, (INT)EXTN_CAMBOXANGL_MAX);           // レンジを指定
+            SendMessage(wndhdl, TBM_SETTICFREQ, 5, 0);                                      // 目盛りの増分
+            SendMessage(wndhdl, TBM_SETPOS, TRUE, (INT)m_extninfo.boxangle[AXIS_Y]);        // 位置の設定
+            SendMessage(wndhdl, TBM_SETPAGESIZE, 0, 1);                                     // クリック時の移動量
+            wndhdl = GetDlgItem(hwnd, IDC_STATIC_VAL_CAMBOXANGL_Y);
+            _stprintf_s(msg, 10, TEXT("%d"), (INT)m_extninfo.boxangle[AXIS_Y]);  SetWindowText(wndhdl, (LPCTSTR)msg);
+        }
+
+        //----------------------------------------------------------------------------
         // カメラ情報
         {
             TCHAR   msg[10];
@@ -1302,6 +1333,27 @@ LRESULT CALLBACK CPublicRelation::CameraWndProc(HWND hwnd, UINT msg, WPARAM wp, 
                 pos = SendMessage(GetDlgItem(hwnd, IDC_SLIDER_ROPELEN), TBM_GETPOS, 0, 0);
                 _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(hwnd, IDC_STATIC_VAL_ROPELEN), (LPCTSTR)str);
                 m_extninfo.ropelen = (double)pos;
+            }
+        }
+
+        //----------------------------------------------------------------------------
+        // カメラBOX傾き
+        {
+            TCHAR   str[10];
+            int     pos;
+
+            if (GetDlgItem(hwnd, IDC_SLIDER_CAMBOXANGL_X) == (HWND)lp)
+            {
+                pos = SendMessage(GetDlgItem(hwnd, IDC_SLIDER_CAMBOXANGL_X), TBM_GETPOS, 0, 0);
+                _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(hwnd, IDC_STATIC_VAL_CAMBOXANGL_X), (LPCTSTR)str);
+                m_extninfo.boxangle[AXIS_X] = (double)pos;
+            }
+
+            if (GetDlgItem(hwnd, IDC_SLIDER_CAMBOXANGL_Y) == (HWND)lp)
+            {
+                pos = SendMessage(GetDlgItem(hwnd, IDC_SLIDER_CAMBOXANGL_Y), TBM_GETPOS, 0, 0);
+                _stprintf_s(str, 10, TEXT("%d"), pos);  SetWindowText(GetDlgItem(hwnd, IDC_STATIC_VAL_CAMBOXANGL_Y), (LPCTSTR)str);
+                m_extninfo.boxangle[AXIS_Y] = (double)pos;
             }
         }
         break;

@@ -30,18 +30,18 @@ void CAnalyst::init_task(void* pobj)
 
     for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
     {
-        m_proninfo.imgprocdata[ii].posx       = 0.0;
-        m_proninfo.imgprocdata[ii].posy       = 0.0;
-        m_proninfo.imgprocdata[ii].tgtsize    = 0;
-        m_proninfo.imgprocdata[ii].roi.x      = 0;
-        m_proninfo.imgprocdata[ii].roi.y      = 0;
-        m_proninfo.imgprocdata[ii].roi.width  = 0;
-        m_proninfo.imgprocdata[ii].roi.height = 0;
-        m_proninfo.imgprocdata[ii].valid      = FALSE;
+        m_procinfo.imgprocdata[ii].posx       = 0.0;
+        m_procinfo.imgprocdata[ii].posy       = 0.0;
+        m_procinfo.imgprocdata[ii].tgtsize    = 0;
+        m_procinfo.imgprocdata[ii].roi.x      = 0;
+        m_procinfo.imgprocdata[ii].roi.y      = 0;
+        m_procinfo.imgprocdata[ii].roi.width  = 0;
+        m_procinfo.imgprocdata[ii].roi.height = 0;
+        m_procinfo.imgprocdata[ii].valid      = FALSE;
     }
-    m_proninfo.exposureTime = 0.0;              // 露光時間[us]
-    m_proninfo.procTime     = 0.0;              // 画処理時間[ms]
-    g_pSharedObject->SetInfo(m_proninfo);
+    m_procinfo.exposureTime = 0.0;              // 露光時間[us]
+    m_procinfo.procTime     = 0.0;              // 画処理時間[ms]
+    g_pSharedObject->SetInfo(m_procinfo);
 
     g_pSharedObject->GetParam(&m_camparam);     // カメラ設定データ
     g_pSharedObject->GetParam(&m_cmmnparam);    // 共通設定データ
@@ -75,9 +75,9 @@ void CAnalyst::routine_work(void* param)
     QueryPerformanceCounter(&end);
     span = end.QuadPart - start.QuadPart;
     usec = (span * 1000000L) / frequency.QuadPart;
-    m_proninfo.procTime = (DOUBLE)usec / 1000.0;    // 画処理時間[ms]
+    m_procinfo.procTime = (DOUBLE)usec / 1000.0;    // 画処理時間[ms]
 
-    g_pSharedObject->SetInfo(m_proninfo);
+    g_pSharedObject->SetInfo(m_procinfo);
 
     return;
 }
@@ -136,44 +136,44 @@ void CAnalyst::ImageProc(void)
                 {
                     // ROIの範囲(長方形)を設定する
                     // * (x, y, width, height)で指定
-                    if (m_proninfo.imgprocdata[ii].valid)
+                    if (m_procinfo.imgprocdata[ii].valid)
                     {
-                        int roisize = (int)((double)m_proninfo.imgprocdata[ii].tgtsize * m_imgprocparam.roi.scale);
+                        int roisize = (int)((double)m_procinfo.imgprocdata[ii].tgtsize * m_imgprocparam.roi.scale);
                         if (roisize <= 0)           {roisize = imgSrc.cols;}
                         if (roisize >  imgSrc.cols) {roisize = imgSrc.cols;}
                         if (roisize >  imgSrc.rows) {roisize = imgSrc.rows;}
 
                         int tmpval = (int)(((double)roisize / 2.0) + 0.5);
-                        if      (((int)m_proninfo.imgprocdata[ii].posx - tmpval) < 0)           {m_proninfo.imgprocdata[ii].roi.x = 0;}
-                        else if (((int)m_proninfo.imgprocdata[ii].posx + tmpval) > imgSrc.cols) {m_proninfo.imgprocdata[ii].roi.x = imgSrc.cols - roisize;}
-                        else                                                                    {m_proninfo.imgprocdata[ii].roi.x = (int)m_proninfo.imgprocdata[ii].posx - tmpval;}
-                        if      (((int)m_proninfo.imgprocdata[ii].posy - tmpval) < 0)           {m_proninfo.imgprocdata[ii].roi.y = 0;}
-                        else if (((int)m_proninfo.imgprocdata[ii].posy + tmpval) > imgSrc.rows) {m_proninfo.imgprocdata[ii].roi.y = imgSrc.rows - roisize;}
-                        else                                                                    {m_proninfo.imgprocdata[ii].roi.y = (int)m_proninfo.imgprocdata[ii].posy - tmpval;}
-                        m_proninfo.imgprocdata[ii].roi.width  = roisize;
-                        m_proninfo.imgprocdata[ii].roi.height = roisize;
+                        if      (((int)m_procinfo.imgprocdata[ii].posx - tmpval) < 0)           {m_procinfo.imgprocdata[ii].roi.x = 0;}
+                        else if (((int)m_procinfo.imgprocdata[ii].posx + tmpval) > imgSrc.cols) {m_procinfo.imgprocdata[ii].roi.x = imgSrc.cols - roisize;}
+                        else                                                                    {m_procinfo.imgprocdata[ii].roi.x = (int)m_procinfo.imgprocdata[ii].posx - tmpval;}
+                        if      (((int)m_procinfo.imgprocdata[ii].posy - tmpval) < 0)           {m_procinfo.imgprocdata[ii].roi.y = 0;}
+                        else if (((int)m_procinfo.imgprocdata[ii].posy + tmpval) > imgSrc.rows) {m_procinfo.imgprocdata[ii].roi.y = imgSrc.rows - roisize;}
+                        else                                                                    {m_procinfo.imgprocdata[ii].roi.y = (int)m_procinfo.imgprocdata[ii].posy - tmpval;}
+                        m_procinfo.imgprocdata[ii].roi.width  = roisize;
+                        m_procinfo.imgprocdata[ii].roi.height = roisize;
                     }
                     else
                     {
-                        m_proninfo.imgprocdata[ii].roi.x      = 0;
-                        m_proninfo.imgprocdata[ii].roi.y      = 0;
-                        m_proninfo.imgprocdata[ii].roi.width  = imgSrc.cols;
-                        m_proninfo.imgprocdata[ii].roi.height = imgSrc.rows;
+                        m_procinfo.imgprocdata[ii].roi.x      = 0;
+                        m_procinfo.imgprocdata[ii].roi.y      = 0;
+                        m_procinfo.imgprocdata[ii].roi.width  = imgSrc.cols;
+                        m_procinfo.imgprocdata[ii].roi.height = imgSrc.rows;
                     }
 
                     // 部分画像を生成
                     // * 部分画像とその元画像は共通の画像データを参照するため、
                     //   部分画像に変更を加えると、元画像も変更される。
-                    imgROI = imgSrc(m_proninfo.imgprocdata[ii].roi);
+                    imgROI = imgSrc(m_procinfo.imgprocdata[ii].roi);
                     // 画像色をBGR→HSVに変換
                     cv::cvtColor(imgROI, imgHSV, COLOR_BGR2HSV);
                 }
                 else
                 {
-                    m_proninfo.imgprocdata[ii].roi.x      = 0;
-                    m_proninfo.imgprocdata[ii].roi.y      = 0;
-                    m_proninfo.imgprocdata[ii].roi.width  = imgSrc.cols;
-                    m_proninfo.imgprocdata[ii].roi.height = imgSrc.rows;
+                    m_procinfo.imgprocdata[ii].roi.x      = 0;
+                    m_procinfo.imgprocdata[ii].roi.y      = 0;
+                    m_procinfo.imgprocdata[ii].roi.width  = imgSrc.cols;
+                    m_procinfo.imgprocdata[ii].roi.height = imgSrc.rows;
                 }
                 // 3チャンネルのLUT作成
                 maskLow[0] = m_imgprocparam.hsvl[ii].h;
@@ -288,17 +288,17 @@ void CAnalyst::ImageProc(void)
                 posy    = 0.0;
                 tgtsize = 0;
                 ret  = CalcCenterOfGravity(contours, &posx, &posy, &tgtsize, m_imgprocparam.algorithm);
-                m_proninfo.imgprocdata[ii].posx    = posx + m_proninfo.imgprocdata[ii].roi.x;
-                m_proninfo.imgprocdata[ii].posy    = posy + m_proninfo.imgprocdata[ii].roi.y;
-                m_proninfo.imgprocdata[ii].tgtsize = tgtsize;
-                m_proninfo.imgprocdata[ii].valid   = ret;
+                m_procinfo.imgprocdata[ii].posx    = posx + m_procinfo.imgprocdata[ii].roi.x;
+                m_procinfo.imgprocdata[ii].posy    = posy + m_procinfo.imgprocdata[ii].roi.y;
+                m_procinfo.imgprocdata[ii].tgtsize = tgtsize;
+                m_procinfo.imgprocdata[ii].valid   = ret;
             }
             else
             {
-                m_proninfo.imgprocdata[ii].posx    = 0.0;
-                m_proninfo.imgprocdata[ii].posy    = 0.0;
-                m_proninfo.imgprocdata[ii].tgtsize = 0;
-                m_proninfo.imgprocdata[ii].valid   = FALSE;
+                m_procinfo.imgprocdata[ii].posx    = 0.0;
+                m_procinfo.imgprocdata[ii].posy    = 0.0;
+                m_procinfo.imgprocdata[ii].tgtsize = 0;
+                m_procinfo.imgprocdata[ii].valid   = FALSE;
             }
         }   // for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
 #pragma endregion ImageProc
@@ -351,14 +351,14 @@ void CAnalyst::ImageProc(void)
     {
         for (int ii = 0; ii < IMGPROC_ID_MAX; ii++)
         {
-            m_proninfo.imgprocdata[ii].posx       = 0.0;
-            m_proninfo.imgprocdata[ii].posy       = 0.0;
-            m_proninfo.imgprocdata[ii].tgtsize    = 0;
-            m_proninfo.imgprocdata[ii].roi.x      = 0;
-            m_proninfo.imgprocdata[ii].roi.y      = 0;
-            m_proninfo.imgprocdata[ii].roi.width  = 0;
-            m_proninfo.imgprocdata[ii].roi.height = 0;
-            m_proninfo.imgprocdata[ii].valid      = FALSE;
+            m_procinfo.imgprocdata[ii].posx       = 0.0;
+            m_procinfo.imgprocdata[ii].posy       = 0.0;
+            m_procinfo.imgprocdata[ii].tgtsize    = 0;
+            m_procinfo.imgprocdata[ii].roi.x      = 0;
+            m_procinfo.imgprocdata[ii].roi.y      = 0;
+            m_procinfo.imgprocdata[ii].roi.width  = 0;
+            m_procinfo.imgprocdata[ii].roi.height = 0;
+            m_procinfo.imgprocdata[ii].valid      = FALSE;
         }
     }
 #pragma endregion ProcTarget
@@ -534,56 +534,56 @@ void CAnalyst::SwayProc(void)
 #pragma region SWAY_POS
     if ((m_imgprocparam.maskvalid[IMGPROC_ID_IMG_1]) && (m_imgprocparam.maskvalid[IMGPROC_ID_IMG_2]))
     {
-        if ((m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].valid) && (m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].valid))
+        if ((m_procinfo.imgprocdata[IMGPROC_ID_IMG_1].valid) && (m_procinfo.imgprocdata[IMGPROC_ID_IMG_2].valid))
         {
-            m_proninfo.swaydata[AXIS_X].pos = (m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].posx + m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].posx) * 0.5;
-            m_proninfo.swaydata[AXIS_Y].pos = (m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].posy + m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].posy) * 0.5;
-            m_proninfo.valid = TRUE;
+            m_procinfo.swaydata[AXIS_X].pos = (m_procinfo.imgprocdata[IMGPROC_ID_IMG_1].posx + m_procinfo.imgprocdata[IMGPROC_ID_IMG_2].posx) * 0.5;
+            m_procinfo.swaydata[AXIS_Y].pos = (m_procinfo.imgprocdata[IMGPROC_ID_IMG_1].posy + m_procinfo.imgprocdata[IMGPROC_ID_IMG_2].posy) * 0.5;
+            m_procinfo.valid = TRUE;
         }
         else
         {
-            m_proninfo.swaydata[AXIS_X].pos = 0.0;
-            m_proninfo.swaydata[AXIS_Y].pos = 0.0;
-            m_proninfo.valid = FALSE;
+            m_procinfo.swaydata[AXIS_X].pos = 0.0;
+            m_procinfo.swaydata[AXIS_Y].pos = 0.0;
+            m_procinfo.valid = FALSE;
         }
     }
     else
     {
         if (m_imgprocparam.maskvalid[IMGPROC_ID_IMG_1])
         {
-            if (m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].valid)
+            if (m_procinfo.imgprocdata[IMGPROC_ID_IMG_1].valid)
             {
-                m_proninfo.swaydata[AXIS_X].pos = m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].posx;
-                m_proninfo.swaydata[AXIS_Y].pos = m_proninfo.imgprocdata[IMGPROC_ID_IMG_1].posy;
-                m_proninfo.valid = TRUE;
+                m_procinfo.swaydata[AXIS_X].pos = m_procinfo.imgprocdata[IMGPROC_ID_IMG_1].posx;
+                m_procinfo.swaydata[AXIS_Y].pos = m_procinfo.imgprocdata[IMGPROC_ID_IMG_1].posy;
+                m_procinfo.valid = TRUE;
             }
             else
             {
-                m_proninfo.swaydata[AXIS_X].pos = 0.0;
-                m_proninfo.swaydata[AXIS_Y].pos = 0.0;
-                m_proninfo.valid = FALSE;
+                m_procinfo.swaydata[AXIS_X].pos = 0.0;
+                m_procinfo.swaydata[AXIS_Y].pos = 0.0;
+                m_procinfo.valid = FALSE;
             }
         }
         else if (m_imgprocparam.maskvalid[IMGPROC_ID_IMG_2])
         {
-            if (m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].valid)
+            if (m_procinfo.imgprocdata[IMGPROC_ID_IMG_2].valid)
             {
-                m_proninfo.swaydata[AXIS_X].pos = m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].posx;
-                m_proninfo.swaydata[AXIS_Y].pos = m_proninfo.imgprocdata[IMGPROC_ID_IMG_2].posy;
-                m_proninfo.valid = TRUE;
+                m_procinfo.swaydata[AXIS_X].pos = m_procinfo.imgprocdata[IMGPROC_ID_IMG_2].posx;
+                m_procinfo.swaydata[AXIS_Y].pos = m_procinfo.imgprocdata[IMGPROC_ID_IMG_2].posy;
+                m_procinfo.valid = TRUE;
             }
             else
             {
-                m_proninfo.swaydata[AXIS_X].pos = 0.0;
-                m_proninfo.swaydata[AXIS_Y].pos = 0.0;
-                m_proninfo.valid = FALSE;
+                m_procinfo.swaydata[AXIS_X].pos = 0.0;
+                m_procinfo.swaydata[AXIS_Y].pos = 0.0;
+                m_procinfo.valid = FALSE;
             }
         }
         else
         {
-            m_proninfo.swaydata[AXIS_X].pos = 0.0;
-            m_proninfo.swaydata[AXIS_Y].pos = 0.0;
-            m_proninfo.valid = FALSE;
+            m_procinfo.swaydata[AXIS_X].pos = 0.0;
+            m_procinfo.swaydata[AXIS_Y].pos = 0.0;
+            m_procinfo.valid = FALSE;
         }
     }
 #pragma endregion SWAY_POS
@@ -602,34 +602,34 @@ void CAnalyst::SwayProc(void)
     dt = inf.cycle_ms * 0.001;
     for (UINT ii = 0; ii < AXIS_MAX; ii++)
     {
-        if (m_proninfo.valid)
+        if (m_procinfo.valid)
         {
             anglci = m_cmmnparam.cnfg[ii].camoffsetAC + rioinfo.incldata[ii].deg;       // BOX吊点～カメラ中心角度θci:θc + θinc
             lx     = m_cmmnparam.cnfg[ii].camoffsetLX0
-                   - ((m_cmmnparam.cnfg[ii].camoffsetL0 * sin(extninfo.boxangle * CONV_DEG_RAD))
+                   - ((m_cmmnparam.cnfg[ii].camoffsetL0 * sin(extninfo.boxangle[ii] * CONV_DEG_RAD))
                    +  (m_cmmnparam.cnfg[ii].camoffsetLC * sin(anglci * CONV_DEG_RAD))); // 吊具吊点～カメラ中心距離Lx:Lx0 - (l0sinθ + lcsinθ)
             ly     = m_cmmnparam.cnfg[ii].camoffsetLY0
-                   - ((m_cmmnparam.cnfg[ii].camoffsetL0 * cos(extninfo.boxangle * CONV_DEG_RAD))
+                   - ((m_cmmnparam.cnfg[ii].camoffsetL0 * cos(extninfo.boxangle[ii] * CONV_DEG_RAD))
                    +  (m_cmmnparam.cnfg[ii].camoffsetLC * cos(anglci * CONV_DEG_RAD))); // 吊具吊点～カメラ中心距離Ly:Ly0 - (l0cosθ + lccosθ)
             l      = extninfo.ropelen - ly;                                             // カメラ中心～ターゲット間距離L:Lr - Ly
 
-            anglsensor = (m_proninfo.swaydata[AXIS_X].pos - (double)m_camparam.size[ii] * 0.5) * (m_cmmnparam.cnfg[ii].camviewangl / (double)m_camparam.size[ii]);  // θsensor
+            anglsensor = (m_procinfo.swaydata[AXIS_X].pos - (double)m_camparam.size[ii] * 0.5) * (m_cmmnparam.cnfg[ii].camviewangl / (double)m_camparam.size[ii]);  // θsensor
             angl       = anglsensor + rioinfo.incldata[ii].deg + m_cmmnparam.cnfg[ii].camoffsetA0;  // θsensor + θinc + θ0
 
             rad = atan((l * tan(angl * CONV_DEG_RAD) - lx) / extninfo.ropelen);
             deg = rad / CONV_DEG_RAD;
-            spd = (rad - m_proninfo.swaydata[ii].rad) / dt;
-            spd = ((dt * spd) + (m_cmmnparam.filter * m_proninfo.swaydata[ii].spd)) / (m_cmmnparam.filter + dt);
+            spd = (rad - m_procinfo.swaydata[ii].rad) / dt;
+            spd = ((dt * spd) + (m_cmmnparam.filter * m_procinfo.swaydata[ii].spd)) / (m_cmmnparam.filter + dt);
 
-            m_proninfo.swaydata[ii].deg = deg;
-            m_proninfo.swaydata[ii].rad = rad;
-            m_proninfo.swaydata[ii].spd = spd;
+            m_procinfo.swaydata[ii].deg = deg;
+            m_procinfo.swaydata[ii].rad = rad;
+            m_procinfo.swaydata[ii].spd = spd;
         }
         else
         {
-            m_proninfo.swaydata[ii].deg = 0.0;
-            m_proninfo.swaydata[ii].rad = 0.0;
-            m_proninfo.swaydata[ii].spd = 0.0;
+            m_procinfo.swaydata[ii].deg = 0.0;
+            m_procinfo.swaydata[ii].rad = 0.0;
+            m_procinfo.swaydata[ii].spd = 0.0;
         }
     }
 #pragma endregion SWAY_ANG

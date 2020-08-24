@@ -26,6 +26,9 @@
 #define EXTN_ROPELEN_MIN                1000.0      // ロープ長(最小)
 #define EXTN_ROPELEN_MAX                50000.0     // ロープ長(最大)
 
+#define EXTN_CAMBOXANGL_MIN             -45.0       // カメラBOX傾き(最小)
+#define EXTN_CAMBOXANGL_MAX             45.0        // カメラBOX傾き(最大)
+
 // カメラ画像配列　INDEX
 enum
 {
@@ -268,7 +271,7 @@ typedef struct _stProcInfo
 typedef struct _stExtnInfoData                      // 外部入力データ
 {
     double  ropelen;                                // ロープ長
-    double  boxangle;                               // BOX傾き
+    double  boxangle[AXIS_MAX];                     // BOX傾き
 } stExtnInfoData;
 typedef struct _stExtnInfo
 {
