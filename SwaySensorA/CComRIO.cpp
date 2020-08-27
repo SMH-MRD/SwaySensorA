@@ -16,6 +16,7 @@ CComRIO::CComRIO()
 /// @note
 CComRIO::~CComRIO()
 {
+    Close();
 }
 
 /// @brief 
